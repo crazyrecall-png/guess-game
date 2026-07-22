@@ -2,11 +2,16 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>親子比手畫腳大考驗！</title>
     <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Microsoft JhengHei', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, 'Chalkboard SE', 'Microsoft JhengHei', sans-serif;
             background-color: #fff5f5;
             display: flex;
             flex-direction: column;
@@ -15,37 +20,35 @@
             min-height: 100vh;
             margin: 0;
             padding: 15px;
-            box-sizing: border-box;
         }
 
         .container {
             background-color: white;
-            padding: 25px 20px;
+            padding: 20px 18px;
             border-radius: 28px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 420px;
             width: 100%;
             border: 4px solid #ff9f1c;
-            box-sizing: border-box;
             position: relative;
         }
 
         h1 {
             color: #ff6b6b;
             margin: 0 0 5px 0;
-            font-size: 1.8rem;
+            font-size: 1.7rem;
         }
 
         .subtitle {
             font-size: 0.85rem;
             color: #777;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         /* 下拉式選單 */
         .select-wrapper {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .category-select {
@@ -60,6 +63,12 @@
             outline: none;
             cursor: pointer;
             text-align: center;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22293%22%20height%3D%22293%22%3E%3Cpath%20fill%3D%22%23ff9f1c%22%20d%3D%22M236%20129L146%20219%2056%20129z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 12px auto;
         }
 
         /* 遊戲卡片區域 */
@@ -67,8 +76,8 @@
             background: #fcfcfc;
             border: 3px dashed #ffcfd2;
             border-radius: 20px;
-            padding: 20px 15px;
-            min-height: 320px;
+            padding: 15px 12px;
+            min-height: 380px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -76,26 +85,40 @@
         }
 
         .progress-text {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             color: #3a86ff;
             background: #eef4ff;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 12px;
+            margin-bottom: 8px;
         }
 
-        .q-emoji {
-            font-size: 7.5rem;
-            margin: 15px 0;
-            line-height: 1;
-            animation: pop 0.4s ease;
+        /* 原生圖標（Emoji）顯示區域 */
+        .emoji-container {
+            width: 100%;
+            height: 180px;
+            border-radius: 16px;
+            background-color: #fff0f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6.5rem;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+            transition: filter 0.3s ease;
+            user-select: none;
+        }
+
+        /* 未看答案前的模糊效果 */
+        .emoji-container.blur {
+            /* filter: blur(25px) opacity(0.3); */
         }
 
         /* 答案區域 */
         .ans-box {
             width: 100%;
-            margin-top: 10px;
-            min-height: 110px;
+            margin-top: 8px;
+            min-height: 70px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -103,21 +126,21 @@
         }
 
         .zh-text {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: bold;
             color: #ff6b6b;
             margin-bottom: 2px;
         }
 
         .en-text {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: #3a86ff;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .kk-text {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #666;
             font-weight: normal;
             margin-left: 5px;
@@ -126,154 +149,171 @@
         /* 按鈕區 */
         .btn-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
             width: 100%;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .action-btn {
             border: none;
-            padding: 10px 18px;
+            padding: 10px 16px;
             border-radius: 20px;
             font-size: 0.95rem;
             font-weight: bold;
             color: white;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-            transition: all 0.15s ease;
+            touch-action: manipulation;
         }
 
         .action-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
         }
 
         .btn-show { background: #ff006e; width: 100%; font-size: 1.1rem; padding: 12px; }
         .btn-zh { background: #ff9f1c; }
         .btn-en { background: #3a86ff; }
-        .btn-next { background: #2ec4b6; font-size: 1rem; }
+        .btn-next { background: #2ec4b6; }
         .btn-restart { background: #ff6b6b; font-size: 1.1rem; padding: 12px 24px; }
 
         ruby { ruby-position: over; }
-        rt { font-size: 0.85rem; color: #666; font-weight: normal; }
-
-        @keyframes pop {
-            0% { transform: scale(0.3); opacity: 0; }
-            80% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        rt { font-size: 0.8rem; color: #666; font-weight: normal; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>🎭 比手畫腳猜猜看</h1>
-    <div class="subtitle">（選擇主題・一頁一題・比比看誰最厲害）</div>
+    <div class="subtitle">（選擇主題・一頁一題・原生高清圖卡）</div>
 
     <!-- 下拉選單 -->
     <div class="select-wrapper">
-        <select class="category-select" id="categorySelect" onchange="changeCategory(this.value)">
-            <option value="fruit">🍎 水果篇 (Fruit)</option>
-            <option value="food">🍰 食物與甜點 (Food & Dessert)</option>
-            <option value="land">🦁 陸地生物 (Land Animals)</option>
-            <option value="water">🐳 水下生物 (Sea Creatures)</option>
-            <option value="job">👮 職業篇 (Jobs)</option>
-            <option value="vehicle">🚗 交通工具 (Vehicles)</option>
+        <select class="category-select" id="categorySelect">
+            <option value="fruit">🍎 水果篇 (15 題)</option>
+            <option value="food">🍰 食物與甜點 (15 題)</option>
+            <option value="land">🦁 陸地生物 (15 題)</option>
+            <option value="water">🐳 水下生物 (15 題)</option>
+            <option value="job">👮 職業篇 (15 題)</option>
+            <option value="vehicle">🚗 交通工具 (15 題)</option>
         </select>
     </div>
 
     <!-- 單頁題目卡片 -->
     <div class="game-card" id="gameCard">
-        <!-- 內容由 JavaScript 動態渲染 -->
+        <div style="padding: 40px; color: #888;">載入中...</div>
     </div>
 </div>
 
 <script>
-    // 題庫資料
+    // 完整 90 題資料 (改用原生 Emoji 圖標)
     const gameData = {
         fruit: [
-            { ans: "蘋果", zhuyin: "ㄆㄧㄥˊ ㄍㄨㄛˇ", en: "Apple", kk: "[ˈæpl]", icon: "🍎" }, 
-            { ans: "香蕉", zhuyin: "ㄒㄧㄤ ㄐㄧㄠ", en: "Banana", kk: "[bəˈnænə]", icon: "🍌" }, 
-            { ans: "西瓜", zhuyin: "ㄒㄧ ㄍㄨㄚ", en: "Watermelon", kk: "[ˈwɔtɚˌmɛlən]", icon: "🍉" }, 
-            { ans: "鳳梨", zhuyin: "ㄈㄥˋ ㄌㄧˊ", en: "Pineapple", kk: "[ˈpaɪnˌæpl]", icon: "🍍" }, 
-            { ans: "葡萄", zhuyin: "ㄆㄨˊ ㄊㄠˊ", en: "Grape", kk: "[ɡrep]", icon: "🍇" }, 
-            { ans: "水蜜桃", zhuyin: "ㄕㄨㄟˇ ㄇㄧˋ ㄊㄠˊ", en: "Peach", kk: "[pitʃ]", icon: "🍑" }, 
-            { ans: "哈密瓜", zhuyin: "ㄏㄚ ㄇㄧˋ ㄍㄨㄚ", en: "Melon", kk: "[ˈmɛlən]", icon: "🍈" }, 
-            { ans: "橘子", zhuyin: "ㄐㄩˊ ㄗ˙", en: "Orange", kk: "[ˈɔrɪndʒ]", icon: "🍊" }, 
-            { ans: "檸檬", zhuyin: "ㄋㄧㄥˊ ㄇㄥˊ", en: "Lemon", kk: "[ˈlɛmən]", icon: "🍋" }, 
-            { ans: "草莓", zhuyin: "ㄘㄠˇ ㄇㄟˊ", en: "Strawberry", kk: "[ˈstrɔˌbɛri]", icon: "🍓" }, 
-            { ans: "櫻桃", zhuyin: "ㄧㄥ ㄊㄠˊ", en: "Cherry", kk: "[ˈtʃɛri]", icon: "🍒" }, 
-            { ans: "芒果", zhuyin: "ㄇㄤˊ ㄍㄨㄛˇ", en: "Mango", kk: "[ˈmæŋɡo]", icon: "🥭" }, 
-            { ans: "奇異果", zhuyin: "ㄑㄧˊ ㄧˋ ㄍㄨㄛˇ", en: "Kiwifruit", kk: "[ˈkiwiˌfrut]", icon: "🥝" }, 
-            { ans: "番茄", zhuyin: "ㄈㄢ ㄑㄧㄝˊ", en: "Tomato", kk: "[təˈmeto]", icon: "🍅" }, 
-            { ans: "椰子", zhuyin: "ㄧㄝˊ ㄗ˙", en: "Coconut", kk: "[ˈkokəˌnʌt]", icon: "🥥" }
+            { ans: "蘋果", zhuyin: "ㄆㄧㄥˊ ㄍㄨㄛˇ", en: "Apple", kk: "[ˈæpl]", emoji: "🍎" },
+            { ans: "香蕉", zhuyin: "ㄒㄧㄤ ㄐㄧㄠ", en: "Banana", kk: "[bəˈnænə]", emoji: "🍌" },
+            { ans: "西瓜", zhuyin: "ㄒㄧ ㄍㄨㄚ", en: "Watermelon", kk: "[ˈwɔtɚˌmɛlən]", emoji: "🍉" },
+            { ans: "鳳梨", zhuyin: "ㄈㄥˋ ㄌㄧˊ", en: "Pineapple", kk: "[ˈpaɪnˌæpl]", emoji: "🍍" },
+            { ans: "葡萄", zhuyin: "ㄆㄨˊ ㄊㄠˊ", en: "Grape", kk: "[ɡrep]", emoji: "🍇" },
+            { ans: "水蜜桃", zhuyin: "ㄕㄨㄟˇ ㄇㄧˋ ㄊㄠˊ", en: "Peach", kk: "[pitʃ]", emoji: "🍑" },
+            { ans: "哈密瓜", zhuyin: "ㄏㄚ ㄇㄧˋ ㄍㄨㄚ", en: "Melon", kk: "[ˈmɛlən]", emoji: "🍈" },
+            { ans: "橘子", zhuyin: "ㄐㄩˊ ㄗ˙", en: "Tangerine", kk: "[ˈtændʒəˌrin]", emoji: "🍊" },
+            { ans: "檸檬", zhuyin: "ㄋㄧㄥˊ ㄇㄥˊ", en: "Lemon", kk: "[ˈlɛmən]", emoji: "🍋" },
+            { ans: "草莓", zhuyin: "ㄘㄠˇ ㄇㄟˊ", en: "Strawberry", kk: "[ˈstrɔˌbɛri]", emoji: "🍓" },
+            { ans: "櫻桃", zhuyin: "ㄧㄥ ㄊㄠˊ", en: "Cherry", kk: "[ˈtʃɛri]", emoji: "🍒" },
+            { ans: "芒果", zhuyin: "ㄇㄤˊ ㄍㄨㄛˇ", en: "Mango", kk: "[ˈmæŋɡo]", emoji: "🥭" },
+            { ans: "奇異果", zhuyin: "ㄑㄧˊ ㄧˋ ㄍㄨㄛˇ", en: "Kiwifruit", kk: "[ˈkiwiˌfrut]", emoji: "🥝" },
+            { ans: "番茄", zhuyin: "ㄈㄢ ㄑㄧㄝˊ", en: "Tomato", kk: "[təˈmeto]", emoji: "🍅" },
+            { ans: "椰子", zhuyin: "ㄧㄝˊ ㄗ˙", en: "Coconut", kk: "[ˈkokəˌnʌt]", emoji: "🥥" }
         ],
         food: [
-            { ans: "漢堡", zhuyin: "ㄏㄢˋ ㄅㄠ", en: "Hamburger", kk: "[ˈhæmbɝɡɚ]", icon: "🍔" },
-            { ans: "薯條", zhuyin: "ㄕㄨˇ ㄊㄧㄠˊ", en: "French Fries", kk: "[frɛntʃ fraɪz]", icon: "🍟" },
-            { ans: "披薩", zhuyin: "ㄆㄧ ㄙㄚˋ", en: "Pizza", kk: "[ˈpitsə]", icon: "🍕" },
-            { ans: "熱狗", zhuyin: "ㄖㄜˋ ㄍㄡˇ", en: "Hot Dog", kk: "[hɑt dɔɡ]", icon: "🌭" },
-            { ans: "拉麵", zhuyin: "ㄌㄚ ㄇㄧㄢˋ", en: "Ramen", kk: "[ˈrɑmən]", icon: "🍜" },
-            { ans: "壽司", zhuyin: "ㄕㄡˋ ㄙ", en: "Sushi", kk: "[ˈsuʃi]", icon: "🍣" },
-            { ans: "蛋包飯", zhuyin: "ㄉㄢˋ ㄅㄠ ㄈㄢˋ", en: "Omelet Rice", kk: "[ˈɑmlɪt raɪs]", icon: "🍳" },
-            { ans: "三明治", zhuyin: "ㄙㄢ ㄇㄧㄥˊ ㄓˋ", en: "Sandwich", kk: "[ˈsændwɪtʃ]", icon: "🥪" },
-            { ans: "包子", zhuyin: "ㄅㄠ ㄗ˙", en: "Steamed Bun", kk: "[stimd bʌn]", icon: "🥟" },
-            { ans: "甜甜圈", zhuyin: "ㄊㄧㄢˊ ㄊㄧㄢˊ ㄑㄩㄢ", en: "Donut", kk: "[ˈdonət]", icon: "🍩" },
-            { ans: "蛋糕", zhuyin: "ㄉㄢˋ ㄍㄠ", en: "Cake", kk: "[kek]", icon: "🍰" },
-            { ans: "冰淇淋", zhuyin: "ㄅㄧㄥ ㄑㄧˊ ㄌㄧㄣˊ", en: "Ice Cream", kk: "[aɪs krim]", icon: "🍦" },
-            { ans: "布丁", zhuyin: "ㄅㄨˋ ㄉㄧㄥ", en: "Pudding", kk: "[ˈpʊdɪŋ]", icon: "🍮" },
-            { ans: "巧克力", zhuyin: "ㄑㄧㄠˇ ㄎㄜˋ ㄌㄧˋ", en: "Chocolate", kk: "[ˈtʃɑklɪt]", icon: "🍫" },
-            { ans: "棒棒糖", zhuyin: "ㄅㄤˋ ㄅㄤˋ ㄊㄤˊ", en: "Lollipop", kk: "[ˈlɑlɪˌpɑp]", icon: "🍭" }
+            { ans: "漢堡", zhuyin: "ㄏㄢˋ ㄅㄠ", en: "Hamburger", kk: "[ˈhæmbɝɡɚ]", emoji: "🍔" },
+            { ans: "薯條", zhuyin: "ㄕㄨˇ ㄊㄧㄠˊ", en: "French Fries", kk: "[frɛntʃ fraɪz]", emoji: "🍟" },
+            { ans: "披薩", zhuyin: "ㄆㄧ ㄙㄚˋ", en: "Pizza", kk: "[ˈpitsə]", emoji: "🍕" },
+            { ans: "熱狗", zhuyin: "ㄖㄜˋ ㄍㄡˇ", en: "Hot Dog", kk: "[hɑt dɔɡ]", emoji: "🌭" },
+            { ans: "拉麵", zhuyin: "ㄌㄚ ㄇㄧㄢˋ", en: "Ramen", kk: "[ˈrɑmən]", emoji: "🍜" },
+            { ans: "壽司", zhuyin: "ㄕㄡˋ ㄙ", en: "Sushi", kk: "[ˈsuʃi]", emoji: "🍣" },
+            { ans: "煎蛋", zhuyin: "ㄐㄧㄢ ㄉㄢˋ", en: "Fried Egg", kk: "[fraɪd ɛɡ]", emoji: "🍳" },
+            { ans: "三明治", zhuyin: "ㄙㄢ ㄇㄧㄥˊ ㄓˋ", en: "Sandwich", kk: "[ˈsændwɪtʃ]", emoji: "🥪" },
+            { ans: "蒸餃", zhuyin: "ㄓㄥ ㄐㄧㄠˇ", en: "Dumpling", kk: "[ˈdʌmplɪŋ]", emoji: "🥟" },
+            { ans: "甜甜圈", zhuyin: "ㄊㄧㄢˊ ㄊㄧㄢˊ ㄑㄩㄢ", en: "Donut", kk: "[ˈdonət]", emoji: "🍩" },
+            { ans: "蛋糕", zhuyin: "ㄉㄢˋ ㄍㄠ", en: "Cake", kk: "[kek]", emoji: "🎂" },
+            { ans: "冰淇淋", zhuyin: "ㄅㄧㄥ ㄑㄧˊ ㄌㄧㄣˊ", en: "Ice Cream", kk: "[aɪs krim]", emoji: "🍦" },
+            { ans: "布丁", zhuyin: "ㄅㄨˋ ㄉㄧㄥ", en: "Pudding", kk: "[ˈpʊdɪŋ]", emoji: "🍮" },
+            { ans: "巧克力", zhuyin: "ㄑㄧㄠˇ ㄎㄜˋ ㄌㄧˋ", en: "Chocolate", kk: "[ˈtʃɑklɪt]", emoji: "🍫" },
+            { ans: "鬆餅", zhuyin: "ㄙㄨㄥ ㄅㄧㄥˇ", en: "Pancake", kk: "[ˈpænˌkek]", emoji: "🥞" }
         ],
         land: [
-            { ans: "獅子", zhuyin: "ㄕ ㄗ˙", en: "Lion", kk: "[ˈlaɪən]", icon: "🦁" }, 
-            { ans: "老虎", zhuyin: "ㄌㄠˇ ㄏㄨˇ", en: "Tiger", kk: "[ˈtaɪɡɚ]", icon: "🐯" }, 
-            { ans: "大象", zhuyin: "ㄉㄚˋ ㄒㄧㄤˋ", en: "Elephant", kk: "[ˈɛləfənt]", icon: "🐘" }, 
-            { ans: "長頸鹿", zhuyin: "ㄔㄤˊ ㄐㄧㄥˇ ㄌㄨˋ", en: "Giraffe", kk: "[dʒəˈræf]", icon: "🦒" }, 
-            { ans: "兔子", zhuyin: "ㄊㄨˋ ㄗ˙", en: "Rabbit", kk: "[ˈræbɪt]", icon: "🐰" }, 
-            { ans: "大貓熊", zhuyin: "ㄉㄚˋ ㄇㄠ ㄒㄧㄨㄥˊ", en: "Panda", kk: "[ˈpændə]", icon: "🐼" }, 
-            { ans: "狗狗", zhuyin: "ㄍㄡˇ ㄍㄡˇ", en: "Dog", kk: "[dɔɡ]", icon: "🐶" }, 
-            { ans: "貓咪", zhuyin: "ㄇㄠ ㄇㄧ", en: "Cat", kk: "[kæt]", icon: "🐱" }, 
-            { ans: "袋鼠", zhuyin: "ㄉㄞˋ ㄕㄨˇ", en: "Kangaroo", kk: "[ˌkæŋɡəˈru]", icon: "🦘" }, 
-            { ans: "猴子", zhuyin: "ㄏㄡˊ ㄗ˙", en: "Monkey", kk: "[ˈmʌŋki]", icon: "🐵" }
+            { ans: "獅子", zhuyin: "ㄕ ㄗ˙", en: "Lion", kk: "[ˈlaɪən]", emoji: "🦁" },
+            { ans: "老虎", zhuyin: "ㄌㄠˇ ㄏㄨˇ", en: "Tiger", kk: "[ˈtaɪɡɚ]", emoji: "🐯" },
+            { ans: "大象", zhuyin: "ㄉㄚˋ ㄒㄧㄤˋ", en: "Elephant", kk: "[ˈɛləfənt]", emoji: "🐘" },
+            { ans: "長頸鹿", zhuyin: "ㄔㄤˊ ㄐㄧㄥˇ ㄌㄨˋ", en: "Giraffe", kk: "[dʒəˈræf]", emoji: "🦒" },
+            { ans: "兔子", zhuyin: "ㄊㄨˋ ㄗ˙", en: "Rabbit", kk: "[ˈræbɪt]", emoji: "🐰" },
+            { ans: "貓熊", zhuyin: "ㄇㄠ ㄒㄧㄨㄥˊ", en: "Panda", kk: "[ˈpændə]", emoji: "🐼" },
+            { ans: "狗狗", zhuyin: "ㄍㄡˇ ㄍㄡˇ", en: "Dog", kk: "[dɔɡ]", emoji: "🐶" },
+            { ans: "貓咪", zhuyin: "ㄇㄠ ㄇㄧ", en: "Cat", kk: "[kæt]", emoji: "🐱" },
+            { ans: "袋鼠", zhuyin: "ㄉㄞˋ ㄕㄨˇ", en: "Kangaroo", kk: "[ˌkæŋɡəˈru]", emoji: "🦘" },
+            { ans: "猴子", zhuyin: "ㄏㄡˊ ㄗ˙", en: "Monkey", kk: "[ˈmʌŋki]", emoji: "🐵" },
+            { ans: "斑馬", zhuyin: "ㄅㄢ ㄇㄚˇ", en: "Zebra", kk: "[ˈzibrə]", emoji: "🦓" },
+            { ans: "狐狸", zhuyin: "ㄏㄨˊ ㄌㄧ˙", en: "Fox", kk: "[fɑks]", emoji: "🦊" },
+            { ans: "無尾熊", zhuyin: "ㄨˊ ㄨㄟˇ ㄒㄧㄨㄥ", en: "Koala", kk: "[koˈɑlə]", emoji: "🐨" },
+            { ans: "松鼠", zhuyin: "ㄙㄨㄥ ㄕㄨˇ", en: "Squirrel", kk: "[ˈskwɝəl]", emoji: "🐿️" },
+            { ans: "刺蝟", zhuyin: "ㄘˋ ㄨㄟˋ", en: "Hedgehog", kk: "[ˈhɛdʒˌhɑɡ]", emoji: "🦔" }
         ],
         water: [
-            { ans: "鯨魚", zhuyin: "ㄐㄧㄥ ㄩˊ", en: "Whale", kk: "[hwel]", icon: "🐳" }, 
-            { ans: "海豚", zhuyin: "ㄏㄞˇ ㄊㄨㄣˊ", en: "Dolphin", kk: "[ˈdɑlfɪn]", icon: "🐬" }, 
-            { ans: "鯊魚", zhuyin: "ㄕㄚ ㄩˊ", en: "Shark", kk: "[ʃɑrk]", icon: "🦈" }, 
-            { ans: "章魚", zhuyin: "ㄓㄤ ㄩˊ", en: "Octopus", kk: "[ˈɑktəpəs]", icon: "🐙" }, 
-            { ans: "螃蟹", zhuyin: "ㄆㄤˊ ㄒㄧㄝˋ", en: "Crab", kk: "[kræb]", icon: "🦀" }, 
-            { ans: "海龜", zhuyin: "ㄏㄞˇ ㄍㄨㄟ", en: "Sea Turtle", kk: "[si ˈtɝtl]", icon: "🐢" }, 
-            { ans: "水母", zhuyin: "ㄕㄨㄟˇ ㄇㄨˇ", en: "Jellyfish", kk: "[ˈdʒɛliˌfɪʃ]", icon: "🪼" }, 
-            { ans: "企鵝", zhuyin: "ㄑㄧˋ ㄜˊ", en: "Penguin", kk: "[ˈpɛŋɡwɪn]", icon: "🐧" }, 
-            { ans: "海豹", zhuyin: "ㄏㄞˇ ㄅㄠˋ", en: "Seal", kk: "[sil]", icon: "🦭" }
+            { ans: "鯨魚", zhuyin: "ㄐㄧㄥ ㄩˊ", en: "Whale", kk: "[hwel]", emoji: "🐳" },
+            { ans: "海豚", zhuyin: "ㄏㄞˇ ㄊㄨㄣˊ", en: "Dolphin", kk: "[ˈdɑlfɪn]", emoji: "🐬" },
+            { ans: "鯊魚", zhuyin: "ㄕㄚ ㄩˊ", en: "Shark", kk: "[ʃɑrk]", emoji: "🦈" },
+            { ans: "章魚", zhuyin: "ㄓㄤ ㄩˊ", en: "Octopus", kk: "[ˈɑktəpəs]", emoji: "🐙" },
+            { ans: "螃蟹", zhuyin: "ㄆㄤˊ ㄒㄧㄝˋ", en: "Crab", kk: "[kræb]", emoji: "🦀" },
+            { ans: "海龜", zhuyin: "ㄏㄞˇ ㄍㄨㄟ", en: "Sea Turtle", kk: "[si ˈtɝtl]", emoji: "🐢" },
+            { ans: "水母", zhuyin: "ㄕㄨㄟˇ ㄇㄨˇ", en: "Jellyfish", kk: "[ˈdʒɛliˌfɪʃ]", emoji: "🪼" },
+            { ans: "企鵝", zhuyin: "ㄑㄧˋ ㄜˊ", en: "Penguin", kk: "[ˈpɛŋɡwɪn]", emoji: "🐧" },
+            { ans: "海豹", zhuyin: "ㄏㄞˇ ㄅㄠˋ", en: "Seal", kk: "[sil]", emoji: "🦭" },
+            { ans: "海馬", zhuyin: "ㄏㄞˇ ㄇㄚˇ", en: "Seahorse", kk: "[ˈsiˌhɔrs]", emoji: "🪸" },
+            { ans: "小丑魚", zhuyin: "ㄒㄧㄠˇ ㄔㄡˇ ㄩˊ", en: "Fish", kk: "[fɪʃ]", emoji: "🐠" },
+            { ans: "龍蝦", zhuyin: "ㄌㄨㄥˊ ㄒㄧㄚ", en: "Lobster", kk: "[ˈlɑbstɚ]", emoji: "🦞" },
+            { ans: "魟魚", zhuyin: "ㄏㄨㄥ ㄩˊ", en: "Stingray", kk: "[ˈstɪŋˌre]", emoji: "🪼" },
+            { ans: "北極熊", zhuyin: "ㄅㄟˇ ㄐㄧˊ ㄒㄧㄨㄥ", en: "Polar Bear", kk: "[ˈpolɚ bɛr]", emoji: "🐻‍❄️" },
+            { ans: "海星", zhuyin: "ㄏㄞˇ ㄒㄧㄥ", en: "Starfish", kk: "[ˈstɑrˌfɪʃ]", emoji: "⭐" }
         ],
         job: [
-            { ans: "警察", zhuyin: "ㄐㄧㄥˇ ㄔㄚˊ", en: "Police Officer", kk: "[pəˈlis ˈɔfəsɚ]", icon: "👮" },
-            { ans: "消防員", zhuyin: "ㄒㄧㄠ ㄈㄤˊ ㄩㄢˊ", en: "Firefighter", kk: "[ˈfaɪɚˌfaɪtɚ]", icon: "👨‍🚒" },
-            { ans: "醫生", zhuyin: "ㄧ ㄕㄥ", en: "Doctor", kk: "[ˈdɑktɚ]", icon: "👨‍⚕️" },
-            { ans: "護理師", zhuyin: "ㄏㄨˋ ㄌㄧˇ ㄕ", en: "Nurse", kk: "[nɝs]", icon: "👩‍⚕️" },
-            { ans: "廚師", zhuyin: "ㄔㄨˊ ㄕ", en: "Chef", kk: "[ʃɛf]", icon: "👨‍🍳" },
-            { ans: "老師", zhuyin: "ㄌㄠˇ ㄕ", en: "Teacher", kk: "[ˈtitʃɚ]", icon: "👩‍🏫" },
-            { ans: "太空人", zhuyin: "ㄊㄞˋ ㄎㄨㄥ ㄖㄣˊ", en: "Astronaut", kk: "[ˈæstrəˌnɔt]", icon: "👨‍🚀" },
-            { ans: "魔術師", zhuyin: "ㄇㄛˊ ㄕㄨˋ ㄕ", en: "Magician", kk: "[məˈdʒɪʃən]", icon: "🎩" }
+            { ans: "警察", zhuyin: "ㄐㄧㄥˇ ㄔㄚˊ", en: "Police Officer", kk: "[pəˈlis ˈɔfəsɚ]", emoji: "👮" },
+            { ans: "消防員", zhuyin: "ㄒㄧㄠ ㄈㄤˊ ㄩㄢˊ", en: "Firefighter", kk: "[ˈfaɪɚˌfaɪtɚ]", emoji: "👨‍🚒" },
+            { ans: "醫生", zhuyin: "ㄧ ㄕㄥ", en: "Doctor", kk: "[ˈdɑktɚ]", emoji: "👨‍⚕️" },
+            { ans: "護理師", zhuyin: "ㄏㄨˋ ㄌㄧˇ ㄕ", en: "Nurse", kk: "[nɝs]", emoji: "👩‍⚕️" },
+            { ans: "廚師", zhuyin: "ㄔㄨˊ ㄕ", en: "Chef", kk: "[ʃɛf]", emoji: "👨‍🍳" },
+            { ans: "老師", zhuyin: "ㄌㄠˇ ㄕ", en: "Teacher", kk: "[ˈtitʃɚ]", emoji: "👩‍🏫" },
+            { ans: "太空人", zhuyin: "ㄊㄞˋ ㄎㄨㄥ ㄖㄣˊ", en: "Astronaut", kk: "[ˈæstrəˌnɔt]", emoji: "👨‍🚀" },
+            { ans: "畫家", zhuyin: "ㄏㄨㄚˋ ㄐㄧㄚ", en: "Artist", kk: "[ˈɑrtɪst]", emoji: "🎨" },
+            { ans: "農夫", zhuyin: "ㄋㄨㄥˊ ㄈㄨ", en: "Farmer", kk: "[ˈfɑrmɚ]", emoji: "👨‍🌾" },
+            { ans: "飛行員", zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ", en: "Pilot", kk: "[ˈpaɪlət]", emoji: "👨‍✈️" },
+            { ans: "工程師", zhuyin: "ㄍㄨㄥ ㄔㄥˊ ㄕ", en: "Engineer", kk: "[ˌɛndʒəˈnɪr]", emoji: "👷" },
+            { ans: "郵差", zhuyin: "ㄧㄡˊ ㄔㄞ", en: "Mail Carrier", kk: "[mel ˈkærɪɚ]", emoji: "📫" },
+            { ans: "音樂家", zhuyin: "ㄧㄣ ㄩㄝˋ ㄐㄧㄚ", en: "Musician", kk: "[mjʊˈzɪʃən]", emoji: "🎵" },
+            { ans: "攝影師", zhuyin: "ㄕㄜˋ ㄧㄥˇ ㄕ", en: "Photographer", kk: "[fəˈtɑɡrəfɚ]", emoji: "📷" },
+            { ans: "獸醫", zhuyin: "ㄕㄡˋ ㄧ", en: "Veterinarian", kk: "[ˌvɛtərəˈnɛrɪən]", emoji: "🩺" }
         ],
         vehicle: [
-            { ans: "汽車", zhuyin: "ㄑㄧˋ ㄔㄜ", en: "Car", kk: "[kɑr]", icon: "🚗" },
-            { ans: "公車", zhuyin: "ㄍㄨㄥ ㄔㄜ", en: "Bus", kk: "[bʌs]", icon: "🚌" },
-            { ans: "消防車", zhuyin: "ㄒㄧㄠ ㄈㄤˊ ㄔㄜ", en: "Fire Truck", kk: "[faɪɚ trʌk]", icon: "🚒" },
-            { ans: "警車", zhuyin: "ㄐㄧㄥˇ ㄔㄜ", en: "Police Car", kk: "[pəˈlis kɑr]", icon: "🚓" },
-            { ans: "救護車", zhuyin: "ㄐㄧㄡˋ ㄏㄨˋ ㄔㄜ", en: "Ambulance", kk: "[ˈæmbjələns]", icon: "🚑" },
-            { ans: "腳踏車", zhuyin: "ㄐㄧㄠˇ ㄊㄚˋ ㄔㄜ", en: "Bicycle", kk: "[ˈbaɪsɪkl]", icon: "🚲" },
-            { ans: "火車", zhuyin: "ㄏㄨㄛˇ ㄔㄜ", en: "Train", kk: "[tren]", icon: "🚂" },
-            { ans: "飛機", zhuyin: "ㄈㄟ ㄐㄧ", en: "Airplane", kk: "[ˈɛrˌplen]", icon: "✈️" },
-            { ans: "直升機", zhuyin: "ㄓˊ ㄕㄥ ㄐㄧ", en: "Helicopter", kk: "[ˈhɛlɪkɑptɚ]", icon: "🚁" },
-            { ans: "火箭", zhuyin: "ㄏㄨㄛˇ ㄐㄧㄢˋ", en: "Rocket", kk: "[ˈrɑkɪt]", icon: "🚀" }
+            { ans: "汽車", zhuyin: "ㄑㄧˋ ㄔㄜ", en: "Car", kk: "[kɑr]", emoji: "🚗" },
+            { ans: "公車", zhuyin: "ㄍㄨㄥ ㄔㄜ", en: "Bus", kk: "[bʌs]", emoji: "🚌" },
+            { ans: "消防車", zhuyin: "ㄒㄧㄠ ㄈㄤˊ ㄔㄜ", en: "Fire Engine", kk: "[faɪɚ ˈɛndʒən]", emoji: "🚒" },
+            { ans: "警車", zhuyin: "ㄐㄧㄥˇ ㄔㄜ", en: "Police Car", kk: "[pəˈlis kɑr]", emoji: "🚓" },
+            { ans: "救護車", zhuyin: "ㄐㄧㄡˋ ㄏㄨˋ ㄔㄜ", en: "Ambulance", kk: "[ˈæmbjələns]", emoji: "🚑" },
+            { ans: "腳踏車", zhuyin: "ㄐㄧㄠˇ ㄊㄚˋ ㄔㄜ", en: "Bicycle", kk: "[ˈbaɪsɪkl]", emoji: "🚲" },
+            { ans: "火車", zhuyin: "ㄏㄨㄛˇ ㄔㄜ", en: "Train", kk: "[tren]", emoji: "🚂" },
+            { ans: "飛機", zhuyin: "ㄈㄟ ㄐㄧ", en: "Airplane", kk: "[ˈɛrˌplen]", emoji: "✈️" },
+            { ans: "直升機", zhuyin: "ㄓˊ ㄕㄥ ㄐㄧ", en: "Helicopter", kk: "[ˈhɛlɪkɑptɚ]", emoji: "🚁" },
+            { ans: "火箭", zhuyin: "ㄏㄨㄛˇ ㄐㄧㄢˋ", en: "Rocket", kk: "[ˈrɑkɪt]", emoji: "🚀" },
+            { ans: "熱氣球", zhuyin: "ㄖㄜˋ ㄑㄧˋ ㄑㄧㄡˊ", en: "Hot Air Balloon", kk: "[hɑt ɛr bəˈlun]", emoji: "🎈" },
+            { ans: "摩托車", zhuyin: "ㄇㄛˊ ㄊㄨㄛ ㄔㄜ", en: "Motorcycle", kk: "[ˈmotɚˌsaɪkl]", emoji: "🛵" },
+            { ans: "輪船", zhuyin: "ㄌㄨㄣˊ ㄔㄨㄢ", en: "Ship", kk: "[ʃɪp]", emoji: "🚢" },
+            { ans: "潛水艇", zhuyin: "ㄑㄧㄢˊ ㄕㄨㄟˇ ㄊㄧㄥˇ", en: "Submarine", kk: "[ˈsʌbməˌrin]", emoji: "🌊" },
+            { ans: "計程車", zhuyin: "ㄐㄧˋ ㄔㄥˊ ㄔㄜ", en: "Taxi", kk: "[ˈtæksi]", emoji: "🚕" }
         ]
     };
 
-    // 遊戲狀態變數
+    // 遊戲狀態
     let currentCategory = 'fruit';
     let currentList = [];
     let currentIndex = 0;
@@ -281,32 +321,33 @@
 
     // 洗牌演算法
     function shuffle(array) {
-        let currentIndex = array.length, randomIndex;
-        while (currentIndex !== 0) {
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        let arr = array.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
-        return array;
+        return arr;
     }
 
-    // 語音朗讀函數
+    // 語音發音功能
     function speakText(text, lang) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = lang;
-            utterance.rate = 0.85;
-            window.speechSynthesis.speak(utterance);
-        } else {
-            alert("您的裝置不支援語音朗讀！");
+        try {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang;
+                utterance.rate = 0.85;
+                window.speechSynthesis.speak(utterance);
+            }
+        } catch (e) {
+            console.log("Speech Error: ", e);
         }
     }
 
-    // 初始化/切換主題
+    // 切換主題
     function changeCategory(cat) {
         currentCategory = cat;
-        currentList = shuffle([...gameData[cat]]);
+        currentList = shuffle(gameData[cat]);
         currentIndex = 0;
         isAnswerRevealed = false;
         renderCard();
@@ -325,7 +366,6 @@
             isAnswerRevealed = false;
             renderCard();
         } else {
-            // 通關畫面
             renderCompletion();
         }
     }
@@ -335,11 +375,13 @@
         const item = currentList[currentIndex];
         const card = document.getElementById('gameCard');
 
+        if (!item || !card) return;
+
         let ansHtml = '';
         let btnHtml = '';
 
         if (!isAnswerRevealed) {
-            ansHtml = `<div class="ans-box"><p style="color:#aaa; font-weight:bold;">猜猜看這 localized 是什麼？</p></div>`;
+            ansHtml = `<div class="ans-box"><p style="color:#aaa; font-weight:bold;">猜猜看這是什麼？</p></div>`;
             btnHtml = `<button class="action-btn btn-show" onclick="revealAnswer()">💡 顯示答案</button>`;
         } else {
             ansHtml = `
@@ -355,29 +397,39 @@
             `;
         }
 
+        const blurClass = isAnswerRevealed ? "" : "blur";
+
         card.innerHTML = `
             <div class="progress-text">第 ${currentIndex + 1} / ${currentList.length} 題</div>
-            <div class="q-emoji">${item.icon}</div>
+            <div class="emoji-container ${blurClass}">
+                ${item.emoji}
+            </div>
             ${ansHtml}
             <div class="btn-group">${btnHtml}</div>
         `;
     }
 
-    // 渲染通關完成畫面
+    // 通關完成畫面
     function renderCompletion() {
         const card = document.getElementById('gameCard');
         card.innerHTML = `
-            <div class="q-emoji">🎉</div>
+            <div style="font-size: 5rem; margin: 20px 0;">🎉</div>
             <h2 style="color:#ff6b6b; margin: 10px 0;">太棒了！全數通關！</h2>
             <p style="color:#666; margin-bottom: 20px;">你已經挑戰完全部的題目囉！</p>
             <button class="action-btn btn-restart" onclick="changeCategory(currentCategory)">🔄 再玩一次（重新洗牌）</button>
         `;
     }
 
-    // 頁面載入時初始化
-    window.onload = function() {
+    // 頁面載入完成後初始化
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectElem = document.getElementById('categorySelect');
+        if (selectElem) {
+            selectElem.addEventListener('change', function() {
+                changeCategory(this.value);
+            });
+        }
         changeCategory('fruit');
-    };
+    });
 </script>
 
 </body>
