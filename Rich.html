@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 - 防放大版</title>
+  <title>可愛大富翁 v1.0.0</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -27,7 +27,7 @@
       box-sizing: border-box;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: manipulation; /* 關鍵：禁用手勢連擊放大 */
+      touch-action: manipulation; /* 禁用雙擊放大 */
       margin: 0;
       padding: 0;
     }
@@ -40,25 +40,25 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 10px;
-      overflow: hidden; /* 防止視窗過度滑動 */
+      padding: 6px;
+      overflow: hidden; /* 防止視窗出現滾動條 */
     }
 
-    /* iPad Mini 6x16 矩陣容器 */
+    /* iPad Mini 6x16 矩陣容器 (稍微縮小整體尺寸) */
     .game-container {
       width: 100%;
-      max-width: 600px;
-      height: 95vh;
-      max-height: 960px;
+      max-width: 560px;
+      height: 92vh;
+      max-height: 880px;
       background: var(--board-bg);
       border: 4px solid #fab1a0;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       grid-template-rows: repeat(16, 1fr);
-      gap: 3px;
-      padding: 5px;
+      gap: 2px;
+      padding: 4px;
       position: relative;
     }
 
@@ -66,11 +66,11 @@
     .cell {
       background-color: var(--cell-bg);
       border: 2px solid var(--cell-border);
-      border-radius: 8px;
+      border-radius: 6px;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       color: var(--cell-text);
       text-align: center;
@@ -82,7 +82,7 @@
       background-color: #ffabe7;
       border-color: #fd79a8;
       color: #000;
-      font-size: 16px;
+      font-size: 15px;
     }
 
     /* 反色與縮放動畫 */
@@ -91,18 +91,18 @@
       color: var(--active-text) !important;
       border-color: var(--active-bg);
       box-shadow: var(--active-shadow);
-      font-size: 26px;
-      transform: scale(1.08);
+      font-size: 24px;
+      transform: scale(1.06);
       z-index: 5;
     }
 
-    /* 中間控制區域 */
+    /* 中間控制區域 (內縮精簡) */
     .center-dashboard {
       grid-column: 2 / 6;
       grid-row: 2 / 16;
       background: #f1f2f6;
-      border-radius: 15px;
-      padding: 12px;
+      border-radius: 12px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
@@ -113,69 +113,78 @@
     }
 
     .dashboard-title {
-      font-size: 22px;
+      font-size: 20px;
       color: #d63031;
       font-weight: bold;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .version-tag {
+      font-size: 13px;
+      color: #636e72;
+      font-weight: normal;
     }
 
     .section-box {
       width: 100%;
       background: #ffffff;
-      padding: 10px 8px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 8px 6px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       text-align: center;
     }
 
     .section-title {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
       color: #636e72;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .input-group {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     input[type="number"] {
-      width: 60px;
-      height: 44px;
+      width: 55px;
+      height: 40px;
       text-align: center;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       border: 2px solid #74b9ff;
-      border-radius: 10px;
+      border-radius: 8px;
       outline: none;
     }
 
     .btn {
-      padding: 8px 16px;
-      font-size: 16px;
+      padding: 8px 14px;
+      font-size: 15px;
       font-weight: bold;
       color: white;
       background-color: var(--secondary);
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 0 #0984e3;
+      box-shadow: 0 3px 0 #0984e3;
     }
 
     .btn:active {
       box-shadow: 0 1px 0 #0984e3;
-      transform: translateY(3px);
+      transform: translateY(2px);
     }
 
-    /* 加大且分色的加減按鈕 */
+    /* 加大且改為「方形微圓角」的加減按鈕 */
     .btn-adjust {
-      width: 48px;
-      height: 48px;
-      font-size: 26px;
+      width: 42px;
+      height: 42px;
+      font-size: 24px;
       font-weight: 900;
-      border-radius: 50%;
+      border-radius: 10px; /* 方形微圓角 */
       border: none;
       color: white;
       cursor: pointer;
@@ -187,27 +196,27 @@
 
     .btn-minus {
       background-color: #ff7675;
-      box-shadow: 0 4px 0 #d63031;
+      box-shadow: 0 3px 0 #d63031;
     }
     .btn-minus:active {
       box-shadow: 0 1px 0 #d63031;
-      transform: translateY(3px);
+      transform: translateY(2px);
     }
 
     .btn-plus {
       background-color: #2ed573;
-      box-shadow: 0 4px 0 #26af5f;
+      box-shadow: 0 3px 0 #26af5f;
     }
     .btn-plus:active {
       box-shadow: 0 1px 0 #26af5f;
-      transform: translateY(3px);
+      transform: translateY(2px);
     }
 
     .stat-display {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: bold;
       color: #2d3436;
-      min-width: 40px;
+      min-width: 36px;
     }
 
     /* 彈出視窗 Modal */
@@ -231,10 +240,10 @@
 
     .modal-content {
       background: white;
-      padding: 30px;
-      border-radius: 20px;
+      padding: 25px;
+      border-radius: 18px;
       text-align: center;
-      max-width: 360px;
+      max-width: 340px;
       width: 85%;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       border: 5px solid var(--accent);
@@ -247,22 +256,22 @@
     }
 
     .modal-title {
-      font-size: 28px;
+      font-size: 26px;
       color: #ff7675;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       font-weight: bold;
     }
 
     .modal-desc {
-      font-size: 22px;
+      font-size: 20px;
       color: #2d3436;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       font-weight: bold;
     }
 
     .modal-btn {
-      font-size: 18px;
-      padding: 10px 24px;
+      font-size: 17px;
+      padding: 8px 22px;
     }
   </style>
 </head>
@@ -271,7 +280,10 @@
   <div class="game-container" id="board">
     <!-- 中間控制面板 -->
     <div class="center-dashboard">
-      <div class="dashboard-title">🎲 歡樂大富翁</div>
+      <!-- 標題區域含版本號 -->
+      <div class="dashboard-title">
+        🎲 歡樂大富翁 <span class="version-tag">v1.0.0</span>
+      </div>
 
       <!-- 步數輸入區 -->
       <div class="section-box">
@@ -280,13 +292,13 @@
           <button class="btn-adjust btn-minus" onclick="changeStep(-1)">-</button>
           <input type="number" id="stepInput" value="1">
           <button class="btn-adjust btn-plus" onclick="changeStep(1)">+</button>
-          <button class="btn" style="margin-left: 4px;" onclick="handleManualMove()">移動</button>
+          <button class="btn" style="margin-left: 2px;" onclick="handleManualMove()">移動</button>
         </div>
       </div>
 
-      <!-- 獎品統計 -->
+      <!-- 獎品統計 (最低1) -->
       <div class="section-box">
-        <div class="section-title">🎁 目前獎品數 (最少0)</div>
+        <div class="section-title">🎁 目前獎品數 (最少1)</div>
         <div class="input-group">
           <button class="btn-adjust btn-minus" onclick="changePrize(-1)">-</button>
           <span class="stat-display" id="prizeDisplay">1</span>
@@ -294,16 +306,16 @@
         </div>
       </div>
 
-      <!-- 目標圈數區 -->
+      <!-- 目標圈數區 (初始預設 1) -->
       <div class="section-box">
         <div class="section-title">目標圈數 / 已完成圈數</div>
-        <div class="input-group" style="margin-bottom: 8px;">
+        <div class="input-group" style="margin-bottom: 6px;">
           <button class="btn-adjust btn-minus" onclick="changeTargetLaps(-1)">-</button>
-          <input type="number" id="targetLapInput" value="3" min="1">
+          <input type="number" id="targetLapInput" value="1" min="1">
           <button class="btn-adjust btn-plus" onclick="changeTargetLaps(1)">+</button>
         </div>
-        <div style="font-size: 16px; font-weight: bold; color: #0984e3;">
-          已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">3</span> 圈
+        <div style="font-size: 15px; font-weight: bold; color: #0984e3;">
+          已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">1</span> 圈
         </div>
       </div>
     </div>
@@ -333,7 +345,7 @@
     document.addEventListener('touchend', function (event) {
       const now = (new Date()).getTime();
       if (now - lastTouchEnd <= 300) {
-        event.preventDefault(); // 攔截 300ms 內的連擊放大
+        event.preventDefault();
       }
       lastTouchEnd = now;
     }, false);
@@ -444,7 +456,7 @@
     let totalStepsTaken = 0;
     let prizeCount = 1;
     let completedLaps = 0;
-    let targetLaps = 3;
+    let targetLaps = 1; // 預設 1 圈
     let isMoving = false;
 
     const surprises = [
@@ -598,7 +610,7 @@
 
     function changePrize(delta) {
       playClickSound();
-      prizeCount = Math.max(0, prizeCount + delta);
+      prizeCount = Math.max(1, prizeCount + delta); // 最低為 1
       document.getElementById('prizeDisplay').innerText = prizeCount;
     }
 
