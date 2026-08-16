@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.0.0</title>
+  <title>可愛大富翁 v1.0.1</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -38,17 +38,17 @@
       color: var(--text);
       display: flex;
       justify-content: center;
-      align-items: flex-start; /* 修改：改為靠上對齊 */
+      align-items: flex-start; /* 靠上對齊 */
       min-height: 100vh;
       padding: 6px;
-      overflow: hidden; /* 防止視窗出現滾動條 */
+      overflow: hidden; /* 防止出現滾動條 */
     }
 
-    /* iPad Mini 6x16 矩陣容器 (靠上貼合視窗高度) */
+    /* iPad Mini 6x16 矩陣容器 */
     .game-container {
       width: 100%;
       max-width: 560px;
-      height: calc(100vh - 12px); /* 動態計算視窗扣除 padding 的高度 */
+      height: calc(100vh - 12px);
       max-height: 860px;
       background: var(--board-bg);
       border: 4px solid #fab1a0;
@@ -102,7 +102,7 @@
       grid-row: 2 / 16;
       background: #f1f2f6;
       border-radius: 12px;
-      padding: 8px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
@@ -113,7 +113,7 @@
     }
 
     .dashboard-title {
-      font-size: 20px;
+      font-size: 19px;
       color: #d63031;
       font-weight: bold;
       display: flex;
@@ -122,7 +122,7 @@
     }
 
     .version-tag {
-      font-size: 13px;
+      font-size: 12px;
       color: #636e72;
       font-weight: normal;
     }
@@ -130,17 +130,17 @@
     .section-box {
       width: 100%;
       background: #ffffff;
-      padding: 8px 6px;
+      padding: 6px 4px;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       text-align: center;
     }
 
     .section-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
       color: #636e72;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .input-group {
@@ -151,10 +151,10 @@
     }
 
     input[type="number"] {
-      width: 55px;
-      height: 40px;
+      width: 52px;
+      height: 38px;
       text-align: center;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: bold;
       border: 2px solid #74b9ff;
       border-radius: 8px;
@@ -162,8 +162,8 @@
     }
 
     .btn {
-      padding: 8px 14px;
-      font-size: 15px;
+      padding: 6px 12px;
+      font-size: 14px;
       font-weight: bold;
       color: white;
       background-color: var(--secondary);
@@ -178,13 +178,13 @@
       transform: translateY(2px);
     }
 
-    /* 加大且為「方形微圓角」的加減按鈕 */
+    /* 加減按鈕 */
     .btn-adjust {
-      width: 42px;
-      height: 42px;
-      font-size: 24px;
+      width: 38px;
+      height: 38px;
+      font-size: 22px;
       font-weight: 900;
-      border-radius: 10px;
+      border-radius: 8px;
       border: none;
       color: white;
       cursor: pointer;
@@ -212,11 +212,48 @@
       transform: translateY(2px);
     }
 
+    /* 🎲 1-18 骰子樣式與旋轉動畫 */
+    .dice-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dice-box {
+      width: 46px;
+      height: 46px;
+      background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+      border: 3px solid #e17055;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: #d63031;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #d63031;
+      transition: transform 0.1s;
+    }
+
+    .dice-box.rolling {
+      animation: diceRoll 0.8s ease-in-out infinite;
+    }
+
+    @keyframes diceRoll {
+      0% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-25deg) scale(1.15); }
+      50% { transform: rotate(25deg) scale(0.9); }
+      75% { transform: rotate(-15deg) scale(1.1); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
     .stat-display {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: bold;
       color: #2d3436;
-      min-width: 36px;
+      min-width: 32px;
     }
 
     /* 彈出視窗 Modal */
@@ -240,10 +277,10 @@
 
     .modal-content {
       background: white;
-      padding: 25px;
+      padding: 22px;
       border-radius: 18px;
       text-align: center;
-      max-width: 340px;
+      max-width: 320px;
       width: 85%;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       border: 5px solid var(--accent);
@@ -256,22 +293,23 @@
     }
 
     .modal-title {
-      font-size: 26px;
+      font-size: 24px;
       color: #ff7675;
       margin-bottom: 12px;
       font-weight: bold;
     }
 
     .modal-desc {
-      font-size: 20px;
+      font-size: 19px;
       color: #2d3436;
-      margin-bottom: 20px;
+      margin-bottom: 8px;
       font-weight: bold;
     }
 
     .modal-btn {
-      font-size: 17px;
-      padding: 8px 22px;
+      font-size: 16px;
+      padding: 8px 20px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -283,6 +321,15 @@
       <!-- 標題區域含版本號 -->
       <div class="dashboard-title">
         🎲 歡樂大富翁 <span class="version-tag">v1.0.0</span>
+      </div>
+
+      <!-- 🎲 新增：1-18 隨機骰子區塊 -->
+      <div class="section-box">
+        <div class="section-title">🎲 1-18 隨機金錢骰子</div>
+        <div class="dice-container">
+          <div class="dice-box" id="diceBox" onclick="rollDice()">1</div>
+          <button class="btn" style="background-color: #fd79a8; box-shadow: 0 3px 0 #e84393;" onclick="rollDice()">擲骰子</button>
+        </div>
       </div>
 
       <!-- 步數輸入區 -->
@@ -309,15 +356,25 @@
       <!-- 目標圈數區 -->
       <div class="section-box">
         <div class="section-title">目標圈數 / 已完成圈數</div>
-        <div class="input-group" style="margin-bottom: 6px;">
+        <div class="input-group" style="margin-bottom: 4px;">
           <button class="btn-adjust btn-minus" onclick="changeTargetLaps(-1)">-</button>
           <input type="number" id="targetLapInput" value="1" min="1">
           <button class="btn-adjust btn-plus" onclick="changeTargetLaps(1)">+</button>
         </div>
-        <div style="font-size: 15px; font-weight: bold; color: #0984e3;">
+        <div style="font-size: 14px; font-weight: bold; color: #0984e3;">
           已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">1</span> 圈
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- 🎲 骰子結果彈窗 -->
+  <div class="modal-overlay" id="diceModal">
+    <div class="modal-content" style="border-color: #74b9ff;">
+      <div class="modal-title" style="color: #0984e3;">🎲 骰子結果</div>
+      <div class="modal-desc" id="diceModalPoint">骰出點數：0 點</div>
+      <div class="modal-desc" style="color: #00b894; font-size: 22px;" id="diceModalMoney">換算金額：$0 元</div>
+      <button class="btn modal-btn" onclick="closeModal('diceModal')">確定</button>
     </div>
   </div>
 
@@ -458,6 +515,7 @@
     let completedLaps = 0;
     let targetLaps = 1;
     let isMoving = false;
+    let isRolling = false; // 骰子滾動狀態
 
     const surprises = [
       { name: "再來１次", weight: 10, action: () => handleExtraTurn() },
@@ -492,6 +550,38 @@
     });
 
     updatePlayerPositionUI();
+
+    // 🎲 1-18 擲骰子功能
+    function rollDice() {
+      if (isRolling || isMoving) return;
+      isRolling = true;
+      playClickSound();
+
+      const diceBox = document.getElementById('diceBox');
+      diceBox.classList.add('rolling');
+
+      // 滾動期間快速變換數字 (60ms 換一次)
+      const rollInterval = setInterval(() => {
+        diceBox.innerText = Math.floor(Math.random() * 18) + 1;
+        playStepSound();
+      }, 60);
+
+      // 0.8 秒後停止滾動
+      setTimeout(() => {
+        clearInterval(rollInterval);
+        const finalValue = Math.floor(Math.random() * 18) + 1;
+        diceBox.innerText = finalValue;
+        diceBox.classList.remove('rolling');
+        isRolling = false;
+
+        playSurpriseSound();
+
+        // 設置彈窗文字 (第一行：點數，第二行：點數*10 金額)
+        document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
+        document.getElementById('diceModalMoney').innerText = `換算金額：$${finalValue * 10} 元`;
+        openModal('diceModal');
+      }, 800);
+    }
 
     function changeStep(delta) {
       playClickSound();
@@ -632,6 +722,7 @@
       document.getElementById('prizeDisplay').innerText = prizeCount;
       document.getElementById('completedLapDisplay').innerText = completedLaps;
       document.getElementById('stepInput').value = 1;
+      document.getElementById('diceBox').innerText = "1";
       updatePlayerPositionUI();
       closeModal('winModal');
     }
