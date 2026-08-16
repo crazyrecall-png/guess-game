@@ -438,6 +438,33 @@
     </div>
   </div>
 
+  <!-- 💰 自訂金額加減彈窗 Modal -->
+  <div class="modal-overlay" id="moneyModal">
+    <div class="modal-content" style="border-color: #fdcb6e;">
+      <div class="modal-title" id="moneyModalTitle" style="color: #e17055;">💰 調整金額</div>
+      <div style="font-size: 14px; color: #636e72; margin-bottom: 10px;">請點擊按鈕或手動輸入金額：</div>
+      
+      <!-- +/- 按鈕與輸入框 -->
+      <div class="input-group" style="margin-bottom: 12px;">
+        <button class="btn-adjust btn-minus" style="width:42px; height:42px; font-size:22px;" onclick="changeModalMoneyInput(-100)">-</button>
+        <input type="number" id="moneyModalInput" value="500" style="width: 100px; height: 42px; font-size: 20px;">
+        <button class="btn-adjust btn-plus" style="width:42px; height:42px; font-size:22px;" onclick="changeModalMoneyInput(100)">+</button>
+      </div>
+
+      <!-- 快捷 +/- 500 按鈕 -->
+      <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 16px;">
+        <button class="btn" style="background-color: #ff7675; box-shadow: 0 3px 0 #d63031; padding: 6px 12px;" onclick="changeModalMoneyInput(-500)">-500</button>
+        <button class="btn" style="background-color: #2ed573; box-shadow: 0 3px 0 #26af5f; padding: 6px 12px;" onclick="changeModalMoneyInput(500)">+500</button>
+      </div>
+
+      <!-- 確定 / 取消 -->
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="confirmCustomMoney()">確定</button>
+        <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('moneyModal')">取消</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 🎲 骰子結果彈窗 -->
   <div class="modal-overlay" id="diceModal">
     <div class="modal-content" style="border-color: #74b9ff;">
@@ -584,9 +611,10 @@
     let prizeCount = 1;
     let completedLaps = 0;
     let targetLaps = 1;
-    let totalMoney = 0; // 累加總金額 (重置遊戲時保留)
+    let totalMoney = 0; // 累加總金額
     let isMoving = false;
     let isRolling = false;
+    let currentMoneyDir = 1; // 記錄金額加減方向 (1: 增加, -1: 扣除)
 
     const surprises = [
       { name: "再來１次", weight: 10, action: () => handleExtraTurn() },
@@ -664,29 +692,35 @@
       }, 800);
     }
 
-    // 💰 自訂金額加減（預設空值、帶有 +/- 符號，預設金額 500）
+    // 💰 自訂金額加減彈窗啟動
     function customAdjustMoney(direction) {
       playClickSound();
-      const sign = direction > 0 ? "+" : "-";
-      const actionName = direction > 0 ? "增加 (+)" : "扣除 (-)";
-      
-      // 輸入框預設為空值 ""
-      const inputStr = prompt(`請輸入要${actionName}的金額 (直接點確定預設為 ${sign}500)：`, "");
-      
-      if (inputStr !== null) {
-        let amount = 500; // 預設按一次增減 500
-        const trimmed = inputStr.trim();
-        
-        if (trimmed !== "") {
-          const parsed = parseInt(trimmed.replace(/[^\d]/g, ''), 10);
-          if (!isNaN(parsed) && parsed > 0) {
-            amount = parsed;
-          }
-        }
-        
-        totalMoney += amount * direction;
-        document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
-      }
+      currentMoneyDir = direction;
+      const titleText = direction > 0 ? "💰 增加金額 (+)" : "💰 扣除金額 (-)";
+      document.getElementById('moneyModalTitle').innerText = titleText;
+      document.getElementById('moneyModalInput').value = 500; // 預設 500
+      openModal('moneyModal');
+    }
+
+    // 💰 彈窗內部的加減按鈕
+    function changeModalMoneyInput(delta) {
+      playClickSound();
+      const input = document.getElementById('moneyModalInput');
+      let val = parseInt(input.value, 10) || 0;
+      val = Math.max(0, val + delta);
+      input.value = val;
+    }
+
+    // 💰 確定調整金額
+    function confirmCustomMoney() {
+      playClickSound();
+      const input = document.getElementById('moneyModalInput');
+      let amount = parseInt(input.value, 10);
+      if (isNaN(amount) || amount < 0) amount = 0;
+
+      totalMoney += amount * currentMoneyDir;
+      document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+      closeModal('moneyModal');
     }
 
     function changeStep(delta) {
@@ -749,8 +783,8 @@
       }
 
       isMoving = false;
-      
-      // 🌟 移動完畢後自動將步數輸入框變回 1
+
+      // 移動完畢後自動將步數輸入框變回 1
       document.getElementById('stepInput').value = 1;
 
       if (completedLaps >= targetLaps) {
