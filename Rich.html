@@ -688,7 +688,7 @@
       isRolling = true;
       playClickSound();
 
-      const maxVal = (type === 'money') ? 50 : 18;
+      const maxVal = (type === 'money') ? 5 : 18;
       const targetBox = document.getElementById(type === 'money' ? 'moneyDiceBox' : 'stepDiceBox');
       targetBox.classList.add('rolling');
 
@@ -707,7 +707,7 @@
         playSurpriseSound();
 
         if (type === 'money') {
-          const earned = finalValue * 10;
+          const earned = finalValue * 100;
           totalMoney += earned;
           document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
           
