@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>可愛大富翁 - 大字數字版</title>
+  <style>
+    :root {
+      --bg-color: #fef6e4;
+      --board-bg: #ffffff;
+      --cell-bg: #ffeaa7;
+      --cell-border: #fdcb6e;
+      --cell-text: #d63031;
+      
+      /* 當前位置反色與發光樣式 */
+      --active-bg: #ff7675;
+      --active-text: #ffffff;
+      --active-shadow: 0 0 15px #ff7675;
+
+      --primary: #ff7675;
+      --secondary: #74b9ff;
+      --accent: #fd79a8;
+      --text: #2d3436;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Fredoka', 'Comic Sans MS', "Chalkboard SE", "Yu Gothic", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
+
+    /* iPad Mini 6x16 矩陣容器 */
+    .game-container {
+      width: 100%;
+      max-width: 600px;
+      height: 95vh;
+      max-height: 960px;
+      background: var(--board-bg);
+      border: 4px solid #fab1a0;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(16, 1fr);
+      gap: 3px;
+      padding: 5px;
+      position: relative;
+    }
+
+    /* 格子樣式：僅保留大數字 */
+    .cell {
+      background-color: var(--cell-bg);
+      border: 2px solid var(--cell-border);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px; /* 大字體 */
+      font-weight: 800;
+      color: var(--cell-text);
+      text-align: center;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .cell.start-cell {
+      background-color: #ffabe7;
+      border-color: #fd79a8;
+      color: #000;
+      font-size: 16px;
+    }
+
+    /* 當前踩中位置反色樣式 */
+    .cell.active {
+      background-color: var(--active-bg) !important;
+      color: var(--active-text) !important;
+      border-color: var(--active-bg);
+      box-shadow: var(--active-shadow);
+      font-size: 26px; /* 當前格數字再放大 */
+      z-index: 5;
+    }
+
+    /* 中間區域：控制面板與統計 */
+    .center-dashboard {
+      grid-column: 2 / 6;
+      grid-row: 2 / 16;
+      background: #f1f2f6;
+      border-radius: 15px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+      border: 2px dashed #dfe6e9;
+      z-index: 1;
+    }
+
+    .dashboard-title {
+      font-size: 22px;
+      color: #d63031;
+      font-weight: bold;
+    }
+
+    .section-box {
+      width: 100%;
+      background: #ffffff;
+      padding: 12px 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #636e72;
+      margin-bottom: 8px;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input[type="number"] {
+      width: 55px;
+      height: 38px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      border: 2px solid #74b9ff;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background-color: var(--secondary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #0984e3;
+    }
+
+    .btn:active {
+      box-shadow: 0 1px 0 #0984e3;
+      transform: translateY(2px);
+    }
+
+    .btn-adjust {
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      border-radius: 50%;
+      background-color: #ff7675;
+      box-shadow: 0 3px 0 #d63031;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 0;
+    }
+
+    .btn-adjust:active {
+      box-shadow: 0 1px 0 #d63031;
+    }
+
+    .stat-display {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2d3436;
+      min-width: 40px;
+    }
+
+    /* 彈出視窗 Modal（字體放大） */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 360px;
+      width: 85%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      border: 5px solid var(--accent);
+      transform: scale(0.8);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: 28px;
+      color: #ff7675;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .modal-desc {
+      font-size: 22px;
+      color: #2d3436;
+      margin-bottom: 25px;
+      font-weight: bold;
+    }
+
+    .modal-btn {
+      font-size: 18px;
+      padding: 10px 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container" id="board">
+    <!-- 中間控制面板 -->
+    <div class="center-dashboard">
+      <div class="dashboard-title">🎲 歡樂大富翁</div>
+
+      <!-- 步數輸入區（新增 +- 按鈕） -->
+      <div class="section-box">
+        <div class="section-title">輸入步數 (不可為0)</div>
+        <div class="input-group">
+          <button class="btn btn-adjust" onclick="changeStep(-1)">-</button>
+          <input type="number" id="stepInput" value="1">
+          <button class="btn btn-adjust" onclick="changeStep(1)">+</button>
+          <button class="btn" style="margin-left: 4px;" onclick="handleManualMove()">移動</button>
+        </div>
+      </div>
+
+      <!-- 獎品統計 -->
+      <div class="section-box">
+        <div class="section-title">🎁 目前獎品數 (最少0)</div>
+        <div class="input-group">
+          <button class="btn btn-adjust" onclick="changePrize(-1)">-</button>
+          <span class="stat-display" id="prizeDisplay">1</span>
+          <button class="btn btn-adjust" onclick="changePrize(1)">+</button>
+        </div>
+      </div>
+
+      <!-- 圈數設定與統計 -->
+      <div class="section-box">
+        <div class="section-title">目標圈數 / 已完成圈數</div>
+        <div class="input-group" style="margin-bottom: 5px;">
+          <input type="number" id="targetLapInput" value="3" min="1" style="width: 50px;">
+          <button class="btn" style="padding: 6px 10px; font-size: 13px;" onclick="setTargetLaps()">設定目標</button>
+        </div>
+        <div style="font-size: 16px; font-weight: bold; color: #0984e3;">
+          已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">3</span> 圈
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 驚喜抽獎彈窗 -->
+  <div class="modal-overlay" id="surpriseModal">
+    <div class="modal-content">
+      <div class="modal-title">✨ 踩中驚喜！</div>
+      <div class="modal-desc" id="surpriseResultText">抽到什麼呢？</div>
+      <button class="btn modal-btn" onclick="closeModal('surpriseModal')">確定</button>
+    </div>
+  </div>
+
+  <!-- 獲勝彈窗 -->
+  <div class="modal-overlay" id="winModal">
+    <div class="modal-content" style="border-color: #ff7675;">
+      <div class="modal-title">🏆 恭喜獲勝！</div>
+      <div class="modal-desc">你已經跑滿設定的圈數囉！</div>
+      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 3px 0 #008f68;" onclick="resetGame()">再玩一次</button>
+    </div>
+  </div>
+
+  <script>
+    const COLS = 6;
+    const ROWS = 16;
+    
+    const pathCoords = [];
+    for (let c = 1; c <= COLS; c++) pathCoords.push({ r: 1, c: c });
+    for (let r = 2; r <= ROWS; r++) pathCoords.push({ r: r, c: COLS });
+    for (let c = COLS - 1; c >= 1; c--) pathCoords.push({ r: ROWS, c: c });
+    for (let r = ROWS - 1; r >= 2; r--) pathCoords.push({ r: r, c: 1 });
+
+    const totalCells = pathCoords.length;
+    let currentPosition = 0;
+    let prizeCount = 1;
+    let completedLaps = 0;
+    let targetLaps = 3;
+
+    const surprises = [
+      { name: "再來１次", weight: 10, action: () => handleExtraTurn() },
+      { name: "抽１顆", weight: 30, action: () => changePrize(1) },
+      { name: "扣１顆", weight: 30, action: () => changePrize(-1) },
+      { name: "再前進１步", weight: 50, action: () => autoStep(1) },
+      { name: "再前進２步", weight: 30, action: () => autoStep(2) },
+      { name: "再前進３步", weight: 10, action: () => autoStep(3) },
+      { name: "往退後１步", weight: 40, action: () => autoStep(-1) },
+      { name: "往退後２步", weight: 20, action: () => autoStep(-2) },
+      { name: "往退後３步", weight: 5, action: () => autoStep(-3) }
+    ];
+
+    const cellElements = [];
+    const board = document.getElementById('board');
+
+    // 建立 40 個大數字格子
+    pathCoords.forEach((coord, idx) => {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.id = `cell-${idx}`;
+      cell.style.gridRow = coord.r;
+      cell.style.gridColumn = coord.c;
+
+      if (idx === 0) {
+        cell.classList.add('start-cell');
+        cell.innerHTML = '起點<br>0';
+      } else {
+        cell.innerText = idx; // 只保留純數字
+      }
+      board.appendChild(cell);
+      cellElements.push(cell);
+    });
+
+    updatePlayerPositionUI();
+
+    // 步數 +- 按鈕邏輯 (自動跳過 0)
+    function changeStep(delta) {
+      const input = document.getElementById('stepInput');
+      let val = parseInt(input.value, 10) || 0;
+      val += delta;
+      if (val === 0) {
+        val = delta > 0 ? 1 : -1;
+      }
+      input.value = val;
+    }
+
+    function handleManualMove() {
+      const input = document.getElementById('stepInput');
+      let steps = parseInt(input.value, 10);
+
+      if (isNaN(steps) || steps === 0) {
+        alert("輸入步數不可為 0 ！最少為 1（或負數退後）。");
+        input.value = 1;
+        return;
+      }
+
+      movePlayer(steps, true);
+    }
+
+    function movePlayer(steps, allowSurprise = true) {
+      let newPos = currentPosition + steps;
+
+      if (newPos >= totalCells) {
+        let lapsGained = Math.floor(newPos / totalCells);
+        completedLaps += lapsGained;
+        document.getElementById('completedLapDisplay').innerText = completedLaps;
+      } else if (newPos < 0) {
+        let lapsLost = Math.ceil(Math.abs(newPos) / totalCells);
+        completedLaps = Math.max(0, completedLaps - lapsLost);
+        document.getElementById('completedLapDisplay').innerText = completedLaps;
+      }
+
+      currentPosition = ((newPos % totalCells) + totalCells) % totalCells;
+      updatePlayerPositionUI();
+
+      setTimeout(() => {
+        if (completedLaps >= targetLaps) {
+          openModal('winModal');
+          return;
+        }
+
+        if (allowSurprise) {
+          triggerSurpriseDraw();
+        }
+      }, 350);
+    }
+
+    function updatePlayerPositionUI() {
+      cellElements.forEach(cell => cell.classList.remove('active'));
+      const currentCell = cellElements[currentPosition];
+      if (currentCell) {
+        currentCell.classList.add('active');
+      }
+    }
+
+    function triggerSurpriseDraw() {
+      const totalWeight = surprises.reduce((sum, item) => sum + item.weight, 0);
+      let randomNum = Math.random() * totalWeight;
+      let selectedSurprise = null;
+
+      for (let item of surprises) {
+        if (randomNum < item.weight) {
+          selectedSurprise = item;
+          break;
+        }
+        randomNum -= item.weight;
+      }
+
+      if (selectedSurprise) {
+        document.getElementById('surpriseResultText').innerText = `🎉 恭喜獲得：${selectedSurprise.name}`;
+        selectedSurprise.action();
+        openModal('surpriseModal');
+      }
+    }
+
+    function autoStep(steps) {
+      setTimeout(() => {
+        movePlayer(steps, false); 
+      }, 500);
+    }
+
+    function handleExtraTurn() {
+      setTimeout(() => {
+        alert("獲得『再來１次』！請再次輸入步數並點擊移動。");
+      }, 500);
+    }
+
+    function changePrize(delta) {
+      prizeCount = Math.max(0, prizeCount + delta);
+      document.getElementById('prizeDisplay').innerText = prizeCount;
+    }
+
+    function setTargetLaps() {
+      const input = document.getElementById('targetLapInput');
+      let val = parseInt(input.value, 10);
+      if (isNaN(val) || val < 1) val = 1;
+      targetLaps = val;
+      document.getElementById('targetLapDisplay').innerText = targetLaps;
+      input.value = targetLaps;
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function resetGame() {
+      currentPosition = 0;
+      completedLaps = 0;
+      prizeCount = 1;
+      document.getElementById('prizeDisplay').innerText = prizeCount;
+      document.getElementById('completedLapDisplay').innerText = completedLaps;
+      document.getElementById('stepInput').value = 1;
+      updatePlayerPositionUI();
+      closeModal('winModal');
+    }
+  </script>
+</body>
+</html>
