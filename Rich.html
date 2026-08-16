@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.0.0</title>
+  <title>可愛大富翁 v1.0.3</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -102,10 +102,10 @@
       grid-row: 2 / 16;
       background: #f1f2f6;
       border-radius: 12px;
-      padding: 4px 6px;
+      padding: 6px 8px;
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
+      justify-content: space-between;
       align-items: center;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
       border: 2px dashed #dfe6e9;
@@ -127,27 +127,41 @@
       font-weight: normal;
     }
 
+    /* 通用區塊樣式 */
     .section-box {
       width: 100%;
       background: #ffffff;
-      padding: 5px 4px;
+      padding: 6px 6px;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       text-align: center;
     }
 
+    /* 🎈 專為小朋友放大的主要操作區塊 (金額抽獎 & 移動區) */
+    .section-box-large {
+      padding: 10px 8px !important;
+      border: 2px solid #74b9ff;
+    }
+
     .section-title {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: bold;
       color: #636e72;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
+    }
+
+    .section-title-large {
+      font-size: 16px !important;
+      font-weight: 900 !important;
+      color: #2d3436 !important;
+      margin-bottom: 8px !important;
     }
 
     .input-group {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     input[type="number"] {
@@ -159,6 +173,14 @@
       border: 2px solid #74b9ff;
       border-radius: 8px;
       outline: none;
+    }
+
+    /* 大號輸入框 */
+    .input-large {
+      width: 75px !important;
+      height: 48px !important;
+      font-size: 24px !important;
+      border-width: 3px !important;
     }
 
     /* 通用按鈕基底 */
@@ -181,11 +203,11 @@
 
     /* 🎈 專為小朋友設計的大按鈕樣式 */
     .btn-big {
-      font-size: 16px !important;
-      padding: 8px 16px !important;
-      border-radius: 10px !important;
+      font-size: 18px !important;
+      padding: 10px 18px !important;
+      border-radius: 12px !important;
       font-weight: 900 !important;
-      min-height: 40px;
+      min-height: 48px;
     }
 
     /* 加減按鈕 */
@@ -202,6 +224,14 @@
       justify-content: center;
       align-items: center;
       line-height: 0;
+    }
+
+    /* 超大加減按鈕 (用於移動區) */
+    .btn-adjust-large {
+      width: 48px !important;
+      height: 48px !important;
+      font-size: 26px !important;
+      border-radius: 12px !important;
     }
 
     .btn-minus {
@@ -227,36 +257,36 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
     .dice-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 6px;
     }
 
     .dice-label {
-      font-size: 12px;
+      font-size: 14px;
       font-weight: bold;
-      color: #636e72;
+      color: #2d3436;
     }
 
     .dice-box {
-      width: 40px;
-      height: 40px;
+      width: 56px;
+      height: 56px;
       background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
-      border: 3px solid #e17055;
-      border-radius: 10px;
+      border: 4px solid #e17055;
+      border-radius: 12px;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 20px;
+      font-size: 28px;
       font-weight: 900;
       color: #d63031;
       cursor: pointer;
-      box-shadow: 0 3px 0 #d63031;
+      box-shadow: 0 4px 0 #d63031;
     }
 
     .dice-box.rolling {
@@ -275,21 +305,22 @@
     .money-total-box {
       background: #f8efba;
       border: 2px dashed #e1b12c;
-      border-radius: 8px;
-      padding: 3px 8px;
+      border-radius: 10px;
+      padding: 6px 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-top: 4px;
     }
 
     .money-title {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: bold;
       color: #222f3e;
     }
 
     .money-val {
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 900;
       color: #10ac84;
     }
@@ -368,9 +399,9 @@
         🎲 歡樂大富翁 <span class="version-tag">v1.0.0</span>
       </div>
 
-      <!-- 🎲 雙骰子與金額累加區塊 -->
-      <div class="section-box">
-        <div class="section-title">🎲 獨立雙骰區 (金額1-50 / 點數1-18)</div>
+      <!-- 🎲 1. 金額抽獎雙骰區（放大專區） -->
+      <div class="section-box section-box-large">
+        <div class="section-title section-title-large">🎲 獨立雙骰區 (金額1-50 / 點數1-18)</div>
         
         <div class="dual-dice-group">
           <!-- 金額骰 (1-50) -->
@@ -393,34 +424,34 @@
           <div class="money-title">目前總金額：</div>
           <div class="money-val" id="totalMoneyDisplay">$0</div>
           <div class="input-group">
-            <button class="btn-adjust btn-minus" style="width:28px; height:28px; font-size:16px;" onclick="customAdjustMoney(-1)">-</button>
-            <button class="btn-adjust btn-plus" style="width:28px; height:28px; font-size:16px;" onclick="customAdjustMoney(1)">+</button>
+            <button class="btn-adjust btn-minus" style="width:32px; height:32px; font-size:18px;" onclick="customAdjustMoney(-1)">-</button>
+            <button class="btn-adjust btn-plus" style="width:32px; height:32px; font-size:18px;" onclick="customAdjustMoney(1)">+</button>
           </div>
         </div>
       </div>
 
-      <!-- 步數輸入區 -->
-      <div class="section-box">
-        <div class="section-title">輸入步數 (不可為0)</div>
+      <!-- 🎯 2. 移動步數輸入區（放大專區） -->
+      <div class="section-box section-box-large" style="border-color: #ff7675;">
+        <div class="section-title section-title-large">🚶‍♂️ 輸入移動步數 (不可為0)</div>
         <div class="input-group">
-          <button class="btn-adjust btn-minus" onclick="changeStep(-1)">減（-）</button>
-          <input type="number" id="stepInput" value="1">
-          <button class="btn-adjust btn-plus" onclick="changeStep(1)">加（+）</button>
-          <button class="btn btn-big" style="margin-left: 4px;" onclick="handleManualMove()">移動</button>
+          <button class="btn-adjust btn-adjust-large btn-minus" onclick="changeStep(-1)">-</button>
+          <input type="number" id="stepInput" class="input-large" value="1">
+          <button class="btn-adjust btn-adjust-large btn-plus" onclick="changeStep(1)">+</button>
+          <button class="btn btn-big" style="margin-left: 6px; background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="handleManualMove()">移動</button>
         </div>
       </div>
 
-      <!-- 獎品統計 -->
+      <!-- 🎁 3. 獎品統計 -->
       <div class="section-box">
         <div class="section-title">🎁 目前獎品數 (最少1)</div>
         <div class="input-group">
-          <button class="btn-adjust btn-minus" onclick="changePrize(-1)">減（-）</button>
+          <button class="btn-adjust btn-minus" onclick="changePrize(-1)">-</button>
           <span class="stat-display" id="prizeDisplay">1</span>
-          <button class="btn-adjust btn-plus" onclick="changePrize(1)">加（+）</button>
+          <button class="btn-adjust btn-plus" onclick="changePrize(1)">+</button>
         </div>
       </div>
 
-      <!-- 目標圈數區 -->
+      <!-- 🏁 4. 目標圈數區 -->
       <div class="section-box">
         <div class="section-title">目標圈數 / 已完成圈數</div>
         <div class="input-group" style="margin-bottom: 2px;">
@@ -434,7 +465,7 @@
       </div>
 
       <!-- 🔄 再來一局按鈕 (保留累積金額) -->
-      <button class="btn btn-big" style="background-color: #a55eea; box-shadow: 0 4px 0 #8854d0; width: 95%;" onclick="resetGame()">🔄 再開一局 (保留金額)</button>
+      <button class="btn btn-big" style="background-color: #a55eea; box-shadow: 0 4px 0 #8854d0; width: 95%; min-height:42px; font-size:16px !important;" onclick="resetGame()">🔄 再開一局 (保留金額)</button>
     </div>
   </div>
 
@@ -470,7 +501,8 @@
     <div class="modal-content" style="border-color: #74b9ff;">
       <div class="modal-title" id="diceModalTitle" style="color: #0984e3;">🎲 骰子結果</div>
       <div class="modal-desc" id="diceModalPoint">骰出點數：0 點</div>
-      <div class="modal-desc" style="color: #00b894; font-size: 20px;" id="diceModalMoney">換算金額：$0 元</div>
+      <!-- 第二行改為 獎品號碼 -->
+      <div class="modal-desc" style="color: #00b894; font-size: 20px;" id="diceModalMoney">獎品號碼：0 號</div>
       <button class="btn modal-btn" onclick="closeModal('diceModal')">確定</button>
     </div>
   </div>
@@ -681,10 +713,12 @@
           
           document.getElementById('diceModalTitle').innerText = '💰 金額骰結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
-          document.getElementById('diceModalMoney').innerText = `獲得金額：+${earned} 元`;
+          // 修正為 獎品號碼
+          document.getElementById('diceModalMoney').innerText = `獎品號碼：${earned} 號`;
         } else {
           document.getElementById('diceModalTitle').innerText = '🎁 抽獎結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
+          // 修正為 獎品號碼
           document.getElementById('diceModalMoney').innerText = `獎品號碼：${finalValue} 號`;
         }
 
