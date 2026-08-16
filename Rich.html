@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 - 修復強化版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>可愛大富翁 - 防放大版</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -27,6 +27,7 @@
       box-sizing: border-box;
       user-select: none;
       -webkit-user-select: none;
+      touch-action: manipulation; /* 關鍵：禁用手勢連擊放大 */
       margin: 0;
       padding: 0;
     }
@@ -40,6 +41,7 @@
       align-items: center;
       min-height: 100vh;
       padding: 10px;
+      overflow: hidden; /* 防止視窗過度滑動 */
     }
 
     /* iPad Mini 6x16 矩陣容器 */
@@ -326,6 +328,16 @@
   </div>
 
   <script>
+    // --- 防 iOS / iPad 手指連擊放大機制 ---
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault(); // 攔截 300ms 內的連擊放大
+      }
+      lastTouchEnd = now;
+    }, false);
+
     // --- 音效發聲器 (Web Audio API) ---
     let audioCtx = null;
 
@@ -427,9 +439,9 @@
     for (let c = COLS - 1; c >= 1; c--) pathCoords.push({ r: ROWS, c: c });
     for (let r = ROWS - 1; r >= 2; r--) pathCoords.push({ r: r, c: 1 });
 
-    const totalCells = pathCoords.length; // 40 格
+    const totalCells = pathCoords.length;
     let currentPosition = 0;
-    let totalStepsTaken = 0; // 精確紀錄累積前進淨步數，防Bug
+    let totalStepsTaken = 0;
     let prizeCount = 1;
     let completedLaps = 0;
     let targetLaps = 3;
@@ -505,7 +517,6 @@
       movePlayerStepByStep(steps, true);
     }
 
-    // 修復後的核心移動：精確計算總步數，徹底排除 Bug
     async function movePlayerStepByStep(steps, allowSurprise = true) {
       isMoving = true;
       const direction = steps > 0 ? 1 : -1;
@@ -514,14 +525,12 @@
       for (let i = 0; i < totalSteps; i++) {
         currentPosition = (currentPosition + direction + totalCells) % totalCells;
         
-        // 更新累積淨步數（退後減步數，最少為0）
         if (direction > 0) {
           totalStepsTaken++;
         } else {
           totalStepsTaken = Math.max(0, totalStepsTaken - 1);
         }
 
-        // 依據總前進步數精確計算完跑圈數
         completedLaps = Math.floor(totalStepsTaken / totalCells);
         document.getElementById('completedLapDisplay').innerText = completedLaps;
 
@@ -549,11 +558,9 @@
       }
     }
 
-    // 驚喜抽獎（加入 1, 2, 3 格強制「再前進１步」邏輯）
     function triggerSurpriseDraw() {
       let selectedSurprise = null;
 
-      // 前面三格 (1, 2, 3) 強迫為「再前進１步」
       if (currentPosition >= 1 && currentPosition <= 3) {
         selectedSurprise = surprises.find(s => s.name === "再前進１步");
       } else {
