@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.0.2</title>
+  <title>可愛大富翁 v1.0.0</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -433,7 +433,7 @@
         </div>
       </div>
 
-      <!-- 🔄 新增：再來一局按鈕 (保留累積金額) -->
+      <!-- 🔄 再來一局按鈕 (保留累積金額) -->
       <button class="btn btn-big" style="background-color: #a55eea; box-shadow: 0 4px 0 #8854d0; width: 95%;" onclick="resetGame()">🔄 再開一局 (保留金額)</button>
     </div>
   </div>
@@ -584,7 +584,7 @@
     let prizeCount = 1;
     let completedLaps = 0;
     let targetLaps = 1;
-    let totalMoney = 0; // 累加總金額 (重置遊戲時保留，只有重新整理網頁會清為 0)
+    let totalMoney = 0; // 累加總金額 (重置遊戲時保留)
     let isMoving = false;
     let isRolling = false;
 
@@ -622,7 +622,7 @@
 
     updatePlayerPositionUI();
 
-    // 🎲 獨立擲骰子功能 (type: 'money' 範圍 1-50 或 'step' 範圍 1-18)
+    // 🎲 獨立擲骰子功能
     function rollSingleDice(type) {
       if (isRolling || isMoving) return;
       isRolling = true;
@@ -664,20 +664,28 @@
       }, 800);
     }
 
-    // 💰 自訂輸入加減金額
+    // 💰 自訂金額加減（預設空值、帶有 +/- 符號，預設金額 500）
     function customAdjustMoney(direction) {
       playClickSound();
-      const actionName = direction > 0 ? "增加" : "扣除";
-      const inputStr = prompt(`請輸入要${actionName}的金額：`, "10");
+      const sign = direction > 0 ? "+" : "-";
+      const actionName = direction > 0 ? "增加 (+)" : "扣除 (-)";
       
-      if (inputStr !== null && inputStr.trim() !== "") {
-        const amount = parseInt(inputStr, 10);
-        if (!isNaN(amount) && amount > 0) {
-          totalMoney += amount * direction;
-          document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
-        } else {
-          alert("請輸入有效的正整數數字！");
+      // 輸入框預設為空值 ""
+      const inputStr = prompt(`請輸入要${actionName}的金額 (直接點確定預設為 ${sign}500)：`, "");
+      
+      if (inputStr !== null) {
+        let amount = 500; // 預設按一次增減 500
+        const trimmed = inputStr.trim();
+        
+        if (trimmed !== "") {
+          const parsed = parseInt(trimmed.replace(/[^\d]/g, ''), 10);
+          if (!isNaN(parsed) && parsed > 0) {
+            amount = parsed;
+          }
         }
+        
+        totalMoney += amount * direction;
+        document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
       }
     }
 
@@ -741,6 +749,9 @@
       }
 
       isMoving = false;
+      
+      // 🌟 移動完畢後自動將步數輸入框變回 1
+      document.getElementById('stepInput').value = 1;
 
       if (completedLaps >= targetLaps) {
         playWinSound();
@@ -811,15 +822,12 @@
       document.getElementById(id).classList.remove('active');
     }
 
-    // 重置遊戲（保留金額）
     function resetGame() {
       playClickSound();
       currentPosition = 0;
       totalStepsTaken = 0;
       completedLaps = 0;
       prizeCount = 1;
-      
-      // 注意：totalMoney 故意不重置，保留玩家擁有的金額！
       
       document.getElementById('prizeDisplay').innerText = prizeCount;
       document.getElementById('completedLapDisplay').innerText = completedLaps;
@@ -832,4 +840,3 @@
   </script>
 </body>
 </html>
-
