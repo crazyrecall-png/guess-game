@@ -1,9 +1,15 @@
+已為您更新程式碼！本次調整包含以下重點：
+ * 新增「🔄 再開一局」按鈕：位於中央控制區最下方，點擊後會重置地圖位置、步數與圈數，但完整保留目前的累積金額。
+ * 重置邏輯優化（保留金額）：無論是點擊「再開一局」或是完成遊戲獲勝後點擊彈窗的「再玩一次」，總金額皆會持續保留（只有重新整理網頁時才會清為 $0）。
+ * 按鈕名稱修改：將原本的「擲點數」按鈕名稱正式更名為「抽獎」。
+ * 按鈕加大設計：針對小朋友操作，「擲金額」、「抽獎」與「移動」三個核心按鈕皆進行了尺寸加大、字體加粗與按壓效果優化，更方便觸控點擊。
+完整 HTML 代碼如下：
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.0.0</title>
+  <title>可愛大富翁 v1.0.2</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -102,7 +108,7 @@
       grid-row: 2 / 16;
       background: #f1f2f6;
       border-radius: 12px;
-      padding: 6px;
+      padding: 4px 6px;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
@@ -130,17 +136,17 @@
     .section-box {
       width: 100%;
       background: #ffffff;
-      padding: 6px 4px;
+      padding: 5px 4px;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       text-align: center;
     }
 
     .section-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
       color: #636e72;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .input-group {
@@ -161,6 +167,7 @@
       outline: none;
     }
 
+    /* 通用按鈕基底 */
     .btn {
       padding: 6px 10px;
       font-size: 13px;
@@ -176,6 +183,15 @@
     .btn:active {
       box-shadow: 0 1px 0 #0984e3;
       transform: translateY(2px);
+    }
+
+    /* 🎈 專為小朋友設計的大按鈕樣式 */
+    .btn-big {
+      font-size: 16px !important;
+      padding: 8px 16px !important;
+      border-radius: 10px !important;
+      font-weight: 900 !important;
+      min-height: 40px;
     }
 
     /* 加減按鈕 */
@@ -217,14 +233,14 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .dice-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
+      gap: 3px;
     }
 
     .dice-label {
@@ -234,8 +250,8 @@
     }
 
     .dice-box {
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
       border: 3px solid #e17055;
       border-radius: 10px;
@@ -266,7 +282,7 @@
       background: #f8efba;
       border: 2px dashed #e1b12c;
       border-radius: 8px;
-      padding: 4px 8px;
+      padding: 3px 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -342,8 +358,8 @@
     }
 
     .modal-btn {
-      font-size: 15px;
-      padding: 8px 20px;
+      font-size: 16px;
+      padding: 8px 22px;
       margin-top: 8px;
     }
   </style>
@@ -367,14 +383,14 @@
           <div class="dice-item">
             <span class="dice-label">💰 金額骰(1-50)</span>
             <div class="dice-box" id="moneyDiceBox" onclick="rollSingleDice('money')">1</div>
-            <button class="btn" style="background-color: #10ac84; box-shadow: 0 3px 0 #0abde3;" onclick="rollSingleDice('money')">擲金額</button>
+            <button class="btn btn-big" style="background-color: #10ac84; box-shadow: 0 4px 0 #0abde3;" onclick="rollSingleDice('money')">擲金額</button>
           </div>
 
           <!-- 步數骰 (1-18) -->
           <div class="dice-item">
             <span class="dice-label">🎯 點數骰(1-18)</span>
             <div class="dice-box" id="stepDiceBox" onclick="rollSingleDice('step')">1</div>
-            <button class="btn" style="background-color: #ff9f43; box-shadow: 0 3px 0 #ee5253;" onclick="rollSingleDice('step')">擲點數</button>
+            <button class="btn btn-big" style="background-color: #ff9f43; box-shadow: 0 4px 0 #ee5253;" onclick="rollSingleDice('step')">抽獎</button>
           </div>
         </div>
 
@@ -396,7 +412,7 @@
           <button class="btn-adjust btn-minus" onclick="changeStep(-1)">-</button>
           <input type="number" id="stepInput" value="1">
           <button class="btn-adjust btn-plus" onclick="changeStep(1)">+</button>
-          <button class="btn" style="margin-left: 2px;" onclick="handleManualMove()">移動</button>
+          <button class="btn btn-big" style="margin-left: 4px;" onclick="handleManualMove()">移動</button>
         </div>
       </div>
 
@@ -418,10 +434,13 @@
           <input type="number" id="targetLapInput" value="1" min="1">
           <button class="btn-adjust btn-plus" onclick="changeTargetLaps(1)">+</button>
         </div>
-        <div style="font-size: 13px; font-weight: bold; color: #0984e3;">
+        <div style="font-size: 12px; font-weight: bold; color: #0984e3;">
           已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">1</span> 圈
         </div>
       </div>
+
+      <!-- 🔄 新增：再來一局按鈕 (保留累積金額) -->
+      <button class="btn btn-big" style="background-color: #a55eea; box-shadow: 0 4px 0 #8854d0; width: 95%;" onclick="resetGame()">🔄 再開一局 (保留金額)</button>
     </div>
   </div>
 
@@ -449,7 +468,7 @@
     <div class="modal-content" style="border-color: #ff7675;">
       <div class="modal-title">🏆 恭喜獲勝！</div>
       <div class="modal-desc">你已經跑滿設定的圈數囉！</div>
-      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="resetGame()">再玩一次</button>
+      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="resetGame()">再玩一次 (保留金額)</button>
     </div>
   </div>
 
@@ -571,7 +590,7 @@
     let prizeCount = 1;
     let completedLaps = 0;
     let targetLaps = 1;
-    let totalMoney = 0; // 累加總金額
+    let totalMoney = 0; // 累加總金額 (重置遊戲時保留，只有重新整理網頁會清為 0)
     let isMoving = false;
     let isRolling = false;
 
@@ -642,7 +661,7 @@
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
           document.getElementById('diceModalMoney').innerText = `獲得金額：+$${earned} 元`;
         } else {
-          document.getElementById('diceModalTitle').innerText = '🎯 點數骰結果';
+          document.getElementById('diceModalTitle').innerText = '🎁 抽獎結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
           document.getElementById('diceModalMoney').innerText = `換算金額：$${finalValue * 10} 元`;
         }
@@ -798,16 +817,18 @@
       document.getElementById(id).classList.remove('active');
     }
 
+    // 重置遊戲（保留金額）
     function resetGame() {
       playClickSound();
       currentPosition = 0;
       totalStepsTaken = 0;
       completedLaps = 0;
       prizeCount = 1;
-      totalMoney = 0;
+      
+      // 注意：totalMoney 故意不重置，保留玩家擁有的金額！
+      
       document.getElementById('prizeDisplay').innerText = prizeCount;
       document.getElementById('completedLapDisplay').innerText = completedLaps;
-      document.getElementById('totalMoneyDisplay').innerText = "$0";
       document.getElementById('stepInput').value = 1;
       document.getElementById('moneyDiceBox').innerText = "1";
       document.getElementById('stepDiceBox').innerText = "1";
@@ -817,3 +838,4 @@
   </script>
 </body>
 </html>
+
