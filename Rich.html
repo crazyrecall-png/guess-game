@@ -403,9 +403,9 @@
       <div class="section-box">
         <div class="section-title">輸入步數 (不可為0)</div>
         <div class="input-group">
-          <button class="btn-adjust btn-minus" onclick="changeStep(-1)">-</button>
+          <button class="btn-adjust btn-minus" onclick="changeStep(-1)">減（-）</button>
           <input type="number" id="stepInput" value="1">
-          <button class="btn-adjust btn-plus" onclick="changeStep(1)">+</button>
+          <button class="btn-adjust btn-plus" onclick="changeStep(1)">加（+）</button>
           <button class="btn btn-big" style="margin-left: 4px;" onclick="handleManualMove()">移動</button>
         </div>
       </div>
@@ -414,9 +414,9 @@
       <div class="section-box">
         <div class="section-title">🎁 目前獎品數 (最少1)</div>
         <div class="input-group">
-          <button class="btn-adjust btn-minus" onclick="changePrize(-1)">-</button>
+          <button class="btn-adjust btn-minus" onclick="changePrize(-1)">減（-）</button>
           <span class="stat-display" id="prizeDisplay">1</span>
-          <button class="btn-adjust btn-plus" onclick="changePrize(1)">+</button>
+          <button class="btn-adjust btn-plus" onclick="changePrize(1)">加（+）</button>
         </div>
       </div>
 
@@ -681,11 +681,11 @@
           
           document.getElementById('diceModalTitle').innerText = '💰 金額骰結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
-          document.getElementById('diceModalMoney').innerText = `獲得金額：+$${earned} 元`;
+          document.getElementById('diceModalMoney').innerText = `獲得金額：+${earned} 元`;
         } else {
           document.getElementById('diceModalTitle').innerText = '🎁 抽獎結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
-          document.getElementById('diceModalMoney').innerText = `換算金額：$${finalValue * 10} 元`;
+          document.getElementById('diceModalMoney').innerText = `獎品號碼：${finalValue} 號`;
         }
 
         openModal('diceModal');
