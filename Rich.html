@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 - 大字數字版</title>
+  <title>可愛大富翁 - 動態音效版</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -60,7 +60,7 @@
       position: relative;
     }
 
-    /* 格子樣式：僅保留大數字 */
+    /* 格子樣式 */
     .cell {
       background-color: var(--cell-bg);
       border: 2px solid var(--cell-border);
@@ -68,12 +68,12 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 20px; /* 大字體 */
+      font-size: 20px;
       font-weight: 800;
       color: var(--cell-text);
       text-align: center;
       position: relative;
-      transition: all 0.2s;
+      transition: all 0.15s ease-in-out;
     }
 
     .cell.start-cell {
@@ -83,17 +83,18 @@
       font-size: 16px;
     }
 
-    /* 當前踩中位置反色樣式 */
+    /* 反色與縮放動畫 */
     .cell.active {
       background-color: var(--active-bg) !important;
       color: var(--active-text) !important;
       border-color: var(--active-bg);
       box-shadow: var(--active-shadow);
-      font-size: 26px; /* 當前格數字再放大 */
+      font-size: 26px;
+      transform: scale(1.08);
       z-index: 5;
     }
 
-    /* 中間區域：控制面板與統計 */
+    /* 中間控制區域 */
     .center-dashboard {
       grid-column: 2 / 6;
       grid-row: 2 / 16;
@@ -190,7 +191,7 @@
       min-width: 40px;
     }
 
-    /* 彈出視窗 Modal（字體放大） */
+    /* 彈出視窗 Modal */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -253,7 +254,7 @@
     <div class="center-dashboard">
       <div class="dashboard-title">🎲 歡樂大富翁</div>
 
-      <!-- 步數輸入區（新增 +- 按鈕） -->
+      <!-- 步數輸入區 -->
       <div class="section-box">
         <div class="section-title">輸入步數 (不可為0)</div>
         <div class="input-group">
@@ -274,12 +275,13 @@
         </div>
       </div>
 
-      <!-- 圈數設定與統計 -->
+      <!-- 目標圈數區（包含 +- 按鈕） -->
       <div class="section-box">
         <div class="section-title">目標圈數 / 已完成圈數</div>
-        <div class="input-group" style="margin-bottom: 5px;">
-          <input type="number" id="targetLapInput" value="3" min="1" style="width: 50px;">
-          <button class="btn" style="padding: 6px 10px; font-size: 13px;" onclick="setTargetLaps()">設定目標</button>
+        <div class="input-group" style="margin-bottom: 8px;">
+          <button class="btn btn-adjust" onclick="changeTargetLaps(-1)">-</button>
+          <input type="number" id="targetLapInput" value="3" min="1">
+          <button class="btn btn-adjust" onclick="changeTargetLaps(1)">+</button>
         </div>
         <div style="font-size: 16px; font-weight: bold; color: #0984e3;">
           已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">3</span> 圈
@@ -307,6 +309,104 @@
   </div>
 
   <script>
+    // --- 音效發聲器 (Web Audio API) ---
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // 普通按鈕點擊聲
+    function playClickSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    // 每走一格的「咚」音效
+    function playStepSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    // 抽中驚喜的「燈燈～」音效
+    function playSurpriseSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      
+      // 第一聲 (燈)
+      const osc1 = audioCtx.createOscillator();
+      const gain1 = audioCtx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(523.25, now); // C5
+      gain1.gain.setValueAtTime(0.3, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      osc1.connect(gain1);
+      gain1.connect(audioCtx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.15);
+
+      // 第二聲 (燈！較高音)
+      const osc2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(659.25, now + 0.15); // E5
+      gain2.gain.setValueAtTime(0.4, now + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+      osc2.connect(gain2);
+      gain2.connect(audioCtx.destination);
+      osc2.start(now + 0.15);
+      osc2.stop(now + 0.45);
+    }
+
+    // 獲勝音效
+    function playWinSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const startTime = audioCtx.currentTime + idx * 0.12;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+        gain.gain.setValueAtTime(0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.3);
+      });
+    }
+
+    // --- 遊戲地圖與變數配置 ---
     const COLS = 6;
     const ROWS = 16;
     
@@ -321,6 +421,7 @@
     let prizeCount = 1;
     let completedLaps = 0;
     let targetLaps = 3;
+    let isMoving = false; // 防止重複連續點擊移動
 
     const surprises = [
       { name: "再來１次", weight: 10, action: () => handleExtraTurn() },
@@ -337,7 +438,7 @@
     const cellElements = [];
     const board = document.getElementById('board');
 
-    // 建立 40 個大數字格子
+    // 渲染格子
     pathCoords.forEach((coord, idx) => {
       const cell = document.createElement('div');
       cell.classList.add('cell');
@@ -349,7 +450,7 @@
         cell.classList.add('start-cell');
         cell.innerHTML = '起點<br>0';
       } else {
-        cell.innerText = idx; // 只保留純數字
+        cell.innerText = idx;
       }
       board.appendChild(cell);
       cellElements.push(cell);
@@ -357,8 +458,9 @@
 
     updatePlayerPositionUI();
 
-    // 步數 +- 按鈕邏輯 (自動跳過 0)
+    // 步數 +- 按鈕 (跳過 0)
     function changeStep(delta) {
+      playClickSound();
       const input = document.getElementById('stepInput');
       let val = parseInt(input.value, 10) || 0;
       val += delta;
@@ -368,7 +470,20 @@
       input.value = val;
     }
 
+    // 目標圈數 +- 按鈕
+    function changeTargetLaps(delta) {
+      playClickSound();
+      const input = document.getElementById('targetLapInput');
+      let val = parseInt(input.value, 10) || 1;
+      val = Math.max(1, val + delta);
+      targetLaps = val;
+      input.value = targetLaps;
+      document.getElementById('targetLapDisplay').innerText = targetLaps;
+    }
+
     function handleManualMove() {
+      playClickSound();
+      if (isMoving) return;
       const input = document.getElementById('stepInput');
       let steps = parseInt(input.value, 10);
 
@@ -378,35 +493,44 @@
         return;
       }
 
-      movePlayer(steps, true);
+      movePlayerStepByStep(steps, true);
     }
 
-    function movePlayer(steps, allowSurprise = true) {
-      let newPos = currentPosition + steps;
+    // 核心：一格一格逐步移動
+    async function movePlayerStepByStep(steps, allowSurprise = true) {
+      isMoving = true;
+      const direction = steps > 0 ? 1 : -1;
+      const totalSteps = Math.abs(steps);
 
-      if (newPos >= totalCells) {
-        let lapsGained = Math.floor(newPos / totalCells);
-        completedLaps += lapsGained;
-        document.getElementById('completedLapDisplay').innerText = completedLaps;
-      } else if (newPos < 0) {
-        let lapsLost = Math.ceil(Math.abs(newPos) / totalCells);
-        completedLaps = Math.max(0, completedLaps - lapsLost);
-        document.getElementById('completedLapDisplay').innerText = completedLaps;
+      for (let i = 0; i < totalSteps; i++) {
+        let prevPos = currentPosition;
+        currentPosition = (currentPosition + direction + totalCells) % totalCells;
+
+        // 計算跨越起點與圈數
+        if (direction > 0 && prevPos === totalCells - 1 && currentPosition === 0) {
+          completedLaps++;
+          document.getElementById('completedLapDisplay').innerText = completedLaps;
+        } else if (direction < 0 && prevPos === 0 && currentPosition === totalCells - 1) {
+          completedLaps = Math.max(0, completedLaps - 1);
+          document.getElementById('completedLapDisplay').innerText = completedLaps;
+        }
+
+        updatePlayerPositionUI();
+        playStepSound();
+
+        // 移動間隔時間 (每格 200ms)
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
 
-      currentPosition = ((newPos % totalCells) + totalCells) % totalCells;
-      updatePlayerPositionUI();
+      isMoving = false;
 
-      setTimeout(() => {
-        if (completedLaps >= targetLaps) {
-          openModal('winModal');
-          return;
-        }
-
-        if (allowSurprise) {
-          triggerSurpriseDraw();
-        }
-      }, 350);
+      // 移動完成後檢查勝負與驚喜
+      if (completedLaps >= targetLaps) {
+        playWinSound();
+        openModal('winModal');
+      } else if (allowSurprise) {
+        triggerSurpriseDraw();
+      }
     }
 
     function updatePlayerPositionUI() {
@@ -431,6 +555,7 @@
       }
 
       if (selectedSurprise) {
+        playSurpriseSound(); // 播放「燈燈」音效
         document.getElementById('surpriseResultText').innerText = `🎉 恭喜獲得：${selectedSurprise.name}`;
         selectedSurprise.action();
         openModal('surpriseModal');
@@ -439,7 +564,7 @@
 
     function autoStep(steps) {
       setTimeout(() => {
-        movePlayer(steps, false); 
+        movePlayerStepByStep(steps, false); 
       }, 500);
     }
 
@@ -450,17 +575,9 @@
     }
 
     function changePrize(delta) {
+      playClickSound();
       prizeCount = Math.max(0, prizeCount + delta);
       document.getElementById('prizeDisplay').innerText = prizeCount;
-    }
-
-    function setTargetLaps() {
-      const input = document.getElementById('targetLapInput');
-      let val = parseInt(input.value, 10);
-      if (isNaN(val) || val < 1) val = 1;
-      targetLaps = val;
-      document.getElementById('targetLapDisplay').innerText = targetLaps;
-      input.value = targetLaps;
     }
 
     function openModal(id) {
@@ -468,10 +585,12 @@
     }
 
     function closeModal(id) {
+      playClickSound();
       document.getElementById(id).classList.remove('active');
     }
 
     function resetGame() {
+      playClickSound();
       currentPosition = 0;
       completedLaps = 0;
       prizeCount = 1;
