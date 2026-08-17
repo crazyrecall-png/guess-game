@@ -637,4 +637,484 @@
         name: "旋轉挑戰",
         levels: [
           { diffName: "60秒 (簡單)", reward: 200, need: 100, type: "action", target: "60秒" },
-          { diffName: "80秒 (中等)", reward: 500, need: 20
+          { diffName: "80秒 (中等)", reward: 500, need: 200, type: "action", target: "80秒" },
+          { diffName: "90秒 (困難)", reward: 1000, need: 300, type: "action", target: "90秒" }
+        ]
+      },
+      {
+        name: "擊飛挑戰",
+        levels: [
+          { diffName: "1顆 (簡單)", reward: 200, need: 100, type: "action", target: "1顆" },
+          { diffName: "3顆 (中等)", reward: 500, need: 200, type: "action", target: "3顆" },
+          { diffName: "5顆 (困難)", reward: 1000, need: 300, type: "action", target: "5顆" }
+        ]
+      },
+      {
+        name: "抽獎機台",
+        levels: [
+          { diffName: "黑色", reward: 0, need: 200, type: "slot", color: "黑色" },
+          { diffName: "白色", reward: 300, need: 200, type: "slot", color: "白色" },
+          { diffName: "紅色", reward: 600, need: 200, type: "slot", color: "紅色" }
+        ]
+      },
+      {
+        name: "數學遊戲",
+        levels: [
+          { diffName: "簡單 (兩數相加)", reward: 200, need: 100, type: "math_add_2" },
+          { diffName: "中等 (兩數相減)", reward: 500, need: 200, type: "math_sub_2" },
+          { diffName: "困難 (三數加減)", reward: 1000, need: 300, type: "math_mix_3" }
+        ]
+      },
+      {
+        name: "英文字母發音挑戰",
+        levels: [
+          { diffName: "簡單 (1個字母)", reward: 200, need: 100, type: "phonics_en", count: 1 },
+          { diffName: "中等 (2個字母)", reward: 500, need: 200, type: "phonics_en", count: 2 },
+          { diffName: "困難 (3個字母)", reward: 1000, need: 300, type: "phonics_en", count: 3 }
+        ]
+      },
+      {
+        name: "中文注音發音挑戰",
+        levels: [
+          { diffName: "簡單 (1個注音)", reward: 200, need: 100, type: "phonics_zh", count: 1 },
+          { diffName: "中等 (2個注音)", reward: 500, need: 200, type: "phonics_zh", count: 2 },
+          { diffName: "困難 (3個注音)", reward: 1000, need: 300, type: "phonics_zh", count: 3 }
+        ]
+      },
+      {
+        name: "英文單字猜猜看",
+        levels: [
+          { diffName: "簡單 (動物-水果)", reward: 200, need: 100, type: "word_en", category: "easy" },
+          { diffName: "中等 (生活用品)", reward: 500, need: 200, type: "word_en", category: "medium" },
+          { diffName: "困難 (生活常用字)", reward: 1000, need: 300, type: "word_en", category: "hard" }
+        ]
+      },
+      {
+        name: "中文單字猜猜看",
+        levels: [
+          { diffName: "簡單 (動物-水果)", reward: 200, need: 100, type: "word_zh", category: "easy" },
+          { diffName: "中等 (生活用品)", reward: 500, need: 200, type: "word_zh", category: "medium" },
+          { diffName: "困難 (生活常用字)", reward: 1000, need: 300, type: "word_zh", category: "hard" }
+        ]
+      }
+    ];
+
+    const COLS = 6, ROWS = 10;
+    const pathCoords = [];
+    for (let c = 1; c <= COLS; c++) pathCoords.push({ r: 1, c: c });
+    for (let r = 2; r <= ROWS; r++) pathCoords.push({ r: r, c: COLS });
+    for (let c = COLS - 1; c >= 1; c--) pathCoords.push({ r: ROWS, c: c });
+    for (let r = ROWS - 1; r >= 2; r--) pathCoords.push({ r: r, c: 1 });
+
+    const totalCells = pathCoords.length;
+    let currentPosition = 0;
+    let totalStepsTaken = 0;
+    let prizeCount = 1;
+    let completedLaps = 0;
+    let targetLaps = 1;
+    let totalMoney = 0;
+    let isMoving = false;
+    let isRolling = false;
+    let currentMoneyDir = 1;
+
+    let selectedCategory = null;
+    let currentChallengeLevel = null;
+
+    const cellElements = [];
+    const board = document.getElementById('board');
+
+    pathCoords.forEach((coord, idx) => {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.id = `cell-${idx}`;
+      cell.style.gridRow = coord.r;
+      cell.style.gridColumn = coord.c;
+
+      if (idx === 0) {
+        cell.classList.add('start-cell');
+        cell.innerHTML = '起點<br>0';
+      } else {
+        cell.innerText = idx;
+      }
+      board.appendChild(cell);
+      cellElements.push(cell);
+    });
+
+    updatePlayerPositionUI();
+
+    function rollSingleDice(type) {
+      if (isRolling || isMoving) return;
+      isRolling = true;
+      playClickSound();
+
+      const maxVal = (type === 'money') ? 5 : 18;
+      const targetBox = document.getElementById(type === 'money' ? 'moneyDiceBox' : 'stepDiceBox');
+      targetBox.classList.add('rolling');
+
+      const rollInterval = setInterval(() => {
+        targetBox.innerText = Math.floor(Math.random() * maxVal) + 1;
+        playStepSound();
+      }, 60);
+
+      setTimeout(() => {
+        clearInterval(rollInterval);
+        const finalValue = Math.floor(Math.random() * maxVal) + 1;
+        targetBox.innerText = finalValue;
+        targetBox.classList.remove('rolling');
+        isRolling = false;
+
+        if (type === 'money') {
+          const earned = finalValue * 100;
+          totalMoney += earned;
+          document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+          document.getElementById('diceModalTitle').innerText = '💰 金額骰結果';
+          document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
+          document.getElementById('diceModalMoney').innerText = `獲得金額：${earned} 元`;
+        } else {
+          document.getElementById('diceModalTitle').innerText = '🎁 抽獎結果';
+          document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
+          document.getElementById('diceModalMoney').innerText = `獎品號碼：${finalValue} 號`;
+        }
+        openModal('diceModal');
+      }, 800);
+    }
+
+    function customAdjustMoney(direction) {
+      playClickSound();
+      currentMoneyDir = direction;
+      document.getElementById('moneyModalTitle').innerText = direction > 0 ? "💰 增加金額 (+)" : "💰 扣除金額 (-)";
+      document.getElementById('moneyModalInput').value = 500;
+      openModal('moneyModal');
+    }
+
+    function changeModalMoneyInput(delta) {
+      playClickSound();
+      const input = document.getElementById('moneyModalInput');
+      let val = parseInt(input.value, 10) || 0;
+      input.value = Math.max(0, val + delta);
+    }
+
+    function confirmCustomMoney() {
+      playClickSound();
+      const input = document.getElementById('moneyModalInput');
+      let amount = parseInt(input.value, 10) || 0;
+      totalMoney += amount * currentMoneyDir;
+      document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+      closeModal('moneyModal');
+    }
+
+    function changeStep(delta) {
+      playClickSound();
+      const input = document.getElementById('stepInput');
+      let val = (parseInt(input.value, 10) || 0) + delta;
+      if (val === 0) val = delta > 0 ? 1 : -1;
+      input.value = val;
+    }
+
+    function changePrize(delta) {
+      playClickSound();
+      prizeCount = Math.max(1, prizeCount + delta);
+      document.getElementById('prizeDisplay').innerText = prizeCount;
+    }
+
+    function changeTargetLaps(delta) {
+      playClickSound();
+      const input = document.getElementById('targetLapInput');
+      targetLaps = Math.max(1, (parseInt(input.value, 10) || 1) + delta);
+      input.value = targetLaps;
+      document.getElementById('targetLapDisplay').innerText = targetLaps;
+    }
+
+    function handleManualMove() {
+      playClickSound();
+      if (isMoving) return;
+      const input = document.getElementById('stepInput');
+      let steps = parseInt(input.value, 10);
+      if (isNaN(steps) || steps === 0) {
+        alert("輸入步數不可為 0 ！");
+        input.value = 1;
+        return;
+      }
+      movePlayerStepByStep(steps);
+    }
+
+    async function movePlayerStepByStep(steps) {
+      isMoving = true;
+      const direction = steps > 0 ? 1 : -1;
+      const totalSteps = Math.abs(steps);
+
+      for (let i = 0; i < totalSteps; i++) {
+        currentPosition = (currentPosition + direction + totalCells) % totalCells;
+        totalStepsTaken += (direction > 0 ? 1 : -1);
+        totalStepsTaken = Math.max(0, totalStepsTaken);
+
+        completedLaps = Math.floor(totalStepsTaken / totalCells);
+        document.getElementById('completedLapDisplay').innerText = completedLaps;
+
+        updatePlayerPositionUI();
+        playStepSound();
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
+      isMoving = false;
+      document.getElementById('stepInput').value = 1;
+
+      if (completedLaps >= targetLaps) {
+        playWinSound();
+        openModal('winModal');
+      } else if (currentPosition !== 0) {
+        triggerChallengePrompt();
+      }
+    }
+
+    function updatePlayerPositionUI() {
+      cellElements.forEach(cell => cell.classList.remove('active'));
+      if (cellElements[currentPosition]) cellElements[currentPosition].classList.add('active');
+    }
+
+    function triggerChallengePrompt() {
+      const randIdx = Math.floor(Math.random() * challengeCategories.length);
+      selectedCategory = challengeCategories[randIdx];
+      
+      document.getElementById('askChallengeName').innerText = `踩到了挑戰格！【${selectedCategory.name}】\n請選擇是否挑戰！`;
+      openModal('askChallengeModal');
+    }
+
+    function acceptChallenge() {
+      closeModal('askChallengeModal');
+      document.getElementById('selectDiffTitle').innerText = `${selectedCategory.name} - 選擇難度`;
+      document.getElementById('userMoneyHint').innerText = `目前持有金額：$${totalMoney}`;
+      const container = document.getElementById('diffBtnContainer');
+      container.innerHTML = '';
+
+      selectedCategory.levels.forEach(lvl => {
+        const btn = document.createElement('button');
+        const canAfford = totalMoney >= lvl.need;
+        
+        btn.className = `opt-btn ${canAfford ? '' : 'disabled'}`;
+        btn.innerText = `${lvl.diffName} (扣$${lvl.need} / 獎金:$${lvl.reward})`;
+        
+        if (canAfford) {
+          btn.onclick = () => startChallengeGame(lvl);
+        } else {
+          btn.onclick = () => {
+            alert(`金額不足！需要 $${lvl.need}，但你只有 $${totalMoney}。只能選擇其他難度或不挑戰。`);
+          };
+        }
+        container.appendChild(btn);
+      });
+
+      openModal('selectDiffModal');
+    }
+
+    function startChallengeGame(level) {
+      currentChallengeLevel = level;
+      closeModal('selectDiffModal');
+
+      // 扣除挑戰所需金額
+      totalMoney -= level.need;
+      document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+
+      const title = document.getElementById('gameModalTitle');
+      const qText = document.getElementById('gameModalQuestion');
+      const soundContainer = document.getElementById('gameSoundContainer');
+      const optsContainer = document.getElementById('gameOptionsContainer');
+
+      title.innerText = `${selectedCategory.name} (${level.diffName})`;
+      soundContainer.innerHTML = '';
+      optsContainer.innerHTML = '';
+
+      let correctAnswer = "";
+      let options = [];
+
+      if (level.type === 'action') {
+        qText.innerText = `已扣除代幣 $${level.need}！\n任務目標：完成 ${selectedCategory.name} ${level.target}！`;
+        options = ["完成挑戰", "挑戰失敗"];
+        correctAnswer = "完成挑戰";
+      } 
+      else if (level.type === 'slot') {
+        qText.innerText = `已扣除代幣 $${level.need}！\n機台轉動中... 開出【${level.color}】！`;
+        options = ["確認領取"];
+        correctAnswer = "確認領取";
+      }
+      else if (level.type.startsWith('math')) {
+        let n1, n2, n3, ans;
+        if (level.type === 'math_add_2') {
+          n1 = Math.floor(Math.random() * 8) + 5;
+          n2 = Math.floor(Math.random() * 8) + 5;
+          ans = n1 + n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} = ?`;
+        } else if (level.type === 'math_sub_2') {
+          n1 = Math.floor(Math.random() * 10) + 10;
+          n2 = Math.floor(Math.random() * 8) + 1;
+          ans = n1 - n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} - ${n2} = ?`;
+        } else {
+          n1 = Math.floor(Math.random() * 10) + 5;
+          n2 = Math.floor(Math.random() * 10) + 2;
+          n3 = Math.floor(Math.random() * 5) + 1;
+          ans = n1 + n2 - n3;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} - ${n3} = ?`;
+        }
+        correctAnswer = ans.toString();
+        options = generate3Options(ans);
+      }
+      else if (level.type === 'phonics_en') {
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let targetStr = "";
+        for (let i = 0; i < level.count; i++) {
+          targetStr += letters.charAt(Math.floor(Math.random() * letters.length));
+        }
+        qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確字母：`;
+        correctAnswer = targetStr;
+        options = generate3StrOptions(targetStr, () => {
+          let s = "";
+          for(let i=0;i<level.count;i++) s += letters.charAt(Math.floor(Math.random() * letters.length));
+          return s;
+        });
+
+        const sBtn = document.createElement('button');
+        sBtn.className = 'sound-btn';
+        sBtn.innerText = '🔊 點擊播放發音';
+        sBtn.onclick = () => speakText(targetStr, 'en-US');
+        soundContainer.appendChild(sBtn);
+        speakText(targetStr, 'en-US');
+      }
+      else if (level.type === 'phonics_zh') {
+        const zhList = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
+        let targetStr = "";
+        for (let i = 0; i < level.count; i++) {
+          targetStr += zhList[Math.floor(Math.random() * zhList.length)];
+        }
+        qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確注音：`;
+        correctAnswer = targetStr;
+        options = generate3StrOptions(targetStr, () => {
+          let s = "";
+          for(let i=0;i<level.count;i++) s += zhList[Math.floor(Math.random() * zhList.length)];
+          return s;
+        });
+
+        const sBtn = document.createElement('button');
+        sBtn.className = 'sound-btn';
+        sBtn.innerText = '🔊 點擊播放發音';
+        sBtn.onclick = () => speakText(targetStr, 'zh-TW');
+        soundContainer.appendChild(sBtn);
+        speakText(targetStr, 'zh-TW');
+      }
+      else if (level.type === 'word_en' || level.type === 'word_zh') {
+        const bank = {
+          easy: [{zh:"蘋果", en:"Apple"}, {zh:"香蕉", en:"Banana"}, {zh:"貓咪", en:"Cat"}, {zh:"小狗", en:"Dog"}],
+          medium: [{zh:"杯子", en:"Cup"}, {zh:"桌子", en:"Table"}, {zh:"椅子", en:"Chair"}, {zh:"鉛筆", en:"Pencil"}],
+          hard: [{zh:"學校", en:"School"}, {zh:"朋友", en:"Friend"}, {zh:"時間", en:"Time"}, {zh:"音樂", en:"Music"}]
+        };
+        const pool = bank[level.category];
+        const item = pool[Math.floor(Math.random() * pool.length)];
+
+        if (level.type === 'word_en') {
+          qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確英文單字：`;
+          correctAnswer = item.en;
+          options = generate3StrOptions(item.en, () => pool[Math.floor(Math.random() * pool.length)].en);
+          const sBtn = document.createElement('button');
+          sBtn.className = 'sound-btn';
+          sBtn.innerText = '🔊 點擊播放發音';
+          sBtn.onclick = () => speakText(item.en, 'en-US');
+          soundContainer.appendChild(sBtn);
+          speakText(item.en, 'en-US');
+        } else {
+          qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確中文單字：`;
+          correctAnswer = item.zh;
+          options = generate3StrOptions(item.zh, () => pool[Math.floor(Math.random() * pool.length)].zh);
+          const sBtn = document.createElement('button');
+          sBtn.className = 'sound-btn';
+          sBtn.innerText = '🔊 點擊播放發音';
+          sBtn.onclick = () => speakText(item.zh, 'zh-TW');
+          soundContainer.appendChild(sBtn);
+          speakText(item.zh, 'zh-TW');
+        }
+      }
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerText = opt;
+        btn.onclick = () => finishChallenge(opt === correctAnswer, correctAnswer, level.reward);
+        optsContainer.appendChild(btn);
+      });
+
+      openModal('playGameModal');
+    }
+
+    function generate3Options(correctVal) {
+      const set = new Set([correctVal.toString()]);
+      while(set.size < 3) {
+        let delta = (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
+        set.add((correctVal + delta).toString());
+      }
+      return Array.from(set).sort(() => Math.random() - 0.5);
+    }
+
+    function generate3StrOptions(correctStr, genFunc) {
+      const set = new Set([correctStr]);
+      while(set.size < 3) {
+        set.add(genFunc());
+      }
+      return Array.from(set).sort(() => Math.random() - 0.5);
+    }
+
+    function finishChallenge(isSuccess, correctAnswer, reward) {
+      closeModal('playGameModal');
+      
+      const title = document.getElementById('resultModalTitle');
+      const text = document.getElementById('resultModalText');
+      const ansText = document.getElementById('resultModalAnswer');
+
+      if (isSuccess) {
+        playWinSound();
+        title.innerText = "🎉 挑戰成功！";
+        title.style.color = "#00b894";
+        if (reward > 0) {
+          totalMoney += reward;
+          document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+          text.innerText = `恭喜贏得獎金 $${reward} 元！`;
+        } else {
+          text.innerText = `很可惜，抽獎結果為「沒有中獎」！`;
+        }
+        ansText.innerText = `正確答案為：${correctAnswer}`;
+      } else {
+        playClickSound();
+        title.innerText = "❌ 挑戰失敗！";
+        title.style.color = "#d63031";
+        text.innerText = `挑戰失敗，無法拿回扣除的費用。`;
+        ansText.innerText = `正確答案為：${correctAnswer}`;
+      }
+
+      openModal('resultModal');
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      playClickSound();
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function resetGame() {
+      playClickSound();
+      currentPosition = 0;
+      totalStepsTaken = 0;
+      completedLaps = 0;
+      prizeCount = 1;
+      
+      document.getElementById('prizeDisplay').innerText = prizeCount;
+      document.getElementById('completedLapDisplay').innerText = completedLaps;
+      document.getElementById('stepInput').value = 1;
+      document.getElementById('moneyDiceBox').innerText = "1";
+      document.getElementById('stepDiceBox').innerText = "1";
+      updatePlayerPositionUI();
+      closeModal('winModal');
+    }
+  </script>
+</body>
+</html>
