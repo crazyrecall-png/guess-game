@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文隨機朗讀</title>
+
+    <style>
+        body {
+            font-family: Arial, "Microsoft JhengHei", sans-serif;
+            background-color: #f2f7ff;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        .category-buttons button {
+            font-size: 18px;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+        }
+
+        .category-buttons button:hover {
+            background-color: #357abd;
+        }
+
+        .result-box {
+            margin-top: 30px;
+            font-size: 32px;
+            color: #222;
+        }
+
+        #word {
+            display: inline-block;
+            min-width: 150px;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        #speakButton {
+            font-size: 20px;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: #5cb85c;
+            color: white;
+            cursor: pointer;
+        }
+
+        #speakButton:hover {
+            background-color: #449d44;
+        }
+
+        #speakButton:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        #categoryTitle {
+            color: #666;
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>中文隨機朗讀</h1>
+
+    <div class="category-buttons">
+        <button onclick="randomWord('動物')">動物</button>
+        <button onclick="randomWord('水果')">水果</button>
+        <button onclick="randomWord('交通工具')">交通工具</button>
+        <button onclick="randomWord('生活用品')">生活用品</button>
+        <button onclick="randomWord('職業')">職業</button>
+    </div>
+
+    <div id="categoryTitle">請選擇一個分類</div>
+
+    <div class="result-box">
+        <span id="word">尚未選擇</span>
+        <button id="speakButton" onclick="speakWord()" disabled>
+            🔊 發聲
+        </button>
+    </div>
+
+    <script>
+        const wordList = {
+            動物: [
+                "狗",
+                "貓",
+                "大象",
+                "獅子",
+                "老虎",
+                "兔子",
+                "猴子",
+                "長頸鹿",
+                "熊貓",
+                "海豚"
+            ],
+
+            水果: [
+                "蘋果",
+                "香蕉",
+                "西瓜",
+                "葡萄",
+                "橘子",
+                "草莓",
+                "芒果",
+                "鳳梨",
+                "水梨",
+                "奇異果"
+            ],
+
+            交通工具: [
+                "汽車",
+                "公車",
+                "火車",
+                "捷運",
+                "飛機",
+                "腳踏車",
+                "機車",
+                "船",
+                "計程車",
+                "卡車"
+            ],
+
+            生活用品: [
+                "椅子",
+                "桌子",
+                "牙刷",
+                "毛巾",
+                "杯子",
+                "雨傘",
+                "書包",
+                "剪刀",
+                "鏡子",
+                "電風扇"
+            ],
+
+            職業: [
+                "老師",
+                "醫生",
+                "護士",
+                "警察",
+                "消防員",
+                "廚師",
+                "工程師",
+                "司機",
+                "農夫",
+                "律師"
+            ]
+        };
+
+        let currentWord = "";
+
+        function randomWord(category) {
+            const words = wordList[category];
+
+            const randomIndex = Math.floor(Math.random() * words.length);
+            currentWord = words[randomIndex];
+
+            document.getElementById("categoryTitle").textContent =
+                "目前分類：" + category;
+
+            document.getElementById("word").textContent = currentWord;
+
+            document.getElementById("speakButton").disabled = false;
+        }
+
+        function speakWord() {
+            if (currentWord === "") {
+                return;
+            }
+
+            // 如果瀏覽器正在朗讀，先停止
+            window.speechSynthesis.cancel();
+
+            const speech = new SpeechSynthesisUtterance(currentWord);
+
+            // 設定為中文
+            speech.lang = "zh-TW";
+            speech.rate = 0.8;  // 語速，數字越小越慢
+            speech.pitch = 1;   // 音調
+
+            window.speechSynthesis.speak(speech);
+        }
+    </script>
+
+</body>
+</html>
