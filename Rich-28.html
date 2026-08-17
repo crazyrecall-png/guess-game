@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.0.3</title>
+  <title>可愛大富翁 v1.0.4</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -44,7 +44,7 @@
       overflow: hidden; /* 防止出現滾動條 */
     }
 
-    /* iPad Mini 6x16 矩陣容器 */
+    /* iPad Mini 6x10 矩陣容器 (28格) */
     .game-container {
       width: 100%;
       max-width: 560px;
@@ -56,21 +56,21 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      grid-template-rows: repeat(16, 1fr);
-      gap: 2px;
+      grid-template-rows: repeat(10, 1fr);
+      gap: 3px;
       padding: 4px;
       position: relative;
     }
 
-    /* 格子樣式 */
+    /* 格子樣式 (格子放大) */
     .cell {
       background-color: var(--cell-bg);
       border: 2px solid var(--cell-border);
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 800;
       color: var(--cell-text);
       text-align: center;
@@ -82,7 +82,7 @@
       background-color: #ffabe7;
       border-color: #fd79a8;
       color: #000;
-      font-size: 15px;
+      font-size: 18px;
     }
 
     /* 反色與縮放動畫 */
@@ -91,7 +91,7 @@
       color: var(--active-text) !important;
       border-color: var(--active-bg);
       box-shadow: var(--active-shadow);
-      font-size: 24px;
+      font-size: 28px;
       transform: scale(1.06);
       z-index: 5;
     }
@@ -99,7 +99,7 @@
     /* 中間控制區域 */
     .center-dashboard {
       grid-column: 2 / 6;
-      grid-row: 2 / 16;
+      grid-row: 2 / 10;
       background: #f1f2f6;
       border-radius: 12px;
       padding: 6px 8px;
@@ -396,7 +396,7 @@
     <div class="center-dashboard">
       <!-- 標題區域含版本號 -->
       <div class="dashboard-title">
-        🎲 歡樂大富翁 <span class="version-tag">v1.0.0</span>
+        🎲 歡樂大富翁 <span class="version-tag">v1.0.4</span>
       </div>
 
       <!-- 🎲 1. 金額抽獎雙骰區（放大專區） -->
@@ -501,7 +501,6 @@
     <div class="modal-content" style="border-color: #74b9ff;">
       <div class="modal-title" id="diceModalTitle" style="color: #0984e3;">🎲 骰子結果</div>
       <div class="modal-desc" id="diceModalPoint">骰出點數：0 點</div>
-      <!-- 第二行改為 獎品號碼 -->
       <div class="modal-desc" style="color: #00b894; font-size: 20px;" id="diceModalMoney">獎品號碼：0 號</div>
       <button class="btn modal-btn" onclick="closeModal('diceModal')">確定</button>
     </div>
@@ -627,9 +626,9 @@
       });
     }
 
-    // --- 遊戲設定 ---
+    // --- 遊戲設定 (修改為 6x10 矩陣，剛好 28 格) ---
     const COLS = 6;
-    const ROWS = 16;
+    const ROWS = 10;
     
     const pathCoords = [];
     for (let c = 1; c <= COLS; c++) pathCoords.push({ r: 1, c: c });
@@ -637,7 +636,7 @@
     for (let c = COLS - 1; c >= 1; c--) pathCoords.push({ r: ROWS, c: c });
     for (let r = ROWS - 1; r >= 2; r--) pathCoords.push({ r: r, c: 1 });
 
-    const totalCells = pathCoords.length;
+    const totalCells = pathCoords.length; // 28格
     let currentPosition = 0;
     let totalStepsTaken = 0;
     let prizeCount = 1;
@@ -713,12 +712,10 @@
           
           document.getElementById('diceModalTitle').innerText = '💰 金額骰結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
-          // 修正為 獎品號碼
           document.getElementById('diceModalMoney').innerText = `獲得金額：${earned} 元`;
         } else {
           document.getElementById('diceModalTitle').innerText = '🎁 抽獎結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
-          // 修正為 獎品號碼
           document.getElementById('diceModalMoney').innerText = `獎品號碼：${finalValue} 號`;
         }
 
@@ -732,7 +729,7 @@
       currentMoneyDir = direction;
       const titleText = direction > 0 ? "💰 增加金額 (+)" : "💰 扣除金額 (-)";
       document.getElementById('moneyModalTitle').innerText = titleText;
-      document.getElementById('moneyModalInput').value = 500; // 預設 500
+      document.getElementById('moneyModalInput').value = 500;
       openModal('moneyModal');
     }
 
