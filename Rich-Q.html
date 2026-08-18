@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.0.9 - 幼兒版</title>
+  <title>可愛大富翁 v1.0.8 - BABY版</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -366,13 +366,34 @@
       margin-bottom: 12px;
       font-weight: bold;
       line-height: 1.4;
-      white-space: pre-line;
     }
 
     .modal-btn {
       font-size: 16px;
       padding: 8px 18px;
       margin: 4px;
+    }
+
+    /* 「可以 / 成功」按鈕標籤 (綠色) */
+    .btn-yes {
+      background-color: #2ed573 !important;
+      box-shadow: 0 4px 0 #26af5f !important;
+      color: white !important;
+    }
+    .btn-yes:active {
+      box-shadow: 0 1px 0 #26af5f !important;
+      transform: translateY(2px);
+    }
+
+    /* 「不可以 / 取消」按鈕標籤 (紅色) */
+    .btn-no {
+      background-color: #ff7675 !important;
+      box-shadow: 0 4px 0 #d63031 !important;
+      color: white !important;
+    }
+    .btn-no:active {
+      box-shadow: 0 1px 0 #d63031 !important;
+      transform: translateY(2px);
     }
 
     .diff-btn-group, .option-btn-group {
@@ -392,30 +413,57 @@
       color: white;
       box-shadow: 0 3px 0 #0984e3;
       cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
     }
 
+    /* 3選項紅綠黃樣式區分 */
+    .opt-btn.opt-color-red {
+      background-color: #ff7675 !important;
+      color: white !important;
+      box-shadow: 0 3px 0 #d63031 !important;
+    }
+    .opt-btn.opt-color-red:active {
+      box-shadow: 0 1px 0 #d63031 !important;
+    }
+
+    .opt-btn.opt-color-green {
+      background-color: #2ed573 !important;
+      color: white !important;
+      box-shadow: 0 3px 0 #26af5f !important;
+    }
+    .opt-btn.opt-color-green:active {
+      box-shadow: 0 1px 0 #26af5f !important;
+    }
+
+    .opt-btn.opt-color-yellow {
+      background-color: #fca130 !important;
+      color: white !important;
+      box-shadow: 0 3px 0 #e15f00 !important;
+    }
+    .opt-btn.opt-color-yellow:active {
+      box-shadow: 0 1px 0 #e15f00 !important;
+    }
+
+    /* 猜球顏色按鈕 */
     .opt-btn.color-black {
       background-color: #222222;
       color: white;
       box-shadow: 0 3px 0 #000000;
     }
-
     .opt-btn.color-white {
       background-color: #ffffff;
       color: #2d3436;
       border: 2px solid #b2bec3;
       box-shadow: 0 3px 0 #636e72;
     }
-
     .opt-btn.color-red {
       background-color: #e74c3c;
       color: white;
       box-shadow: 0 3px 0 #c0392b;
     }
+
+    .opt-btn.color-black:active { box-shadow: 0 1px 0 #000000; }
+    .opt-btn.color-white:active { box-shadow: 0 1px 0 #636e72; }
+    .opt-btn.color-red:active { box-shadow: 0 1px 0 #c0392b; }
 
     .opt-btn:active {
       transform: translateY(2px);
@@ -446,34 +494,6 @@
       transform: translateY(2px);
       box-shadow: 0 1px 0 #e17055;
     }
-
-    .timer-display {
-      font-size: 22px;
-      font-weight: 900;
-      color: #d63031;
-      background: #ffeaa7;
-      border: 2px dashed #e17055;
-      border-radius: 10px;
-      padding: 4px 8px;
-      margin-bottom: 8px;
-      display: inline-block;
-    }
-
-    /* 顏色點陣圖（色塊）容器 */
-    .color-block-group {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-      align-items: center;
-    }
-    .color-dot {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 2px solid #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-      display: inline-block;
-    }
   </style>
 </head>
 <body>
@@ -481,7 +501,7 @@
   <div class="game-container" id="board">
     <div class="center-dashboard">
       <div class="dashboard-title">
-        🎲 歡樂大富翁 - 幼兒版<span class="version-tag">v1.0.9</span>
+        🎲 歡樂大富翁 - BABY<span class="version-tag">v1.0.8</span>
       </div>
 
       <div class="section-box section-box-large">
@@ -520,11 +540,11 @@
       </div>
 
       <div class="section-box">
-        <div class="section-title">⏱️ 答題倒數秒數 (最少1秒)</div>
+        <div class="section-title">🎁 目前獎品數 (最少1)</div>
         <div class="input-group">
-          <button class="btn-adjust btn-minus" onclick="changeTimerSetting(-1)">-</button>
-          <span class="stat-display" id="timerSettingDisplay">10</span>
-          <button class="btn-adjust btn-plus" onclick="changeTimerSetting(1)">+</button>
+          <button class="btn-adjust btn-minus" onclick="changePrize(-1)">-</button>
+          <span class="stat-display" id="prizeDisplay">1</span>
+          <button class="btn-adjust btn-plus" onclick="changePrize(1)">+</button>
         </div>
       </div>
 
@@ -554,12 +574,12 @@
         <button class="btn-adjust btn-plus" style="width:42px; height:42px; font-size:22px;" onclick="changeModalMoneyInput(100)">+</button>
       </div>
       <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 16px;">
-        <button class="btn" style="background-color: #ff7675; box-shadow: 0 3px 0 #d63031; padding: 6px 12px;" onclick="changeModalMoneyInput(-500)">-500</button>
-        <button class="btn" style="background-color: #2ed573; box-shadow: 0 3px 0 #26af5f; padding: 6px 12px;" onclick="changeModalMoneyInput(500)">+500</button>
+        <button class="btn btn-no" style="padding: 6px 12px;" onclick="changeModalMoneyInput(-500)">-500</button>
+        <button class="btn btn-yes" style="padding: 6px 12px;" onclick="changeModalMoneyInput(500)">+500</button>
       </div>
       <div style="display: flex; gap: 12px; justify-content: center;">
-        <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="confirmCustomMoney()">確定</button>
-        <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('moneyModal')">取消</button>
+        <button class="btn modal-btn btn-yes" onclick="confirmCustomMoney()">確定</button>
+        <button class="btn modal-btn btn-no" onclick="closeModal('moneyModal')">取消</button>
       </div>
     </div>
   </div>
@@ -569,7 +589,7 @@
       <div class="modal-title" id="diceModalTitle" style="color: #0984e3;">🎲 骰子結果</div>
       <div class="modal-desc" id="diceModalPoint">骰出點數：0 點</div>
       <div class="modal-desc" style="color: #00b894; font-size: 20px;" id="diceModalMoney">獎品號碼：0 號</div>
-      <button class="btn modal-btn" onclick="closeModal('diceModal')">確定</button>
+      <button class="btn modal-btn btn-yes" onclick="closeModal('diceModal')">確定</button>
     </div>
   </div>
 
@@ -577,7 +597,7 @@
     <div class="modal-content" style="border-color: #ff7675;">
       <div class="modal-title">🏆 恭喜獲勝！</div>
       <div class="modal-desc">你已經跑滿設定的圈數囉！</div>
-      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="resetGame()">再玩一次 (保留金額)</button>
+      <button class="btn modal-btn btn-yes" onclick="resetGame()">再玩一次 (保留金額)</button>
     </div>
   </div>
 
@@ -586,8 +606,8 @@
       <div class="modal-title">⚔️ 觸發挑戰任務！</div>
       <div class="modal-desc" id="askChallengeName">發現挑戰題！要接受挑戰嗎？</div>
       <div style="display:flex; justify-content:center; gap: 10px;">
-        <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="acceptChallenge()">開始挑戰</button>
-        <button class="btn modal-btn" style="background-color: #b2bec3; box-shadow: 0 4px 0 #636e72;" onclick="closeModal('askChallengeModal')">不挑戰</button>
+        <button class="btn modal-btn btn-yes" onclick="acceptChallenge()">可以 (開始挑戰)</button>
+        <button class="btn modal-btn btn-no" onclick="closeModal('askChallengeModal')">不可以 (不挑戰)</button>
       </div>
     </div>
   </div>
@@ -597,14 +617,13 @@
       <div class="modal-title" id="selectDiffTitle">選擇難度 / 選項</div>
       <div class="modal-desc" style="font-size:14px; color:#e17055;" id="userMoneyHint">目前持有金額：$0</div>
       <div class="diff-btn-group" id="diffBtnContainer"></div>
-      <button class="btn modal-btn" style="background-color: #b2bec3; box-shadow: 0 4px 0 #636e72;" onclick="closeModal('selectDiffModal')">不挑戰 (返回)</button>
+      <button class="btn modal-btn btn-no" onclick="closeModal('selectDiffModal')">不可以 (返回)</button>
     </div>
   </div>
 
   <div class="modal-overlay" id="playGameModal">
     <div class="modal-content" style="border-color: #a55eea;">
       <div class="modal-title" id="gameModalTitle">挑戰進行中</div>
-      <div id="timerContainer" class="timer-display" style="display: none;">⏳ 剩餘時間：<span id="timerBox">10</span> 秒</div>
       <div class="modal-desc" id="gameModalQuestion">題目載入中...</div>
       <div id="gameSoundContainer"></div>
       <div class="option-btn-group" id="gameOptionsContainer"></div>
@@ -616,12 +635,65 @@
       <div class="modal-title" id="resultModalTitle">挑戰結果</div>
       <div class="modal-desc" id="resultModalText">...</div>
       <div class="modal-desc" style="color: #d63031;" id="resultModalAnswer"></div>
-      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="closeModal('resultModal')">確定</button>
+      <button class="btn modal-btn btn-yes" onclick="closeModal('resultModal')">確定</button>
     </div>
   </div>
 
   <script>
-    // 音效初始化與播放
+    // 100個適合7歲兒童的常見中英文基礎單字庫
+    const wordBank = [
+      // 動物 (Animals)
+      { zh: "蘋果", en: "Apple" }, { zh: "香蕉", en: "Banana" }, { zh: "貓咪", en: "Cat" }, { zh: "小狗", en: "Dog" },
+      { zh: "大象", en: "Elephant" }, { zh: "青蛙", en: "Frog" }, { zh: "長頸鹿", en: "Giraffe" }, { zh: "馬", en: "Horse" },
+      { zh: "獅子", en: "Lion" }, { zh: "猴子", en: "Monkey" }, { zh: "兔子", en: "Rabbit" }, { zh: "老虎", en: "Tiger" },
+      { zh: "熊", en: "Bear" }, { zh: "鳥", en: "Bird" }, { zh: "鴨子", en: "Duck" }, { zh: "魚", en: "Fish" },
+      { zh: "豬", en: "Pig" }, { zh: "綿羊", en: "Sheep" }, { zh: "烏龜", en: "Turtle" }, { zh: "斑馬", en: "Zebra" },
+      
+      // 水果與食物 (Food & Fruits)
+      { zh: "麵包", en: "Bread" }, { zh: "蛋糕", en: "Cake" }, { zh: "牛奶", en: "Milk" }, { zh: "水", en: "Water" },
+      { zh: "雞蛋", en: "Egg" }, { zh: "果汁", en: "Juice" }, { zh: "米飯", en: "Rice" }, { zh: "湯", en: "Soup" },
+      { zh: "葡萄", en: "Grape" }, { zh: "檸檬", en: "Lemon" }, { zh: "柳橘", en: "Orange" }, { zh: "水蜜桃", en: "Peach" },
+      { zh: "草莓", en: "Strawberry" }, { zh: "西瓜", en: "Watermelon" }, { zh: "冰淇淋", en: "Ice cream" }, { zh: "糖果", en: "Candy" },
+      { zh: "餅乾", en: "Cookie" }, { zh: "披薩", en: "Pizza" }, { zh: "漢堡", en: "Burger" }, { zh: "起司", en: "Cheese" },
+
+      // 家人與稱呼 (Family & People)
+      { zh: "爸爸", en: "Dad" }, { zh: "媽媽", en: "Mom" }, { zh: "哥哥弟弟", en: "Brother" }, { zh: "姊姊妹妹", en: "Sister" },
+      { zh: "爺爺外公", en: "Grandpa" }, { zh: "奶奶外婆", en: "Grandma" }, { zh: "嬰兒", en: "Baby" }, { zh: "男孩", en: "Boy" },
+      { zh: "女孩", en: "Girl" }, { zh: "老師", en: "Teacher" }, { zh: "學生", en: "Student" }, { zh: "朋友", en: "Friend" },
+
+      // 身體部位 (Body)
+      { zh: "眼睛", en: "Eye" }, { zh: "耳朵", en: "Ear" }, { zh: "嘴巴", en: "Mouth" }, { zh: "鼻子", en: "Nose" },
+      { zh: "頭", en: "Head" }, { zh: "手", en: "Hand" }, { zh: "腳", en: "Foot" }, { zh: "腿", en: "Leg" },
+      { zh: "手臂", en: "Arm" }, { zh: "頭髮", en: "Hair" },
+
+      // 顏色與形狀 (Colors & Shapes)
+      { zh: "紅色", en: "Red" }, { zh: "藍色", en: "Blue" }, { zh: "黃色", en: "Yellow" }, { zh: "綠色", en: "Green" },
+      { zh: "黑色", en: "Black" }, { zh: "白色", en: "White" }, { zh: "粉紅色", en: "Pink" }, { zh: "紫色", en: "Purple" },
+      { zh: "橘色", en: "Orange" }, { zh: "圓形", en: "Circle" }, { zh: "正方形", en: "Square" }, { zh: "星形", en: "Star" },
+
+      // 物品與學校用品 (Objects & School)
+      { zh: "書本", en: "Book" }, { zh: "筆", en: "Pen" }, { zh: "鉛筆", en: "Pencil" }, { zh: "書包", en: "Bag" },
+      { zh: "桌子", en: "Table" }, { zh: "椅子", en: "Chair" }, { zh: "床", en: "Bed" }, { zh: "門", en: "Door" },
+      { zh: "窗戶", en: "Window" }, { zh: "鐘", en: "Clock" }, { zh: "盒子", en: "Box" }, { zh: "球", en: "Ball" },
+      { zh: "玩具", en: "Toy" }, { zh: "杯子", en: "Cup" }, { zh: "車子", en: "Car" }, { zh: "公車", en: "Bus" },
+      { zh: "火車", en: "Train" }, { zh: "飛機", en: "Plane" }, { zh: "腳踏車", en: "Bike" }, { zh: "船", en: "Boat" },
+
+      // 自然與大自然 (Nature & World)
+      { zh: "太陽", en: "Sun" }, { zh: "月亮", en: "Moon" }, { zh: "星星", en: "Star" }, { zh: "天空", en: "Sky" },
+      { zh: "雲", en: "Cloud" }, { zh: "雨", en: "Rain" }, { zh: "雪", en: "Snow" }, { zh: "樹", en: "Tree" },
+      { zh: "花", en: "Flower" }, { zh: "草", en: "Grass" }, { zh: "房子", en: "House" }, { zh: "學校", en: "School" },
+      { zh: "公園", en: "Park" }, { zh: "海邊", en: "Beach" }, { zh: "白天", en: "Day" }, { zh: "夜晚", en: "Night" }
+    ];
+
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
     let audioCtx = null;
     function initAudio() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -673,7 +745,24 @@
       });
     }
 
-    // 語音念讀功能
+    // 挑戰與題目跳出時的提示音效
+    function playChallengeSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const notes = [440, 554.37, 659.25];
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const startTime = audioCtx.currentTime + idx * 0.09;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+        gain.gain.setValueAtTime(0.25, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.18);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(startTime); osc.stop(startTime + 0.18);
+      });
+    }
+
     function speakText(text, lang = 'zh-TW') {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -684,31 +773,6 @@
       }
     }
 
-    // 幼兒顏色資料庫 (名稱與代表色)
-    const colorBank = [
-      { name: "紅色", hex: "#e74c3c" },
-      { name: "黃色", hex: "#f1c40f" },
-      { name: "藍色", hex: "#3498db" },
-      { name: "綠色", hex: "#2ecc71" },
-      { name: "橘色", hex: "#e67e22" },
-      { name: "紫色", hex: "#9b59b6" },
-      { name: "粉紅色", hex: "#fd79a8" },
-      { name: "黑色", hex: "#2d3436" },
-      { name: "白色", hex: "#ffffff" }
-    ];
-
-    // 觀念教育題目庫
-    const conceptQuestions = [
-      { q: "可以打人或傷害別人嗎？", options: [{ text: "可以", isCorrect: false }, { text: "不可以", isCorrect: true }] },
-      { q: "吃東西前要洗手嗎？", options: [{ text: "要洗手", isCorrect: true }, { text: "不用洗", isCorrect: false }] },
-      { q: "過馬路要看紅綠燈嗎？", options: [{ text: "要看", isCorrect: true }, { text: "不用看", isCorrect: false }] },
-      { q: "玩具玩完要收拾好嗎？", options: [{ text: "要收好", isCorrect: true }, { text: "隨便亂放", isCorrect: false }] },
-      { q: "收到禮物要說什麼？", options: [{ text: "謝謝", isCorrect: true }, { text: "走開", isCorrect: false }] },
-      { q: "不小心撞到別人要說什麼？", options: [{ text: "對不起", isCorrect: true }, { text: "沒事", isCorrect: false }] },
-      { q: "可以在走廊上大奔跑嗎？", options: [{ text: "可以", isCorrect: false }, { text: "不可以，要注意安全", isCorrect: true }] }
-    ];
-
-    // 挑戰類別清單
     const challengeCategories = [
       {
         name: "旋轉挑戰",
@@ -729,7 +793,7 @@
         ]
       },
       {
-        name: "抽獎顏色猜猜",
+        name: "抽獎機台猜顏色",
         type: "color_guess",
         need: 200,
         options: [
@@ -739,7 +803,25 @@
         ]
       },
       {
-        name: "中文注音挑戰",
+        name: "數學遊戲",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (兩數相加)", reward: 200, need: 100, type: "math_add_2" },
+          { diffName: "中等 (兩數相減)", reward: 500, need: 200, type: "math_sub_2" },
+          { diffName: "困難 (三數加減)", reward: 1000, need: 300, type: "math_mix_3" }
+        ]
+      },
+      {
+        name: "英文字母發音挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (1個字母)", reward: 200, need: 100, type: "phonics_en", count: 1 },
+          { diffName: "中等 (2個字母)", reward: 500, need: 200, type: "phonics_en", count: 2 },
+          { diffName: "困難 (3個字母)", reward: 1000, need: 300, type: "phonics_en", count: 3 }
+        ]
+      },
+      {
+        name: "中文注音發音挑戰",
         type: "normal",
         levels: [
           { diffName: "簡單 (1個注音)", reward: 200, need: 100, type: "phonics_zh", count: 1 },
@@ -748,28 +830,21 @@
         ]
       },
       {
-        name: "聽音猜數字 (1-100)",
+        name: "英文單字猜猜看",
         type: "normal",
         levels: [
-          { diffName: "簡單 (1個數字) - 費用$100 / 賺$200", reward: 200, need: 100, type: "num_listen", count: 1 },
-          { diffName: "中等 (2個數字) - 費用$200 / 賺$500", reward: 500, need: 200, type: "num_listen", count: 2 },
-          { diffName: "困難 (3個數字) - 費用$300 / 賺$1000", reward: 1000, need: 300, type: "num_listen", count: 3 }
+          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_en" },
+          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_en" },
+          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_en" }
         ]
       },
       {
-        name: "聽音猜顏色 (點陣圖)",
+        name: "中文單字猜猜看",
         type: "normal",
         levels: [
-          { diffName: "簡單 (1個顏色) - 費用$100 / 賺$200", reward: 200, need: 100, type: "color_listen", count: 1 },
-          { diffName: "中等 (2個顏色) - 費用$200 / 賺$500", reward: 500, need: 200, type: "color_listen", count: 2 },
-          { diffName: "困難 (3個顏色) - 費用$300 / 賺$1000", reward: 1000, need: 300, type: "color_listen", count: 3 }
-        ]
-      },
-      {
-        name: "品格觀念教育",
-        type: "normal",
-        levels: [
-          { diffName: "觀念問答 - 費用$100 / 賺$200", reward: 200, need: 100, type: "concept_edu" }
+          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_zh" },
+          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_zh" },
+          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_zh" }
         ]
       }
     ];
@@ -784,14 +859,14 @@
     const totalCells = pathCoords.length;
     let currentPosition = 0;
     let totalStepsTaken = 0;
-    let timerSetting = 10; 
-    let countdownInterval = null; 
+    let prizeCount = 1;
     let completedLaps = 0;
     let targetLaps = 1;
     let totalMoney = 0;
     let isMoving = false;
     let isRolling = false;
     let currentMoneyDir = 1;
+
     let selectedCategory = null;
 
     const cellElements = [];
@@ -885,10 +960,10 @@
       input.value = val;
     }
 
-    function changeTimerSetting(delta) {
+    function changePrize(delta) {
       playClickSound();
-      timerSetting = Math.max(1, timerSetting + delta);
-      document.getElementById('timerSettingDisplay').innerText = timerSetting;
+      prizeCount = Math.max(1, prizeCount + delta);
+      document.getElementById('prizeDisplay').innerText = prizeCount;
     }
 
     function changeTargetLaps(delta) {
@@ -947,6 +1022,7 @@
     }
 
     function triggerChallengePrompt() {
+      playChallengeSound(); // 踩到挑戰格播放提示音效
       const randIdx = Math.floor(Math.random() * challengeCategories.length);
       selectedCategory = challengeCategories[randIdx];
       
@@ -955,6 +1031,7 @@
     }
 
     function acceptChallenge() {
+      playChallengeSound(); // 點擊接受挑戰播放音效
       closeModal('askChallengeModal');
       document.getElementById('userMoneyHint').innerText = `目前持有金額：$${totalMoney}`;
       const container = document.getElementById('diffBtnContainer');
@@ -967,7 +1044,11 @@
 
         selectedCategory.options.forEach(opt => {
           const btn = document.createElement('button');
-          const colorClass = { "黑色": "color-black", "白色": "color-white", "紅色": "color-red" }[opt.colorName];
+          const colorClass = {
+            "黑色": "color-black",
+            "白色": "color-white",
+            "紅色": "color-red"
+          }[opt.colorName];
 
           btn.className = `opt-btn ${colorClass} ${canAfford ? '' : 'disabled'}`;
           btn.innerText = `猜【${opt.colorName}】 (入場費$${need} / 猜中賺$${opt.reward})`;
@@ -975,7 +1056,9 @@
           if (canAfford) {
             btn.onclick = () => startColorGuessGame(opt.colorName, opt.reward, need);
           } else {
-            btn.onclick = () => alert(`金額不足！需要 $${need}，但你只有 $${totalMoney}。`);
+            btn.onclick = () => {
+              alert(`金額不足！需要 $${need}，但你只有 $${totalMoney}。`);
+            };
           }
           container.appendChild(btn);
         });
@@ -990,7 +1073,9 @@
           if (canAfford) {
             btn.onclick = () => startChallengeGame(lvl);
           } else {
-            btn.onclick = () => alert(`金額不足！需要 $${lvl.need}，但你只有 $${totalMoney}。`);
+            btn.onclick = () => {
+              alert(`金額不足！需要 $${lvl.need}，但你只有 $${totalMoney}。`);
+            };
           }
           container.appendChild(btn);
         });
@@ -1035,6 +1120,7 @@
     }
 
     function startChallengeGame(level) {
+      playChallengeSound(); // 進入題目時播放提示音效
       closeModal('selectDiffModal');
 
       totalMoney -= level.need;
@@ -1044,42 +1130,62 @@
       const qText = document.getElementById('gameModalQuestion');
       const soundContainer = document.getElementById('gameSoundContainer');
       const optsContainer = document.getElementById('gameOptionsContainer');
-      const timerContainer = document.getElementById('timerContainer');
-      const timerBox = document.getElementById('timerBox');
 
       title.innerText = `${selectedCategory.name} (${level.diffName})`;
       soundContainer.innerHTML = '';
       optsContainer.innerHTML = '';
-      if (countdownInterval) clearInterval(countdownInterval);
 
       let correctAnswer = "";
       let options = [];
 
-      // 判斷是否需要啟用倒數計時（動作類不計時）
-      const isQuestionType = level.type !== 'action';
-
-      if (isQuestionType) {
-        timerContainer.style.display = 'inline-block';
-        let remainingTime = timerSetting;
-        timerBox.innerText = remainingTime;
-
-        countdownInterval = setInterval(() => {
-          remainingTime--;
-          timerBox.innerText = remainingTime;
-          if (remainingTime <= 0) {
-            clearInterval(countdownInterval);
-            finishChallenge(false, correctAnswer, level.reward, true);
-          }
-        }, 1000);
-      } else {
-        timerContainer.style.display = 'none';
-      }
-
       if (level.type === 'action') {
         qText.innerText = `已扣除代幣 $${level.need}！\n任務目標：完成 ${selectedCategory.name} ${level.target}！`;
-        options = [{ label: "完成挑戰", val: "完成挑戰" }, { label: "挑戰失敗", val: "挑戰失敗" }];
-        correctAnswer = "完成挑戰";
+        options = ["可以 (完成挑戰)", "不可以 (挑戰失敗)"];
+        correctAnswer = "可以 (完成挑戰)";
       } 
+      else if (level.type.startsWith('math')) {
+        let n1, n2, n3, ans;
+        if (level.type === 'math_add_2') {
+          n1 = Math.floor(Math.random() * 8) + 5;
+          n2 = Math.floor(Math.random() * 8) + 5;
+          ans = n1 + n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} = ?`;
+        } else if (level.type === 'math_sub_2') {
+          n1 = Math.floor(Math.random() * 10) + 10;
+          n2 = Math.floor(Math.random() * 8) + 1;
+          ans = n1 - n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} - ${n2} = ?`;
+        } else {
+          n1 = Math.floor(Math.random() * 10) + 5;
+          n2 = Math.floor(Math.random() * 10) + 2;
+          n3 = Math.floor(Math.random() * 5) + 1;
+          ans = n1 + n2 - n3;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} - ${n3} = ?`;
+        }
+        correctAnswer = ans.toString();
+        options = generate3Options(ans);
+      }
+      else if (level.type === 'phonics_en') {
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let targetStr = "";
+        for (let i = 0; i < level.count; i++) {
+          targetStr += letters.charAt(Math.floor(Math.random() * letters.length));
+        }
+        qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確字母：`;
+        correctAnswer = targetStr;
+        options = generate3StrOptions(targetStr, () => {
+          let s = "";
+          for(let i=0;i<level.count;i++) s += letters.charAt(Math.floor(Math.random() * letters.length));
+          return s;
+        });
+
+        const sBtn = document.createElement('button');
+        sBtn.className = 'sound-btn';
+        sBtn.innerText = '🔊 點擊播放發音';
+        sBtn.onclick = () => speakText(targetStr, 'en-US');
+        soundContainer.appendChild(sBtn);
+        speakText(targetStr, 'en-US');
+      }
       else if (level.type === 'phonics_zh') {
         const zhList = ["ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ","ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ","ㄧ","ㄨ","ㄩ"];
         let targetStr = "";
@@ -1088,13 +1194,11 @@
         }
         qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確注音：`;
         correctAnswer = targetStr;
-        
-        const rawOpts = generate3StrOptions(targetStr, () => {
+        options = generate3StrOptions(targetStr, () => {
           let s = "";
           for(let i=0;i<level.count;i++) s += zhList[Math.floor(Math.random() * zhList.length)];
           return s;
         });
-        options = rawOpts.map(o => ({ label: o, val: o }));
 
         const sBtn = document.createElement('button');
         sBtn.className = 'sound-btn';
@@ -1103,119 +1207,64 @@
         soundContainer.appendChild(sBtn);
         speakText(targetStr, 'zh-TW');
       }
-      else if (level.type === 'num_listen') {
-        // 數字 1-100 聽音問答
-        let numArray = [];
-        for (let i = 0; i < level.count; i++) {
-          numArray.push(Math.floor(Math.random() * 100) + 1);
+      else if (level.type === 'word_en' || level.type === 'word_zh') {
+        const targetItem = wordBank[Math.floor(Math.random() * wordBank.length)];
+
+        if (level.type === 'word_en') {
+          qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確英文單字：`;
+          correctAnswer = `${targetItem.en} (${targetItem.zh})`;
+          options = generate3WordObjOptions(targetItem, 'en');
+          
+          const sBtn = document.createElement('button');
+          sBtn.className = 'sound-btn';
+          sBtn.innerText = '🔊 點擊播放英文發音';
+          sBtn.onclick = () => speakText(targetItem.en, 'en-US');
+          soundContainer.appendChild(sBtn);
+          speakText(targetItem.en, 'en-US');
+        } else {
+          qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確中文單字：`;
+          correctAnswer = `${targetItem.zh} (${targetItem.en})`;
+          options = generate3WordObjOptions(targetItem, 'zh');
+          
+          const sBtn = document.createElement('button');
+          sBtn.className = 'sound-btn';
+          sBtn.innerText = '🔊 點擊播放中文發音';
+          sBtn.onclick = () => speakText(targetItem.zh, 'zh-TW');
+          soundContainer.appendChild(sBtn);
+          speakText(targetItem.zh, 'zh-TW');
         }
-        const targetStr = numArray.join(" , ");
-        const speechStr = numArray.join(" ");
-        qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確數字：`;
-        correctAnswer = targetStr;
-
-        const rawOpts = generate3StrOptions(targetStr, () => {
-          let arr = [];
-          for(let i=0; i<level.count; i++) arr.push(Math.floor(Math.random() * 100) + 1);
-          return arr.join(" , ");
-        });
-        options = rawOpts.map(o => ({ label: o, val: o }));
-
-        const sBtn = document.createElement('button');
-        sBtn.className = 'sound-btn';
-        sBtn.innerText = '🔊 點擊播放數字語音';
-        sBtn.onclick = () => speakText(speechStr, 'zh-TW');
-        soundContainer.appendChild(sBtn);
-        speakText(speechStr, 'zh-TW');
-      }
-      else if (level.type === 'color_listen') {
-        // 猜顏色問答（點陣圖/色塊顯示）
-        let chosenColors = [];
-        for (let i = 0; i < level.count; i++) {
-          let randC = colorBank[Math.floor(Math.random() * colorBank.length)];
-          chosenColors.push(randC);
-        }
-        const speechStr = chosenColors.map(c => c.name).join(" ");
-        const targetKey = chosenColors.map(c => c.name).join("-");
-        
-        qText.innerText = `[已扣 $${level.need}]\n請聽顏色語音，點選對應色塊：`;
-        correctAnswer = targetKey;
-
-        // 產生色塊選項
-        let optSets = [chosenColors];
-        while(optSets.length < 3) {
-          let dummy = [];
-          for(let i=0; i<level.count; i++) dummy.push(colorBank[Math.floor(Math.random() * colorBank.length)]);
-          let k = dummy.map(c => c.name).join("-");
-          if (!optSets.some(s => s.map(c=>c.name).join("-") === k)) {
-            optSets.push(dummy);
-          }
-        }
-        optSets.sort(() => Math.random() - 0.5);
-
-        options = optSets.map(cArr => {
-          let key = cArr.map(c => c.name).join("-");
-          let colorDotsHtml = `<div class="color-block-group">` + 
-            cArr.map(c => `<span class="color-dot" style="background-color: ${c.hex};"></span>`).join("") +
-            `</div>`;
-          return { label: colorDotsHtml, val: key, isHtml: true };
-        });
-
-        const sBtn = document.createElement('button');
-        sBtn.className = 'sound-btn';
-        sBtn.innerText = '🔊 點擊播放顏色語音';
-        sBtn.onclick = () => speakText(speechStr, 'zh-TW');
-        soundContainer.appendChild(sBtn);
-        speakText(speechStr, 'zh-TW');
-      }
-      else if (level.type === 'concept_edu') {
-        // 觀念教育問答
-        const qObj = conceptQuestions[Math.floor(Math.random() * conceptQuestions.length)];
-        qText.innerText = `[已扣 $${level.need}]\n題目：${qObj.q}`;
-        
-        qObj.options.forEach(opt => {
-          if (opt.isCorrect) correctAnswer = opt.text;
-        });
-        options = qObj.options.map(o => ({ label: o.text, val: o.text, speakVal: o.text }));
-
-        const sBtn = document.createElement('button');
-        sBtn.className = 'sound-btn';
-        sBtn.innerText = '🔊 朗讀題目語音';
-        sBtn.onclick = () => speakText(qObj.q, 'zh-TW');
-        soundContainer.appendChild(sBtn);
-        speakText(qObj.q, 'zh-TW');
       }
 
-      // 渲染選項按紐
-      options.forEach(opt => {
+      // 生成選項按鈕（針對動作挑戰與三選一問答進行顏色區分）
+      options.forEach((opt, idx) => {
         const btn = document.createElement('button');
         btn.className = 'opt-btn';
-        if (opt.isHtml) {
-          btn.innerHTML = opt.label;
+
+        if (level.type === 'action') {
+          // 動作挑戰（可以/不可以）區分綠色與紅色
+          if (idx === 0) btn.classList.add('opt-color-green');
+          else btn.classList.add('opt-color-red');
         } else {
-          btn.innerText = opt.label;
+          // 三選項問答依序給予 紅、綠、黃 顏色
+          const colorClasses = ['opt-color-red', 'opt-color-green', 'opt-color-yellow'];
+          btn.classList.add(colorClasses[idx % 3]);
         }
 
-        // 為所有問答選項新增獨立的語音按紐 (點擊發聲)
-        if (level.type === 'concept_edu' || level.type === 'num_listen' || level.type === 'phonics_zh') {
-          const speakOptBtn = document.createElement('span');
-          speakOptBtn.innerText = '🔊';
-          speakOptBtn.style.cursor = 'pointer';
-          speakOptBtn.onclick = (e) => {
-            e.stopPropagation();
-            speakText(opt.speakVal || opt.val, 'zh-TW');
-          };
-          btn.appendChild(speakOptBtn);
-        }
-
-        btn.onclick = () => {
-          if (countdownInterval) clearInterval(countdownInterval);
-          finishChallenge(opt.val === correctAnswer, correctAnswer, level.reward, false);
-        };
+        btn.innerText = opt;
+        btn.onclick = () => finishChallenge(opt === correctAnswer, correctAnswer, level.reward);
         optsContainer.appendChild(btn);
       });
 
       openModal('playGameModal');
+    }
+
+    function generate3Options(correctVal) {
+      const set = new Set([correctVal.toString()]);
+      while(set.size < 3) {
+        let delta = (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
+        set.add((correctVal + delta).toString());
+      }
+      return Array.from(set).sort(() => Math.random() - 0.5);
     }
 
     function generate3StrOptions(correctStr, genFunc) {
@@ -1226,8 +1275,19 @@
       return Array.from(set).sort(() => Math.random() - 0.5);
     }
 
-    function finishChallenge(isSuccess, correctAnswer, reward, isTimeout = false) {
-      if (countdownInterval) clearInterval(countdownInterval);
+    function generate3WordObjOptions(correctItem, mode) {
+      const set = new Set();
+      const formatStr = (item) => mode === 'en' ? `${item.en} (${item.zh})` : `${item.zh} (${item.en})`;
+      
+      set.add(formatStr(correctItem));
+      while(set.size < 3) {
+        const randomItem = wordBank[Math.floor(Math.random() * wordBank.length)];
+        set.add(formatStr(randomItem));
+      }
+      return Array.from(set).sort(() => Math.random() - 0.5);
+    }
+
+    function finishChallenge(isSuccess, correctAnswer, reward) {
       closeModal('playGameModal');
       
       const title = document.getElementById('resultModalTitle');
@@ -1245,13 +1305,13 @@
         } else {
           text.innerText = `挑戰成功！`;
         }
-        ansText.innerText = `正確答案為：${correctAnswer.replace(/-/g, " ")}`;
+        ansText.innerText = `正確答案為：${correctAnswer}`;
       } else {
         playClickSound();
-        title.innerText = isTimeout ? "⏰ 時間到！挑戰失敗" : "❌ 答錯了！挑戰失敗";
+        title.innerText = "❌ 答錯了！挑戰失敗";
         title.style.color = "#d63031";
-        text.innerText = isTimeout ? `超過設定的時間限制，無法拿回扣除的費用。` : `挑戰失敗，無法拿回扣除的費用。`;
-        ansText.innerText = correctAnswer ? `正確答案為：${correctAnswer.replace(/-/g, " ")}` : "";
+        text.innerText = `挑戰失敗，無法拿回扣除的費用。`;
+        ansText.innerText = `正確答案為：${correctAnswer}`;
       }
 
       openModal('resultModal');
@@ -1263,19 +1323,17 @@
 
     function closeModal(id) {
       playClickSound();
-      if (id === 'playGameModal' && countdownInterval) {
-        clearInterval(countdownInterval);
-      }
       document.getElementById(id).classList.remove('active');
     }
 
     function resetGame() {
       playClickSound();
-      if (countdownInterval) clearInterval(countdownInterval);
       currentPosition = 0;
       totalStepsTaken = 0;
       completedLaps = 0;
+      prizeCount = 1;
       
+      document.getElementById('prizeDisplay').innerText = prizeCount;
       document.getElementById('completedLapDisplay').innerText = completedLaps;
       document.getElementById('stepInput').value = 1;
       document.getElementById('moneyDiceBox').innerText = "1";
