@@ -374,7 +374,6 @@
       margin: 4px;
     }
 
-    /* 「可以 / 成功」按鈕標籤 (綠色) */
     .btn-yes {
       background-color: #2ed573 !important;
       box-shadow: 0 4px 0 #26af5f !important;
@@ -385,7 +384,6 @@
       transform: translateY(2px);
     }
 
-    /* 「不可以 / 取消」按鈕標籤 (紅色) */
     .btn-no {
       background-color: #ff7675 !important;
       box-shadow: 0 4px 0 #d63031 !important;
@@ -415,7 +413,7 @@
       cursor: pointer;
     }
 
-    /* 3選項紅綠黃樣式區分 */
+    /* 保留：3選項紅綠黃顏色 */
     .opt-btn.opt-color-red {
       background-color: #ff7675 !important;
       color: white !important;
@@ -443,7 +441,6 @@
       box-shadow: 0 1px 0 #e15f00 !important;
     }
 
-    /* 猜球顏色按鈕 */
     .opt-btn.color-black {
       background-color: #222222;
       color: white;
@@ -640,45 +637,37 @@
   </div>
 
   <script>
-    // 100個適合7歲兒童的常見中英文基礎單字庫
     const wordBank = [
-      // 動物 (Animals)
       { zh: "蘋果", en: "Apple" }, { zh: "香蕉", en: "Banana" }, { zh: "貓咪", en: "Cat" }, { zh: "小狗", en: "Dog" },
       { zh: "大象", en: "Elephant" }, { zh: "青蛙", en: "Frog" }, { zh: "長頸鹿", en: "Giraffe" }, { zh: "馬", en: "Horse" },
       { zh: "獅子", en: "Lion" }, { zh: "猴子", en: "Monkey" }, { zh: "兔子", en: "Rabbit" }, { zh: "老虎", en: "Tiger" },
       { zh: "熊", en: "Bear" }, { zh: "鳥", en: "Bird" }, { zh: "鴨子", en: "Duck" }, { zh: "魚", en: "Fish" },
       { zh: "豬", en: "Pig" }, { zh: "綿羊", en: "Sheep" }, { zh: "烏龜", en: "Turtle" }, { zh: "斑馬", en: "Zebra" },
       
-      // 水果與食物 (Food & Fruits)
       { zh: "麵包", en: "Bread" }, { zh: "蛋糕", en: "Cake" }, { zh: "牛奶", en: "Milk" }, { zh: "水", en: "Water" },
       { zh: "雞蛋", en: "Egg" }, { zh: "果汁", en: "Juice" }, { zh: "米飯", en: "Rice" }, { zh: "湯", en: "Soup" },
       { zh: "葡萄", en: "Grape" }, { zh: "檸檬", en: "Lemon" }, { zh: "柳橘", en: "Orange" }, { zh: "水蜜桃", en: "Peach" },
       { zh: "草莓", en: "Strawberry" }, { zh: "西瓜", en: "Watermelon" }, { zh: "冰淇淋", en: "Ice cream" }, { zh: "糖果", en: "Candy" },
       { zh: "餅乾", en: "Cookie" }, { zh: "披薩", en: "Pizza" }, { zh: "漢堡", en: "Burger" }, { zh: "起司", en: "Cheese" },
 
-      // 家人與稱呼 (Family & People)
       { zh: "爸爸", en: "Dad" }, { zh: "媽媽", en: "Mom" }, { zh: "哥哥弟弟", en: "Brother" }, { zh: "姊姊妹妹", en: "Sister" },
       { zh: "爺爺外公", en: "Grandpa" }, { zh: "奶奶外婆", en: "Grandma" }, { zh: "嬰兒", en: "Baby" }, { zh: "男孩", en: "Boy" },
       { zh: "女孩", en: "Girl" }, { zh: "老師", en: "Teacher" }, { zh: "學生", en: "Student" }, { zh: "朋友", en: "Friend" },
 
-      // 身體部位 (Body)
       { zh: "眼睛", en: "Eye" }, { zh: "耳朵", en: "Ear" }, { zh: "嘴巴", en: "Mouth" }, { zh: "鼻子", en: "Nose" },
       { zh: "頭", en: "Head" }, { zh: "手", en: "Hand" }, { zh: "腳", en: "Foot" }, { zh: "腿", en: "Leg" },
       { zh: "手臂", en: "Arm" }, { zh: "頭髮", en: "Hair" },
 
-      // 顏色與形狀 (Colors & Shapes)
       { zh: "紅色", en: "Red" }, { zh: "藍色", en: "Blue" }, { zh: "黃色", en: "Yellow" }, { zh: "綠色", en: "Green" },
       { zh: "黑色", en: "Black" }, { zh: "白色", en: "White" }, { zh: "粉紅色", en: "Pink" }, { zh: "紫色", en: "Purple" },
       { zh: "橘色", en: "Orange" }, { zh: "圓形", en: "Circle" }, { zh: "正方形", en: "Square" }, { zh: "星形", en: "Star" },
 
-      // 物品與學校用品 (Objects & School)
       { zh: "書本", en: "Book" }, { zh: "筆", en: "Pen" }, { zh: "鉛筆", en: "Pencil" }, { zh: "書包", en: "Bag" },
       { zh: "桌子", en: "Table" }, { zh: "椅子", en: "Chair" }, { zh: "床", en: "Bed" }, { zh: "門", en: "Door" },
       { zh: "窗戶", en: "Window" }, { zh: "鐘", en: "Clock" }, { zh: "盒子", en: "Box" }, { zh: "球", en: "Ball" },
       { zh: "玩具", en: "Toy" }, { zh: "杯子", en: "Cup" }, { zh: "車子", en: "Car" }, { zh: "公車", en: "Bus" },
       { zh: "火車", en: "Train" }, { zh: "飛機", en: "Plane" }, { zh: "腳踏車", en: "Bike" }, { zh: "船", en: "Boat" },
 
-      // 自然與大自然 (Nature & World)
       { zh: "太陽", en: "Sun" }, { zh: "月亮", en: "Moon" }, { zh: "星星", en: "Star" }, { zh: "天空", en: "Sky" },
       { zh: "雲", en: "Cloud" }, { zh: "雨", en: "Rain" }, { zh: "雪", en: "Snow" }, { zh: "樹", en: "Tree" },
       { zh: "花", en: "Flower" }, { zh: "草", en: "Grass" }, { zh: "房子", en: "House" }, { zh: "學校", en: "School" },
@@ -745,7 +734,6 @@
       });
     }
 
-    // 挑戰與題目跳出時的提示音效
     function playChallengeSound() {
       initAudio();
       if (!audioCtx) return;
@@ -763,14 +751,31 @@
       });
     }
 
+    /* 修復：強化版語音朗讀，自動尋找最佳配對語音檔 */
     function speakText(text, lang = 'zh-TW') {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = lang;
-        utterance.rate = 0.8;
-        window.speechSynthesis.speak(utterance);
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = 0.8;
+
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        let targetVoice = voices.find(v => v.lang === lang || v.lang.replace('_', '-') === lang);
+        if (!targetVoice) {
+          const prefix = lang.split('-')[0];
+          targetVoice = voices.find(v => v.lang.startsWith(prefix));
+        }
+        if (targetVoice) utterance.voice = targetVoice;
       }
+      window.speechSynthesis.speak(utterance);
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
     }
 
     const challengeCategories = [
@@ -1022,7 +1027,7 @@
     }
 
     function triggerChallengePrompt() {
-      playChallengeSound(); // 踩到挑戰格播放提示音效
+      playChallengeSound();
       const randIdx = Math.floor(Math.random() * challengeCategories.length);
       selectedCategory = challengeCategories[randIdx];
       
@@ -1031,7 +1036,7 @@
     }
 
     function acceptChallenge() {
-      playChallengeSound(); // 點擊接受挑戰播放音效
+      playChallengeSound();
       closeModal('askChallengeModal');
       document.getElementById('userMoneyHint').innerText = `目前持有金額：$${totalMoney}`;
       const container = document.getElementById('diffBtnContainer');
@@ -1120,7 +1125,7 @@
     }
 
     function startChallengeGame(level) {
-      playChallengeSound(); // 進入題目時播放提示音效
+      playChallengeSound();
       closeModal('selectDiffModal');
 
       totalMoney -= level.need;
@@ -1182,6 +1187,7 @@
         const sBtn = document.createElement('button');
         sBtn.className = 'sound-btn';
         sBtn.innerText = '🔊 點擊播放發音';
+        // 修正：明確指名使用純英文內容發音
         sBtn.onclick = () => speakText(targetStr, 'en-US');
         soundContainer.appendChild(sBtn);
         speakText(targetStr, 'en-US');
@@ -1218,6 +1224,7 @@
           const sBtn = document.createElement('button');
           sBtn.className = 'sound-btn';
           sBtn.innerText = '🔊 點擊播放英文發音';
+          // 修正關鍵：發音只傳入 targetItem.en (純英文單字)，不包含中文括號
           sBtn.onclick = () => speakText(targetItem.en, 'en-US');
           soundContainer.appendChild(sBtn);
           speakText(targetItem.en, 'en-US');
@@ -1235,17 +1242,15 @@
         }
       }
 
-      // 生成選項按鈕（針對動作挑戰與三選一問答進行顏色區分）
+      // 保留：生成選項按鈕，同時套用紅、綠、黃樣式
       options.forEach((opt, idx) => {
         const btn = document.createElement('button');
         btn.className = 'opt-btn';
 
         if (level.type === 'action') {
-          // 動作挑戰（可以/不可以）區分綠色與紅色
           if (idx === 0) btn.classList.add('opt-color-green');
           else btn.classList.add('opt-color-red');
         } else {
-          // 三選項問答依序給予 紅、綠、黃 顏色
           const colorClasses = ['opt-color-red', 'opt-color-green', 'opt-color-yellow'];
           btn.classList.add(colorClasses[idx % 3]);
         }
