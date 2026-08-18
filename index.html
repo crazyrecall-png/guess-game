@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>遊戲與網頁入口</title>
+    <title>遊戲入口總覽 | Guess Game Portal</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,121 +13,175 @@
         }
 
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #0b0f19;
+            color: #f1f5f9;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 2rem 1rem;
+            padding: 2.5rem 1rem;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
+        }
+
+        header {
             text-align: center;
+            margin-bottom: 2.5rem;
         }
 
         h1 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
         }
 
         p.subtitle {
             color: #94a3b8;
-            margin-bottom: 2rem;
-            font-size: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin: 1.5rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-left: 4px solid #38bdf8;
+            padding-left: 0.5rem;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 1rem;
             width: 100%;
         }
 
         .card-btn {
+            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            padding: 1.25rem 1rem;
-            background-color: #1e293b;
-            color: #e2e8f0;
+            padding: 1.1rem 1.25rem;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            color: #f8fafc;
             text-decoration: none;
-            border-radius: 12px;
+            border-radius: 14px;
             border: 1px solid #334155;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.25s ease-in-out;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            transition: 0.5s;
+        }
+
+        .card-btn:hover::before {
+            left: 100%;
         }
 
         .card-btn:hover {
             transform: translateY(-4px);
-            background-color: #3b82f6;
-            color: #ffffff;
-            border-color: #60a5fa;
-            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+            border-color: #38bdf8;
+            background: linear-gradient(145deg, #2563eb, #1d4ed8);
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.25);
         }
 
-        .card-btn .subtext {
-            font-size: 0.8rem;
-            font-weight: normal;
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-sub {
+            font-size: 0.78rem;
             color: #94a3b8;
-            margin-top: 0.25rem;
+            margin-top: 0.3rem;
+            font-family: monospace;
         }
 
-        .card-btn:hover .subtext {
-            color: #dbeafe;
+        .card-btn:hover .card-sub {
+            color: #93c5fd;
         }
 
         footer {
-            margin-top: 3rem;
+            margin-top: auto;
+            padding-top: 3rem;
             color: #64748b;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Guess Game Portal</h1>
-        <p class="subtitle">請選擇你要進入的遊戲或網頁：</p>
+        <header>
+            <h1>🎮 遊戲大廳 Portal</h1>
+            <p class="subtitle">請選擇你要進行的遊戲或功能：</p>
+        </header>
 
+        <!-- GAME 與猜謎專區 -->
+        <div class="section-title">🎯 遊戲與猜謎專區</div>
         <div class="grid">
             <a href="Guess.html" class="card-btn">
-                🎯 Guess
-                <span class="subtext">Guess.html</span>
+                <div class="card-title">❓ Guess</div>
+                <div class="card-sub">Guess.html</div>
             </a>
+            <a href="GAME-A.html" class="card-btn">
+                <div class="card-title">🕹️ GAME A</div>
+                <div class="card-sub">GAME-A.html</div>
+            </a>
+            <a href="GAME-B.html" class="card-btn">
+                <div class="card-title">🎮 GAME B</div>
+                <div class="card-sub">GAME-B.html</div>
+            </a>
+            <a href="MO.html" class="card-btn">
+                <div class="card-title">⭐ MO</div>
+                <div class="card-sub">MO.html</div>
+            </a>
+        </div>
+
+        <!-- Rich 大富翁/計數系列 -->
+        <div class="section-title">💰 Rich 經典系列</div>
+        <div class="grid">
             <a href="Rich.html" class="card-btn">
-                💰 Rich
-                <span class="subtext">Rich.html</span>
-            </a>
-            <a href="Rich-20.html" class="card-btn">
-                💎 Rich 20
-                <span class="subtext">Rich-20.html</span>
-            </a>
-            <a href="Rich-28.html" class="card-btn">
-                🎲 Rich 28
-                <span class="subtext">Rich-28.html</span>
+                <div class="card-title">💎 Rich</div>
+                <div class="card-sub">Rich.html</div>
             </a>
             <a href="Rich-Baby.html" class="card-btn">
-                👶 Rich Baby
-                <span class="subtext">Rich-Baby.html</span>
+                <div class="card-title">👶 Rich Baby</div>
+                <div class="card-sub">Rich-Baby.html</div>
+            </a>
+            <a href="Rich-Baby-A.html" class="card-btn">
+                <div class="card-title">🍼 Rich Baby A</div>
+                <div class="card-sub">Rich-Baby-A.html</div>
             </a>
             <a href="Rich-Man.html" class="card-btn">
-                🎩 Rich Man
-                <span class="subtext">Rich-Man.html</span>
+                <div class="card-title">🎩 Rich Man</div>
+                <div class="card-sub">Rich-Man.html</div>
             </a>
             <a href="Rich-Q.html" class="card-btn">
-                ❓ Rich Q
-                <span class="subtext">Rich-Q.html</span>
+                <div class="card-title">🧩 Rich Q</div>
+                <div class="card-sub">Rich-Q.html</div>
             </a>
         </div>
     </div>
