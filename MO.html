@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海洋生物翻翻對對碰</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(125, 211, 252, 0.9),
+                    rgba(224, 242, 254, 0.95)
+                );
+            color: #16445d;
+        }
+
+        .container {
+            width: min(1400px, 96%);
+            margin: 0 auto;
+            padding: 24px 0 40px;
+        }
+
+        h1 {
+            margin: 0 0 20px;
+            text-align: center;
+            color: #075985;
+            text-shadow: 1px 1px 2px white;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px 18px;
+            margin-bottom: 18px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.88);
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0, 90, 130, 0.18);
+        }
+
+        .control-panel label {
+            font-weight: bold;
+        }
+
+        select,
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 16px;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        select {
+            background: white;
+            color: #16445d;
+            border: 1px solid #7cc9e9;
+        }
+
+        button {
+            background: #0284c7;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0369a1;
+        }
+
+        button.sound-off {
+            background: #64748b;
+        }
+
+        .status {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px 24px;
+            margin-bottom: 18px;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .status span {
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.65);
+            border-radius: 8px;
+        }
+
+        .game-board {
+            display: grid;
+            gap: 8px;
+            width: 100%;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+
+        .game-board.level-1 {
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 600px;
+        }
+
+        .game-board.level-2 {
+            grid-template-columns: repeat(6, 1fr);
+            max-width: 850px;
+        }
+
+        .game-board.level-3 {
+            grid-template-columns: repeat(10, 1fr);
+            max-width: 1400px;
+        }
+
+        .card {
+            aspect-ratio: 126 / 117;
+            cursor: pointer;
+            perspective: 800px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.45s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner,
+        .card.matched .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            box-shadow: 0 3px 7px rgba(0, 70, 100, 0.28);
+        }
+
+        .card-front {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #e0f7ff;
+            background:
+                radial-gradient(
+                    circle at 30% 30%,
+                    rgba(255, 255, 255, 0.55) 0 8%,
+                    transparent 9%
+                ),
+                radial-gradient(
+                    circle at 70% 65%,
+                    rgba(255, 255, 255, 0.35) 0 5%,
+                    transparent 6%
+                ),
+                linear-gradient(135deg, #0284c7, #075985);
+        }
+
+        .card-front::after {
+            content: "🐚";
+            font-size: clamp(18px, 3vw, 30px);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: white;
+        }
+
+        .card-back img {
+            width: 100%;
+            height: 100%;
+            display: block;
+
+            /*
+             * cover：填滿卡片，可能裁切圖片
+             * contain：完整顯示圖片，可能有空白
+             */
+            object-fit: cover;
+
+            /*
+             * 修改圖片位置可以調整這裡：
+             * center center：正中央
+             * center 35%：圖片往上
+             * center 65%：圖片往下
+             */
+            object-position: center center;
+
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .card.matched {
+            cursor: default;
+            pointer-events: none;
+
+            /*
+             * 配對成功後：
+             * 延遲 1.5 秒才開始消除
+             * 消除動畫持續 1.5 秒
+             */
+            animation: disappear 0.7s forwards;
+            animation-delay: 0.7s;
+        }
+
+        @keyframes disappear {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.1);
+            }
+        }
+
+        .message {
+            min-height: 34px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #047857;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                width: 98%;
+                padding-top: 15px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .game-board {
+                gap: 4px;
+            }
+
+            .game-board.level-3 {
+                gap: 3px;
+            }
+
+            .card-front,
+            .card-back {
+                border-radius: 5px;
+            }
+
+            .status {
+                gap: 8px 12px;
+                font-size: 14px;
+            }
+
+            .control-panel {
+                gap: 8px;
+            }
+
+            select,
+            button {
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🌊 海洋生物翻翻對對碰 🌊</h1>
+
+        <div class="control-panel">
+            <label for="difficulty">選擇難度：</label>
+
+            <select id="difficulty">
+                <option value="1">難度 1：4 × 4</option>
+                <option value="2">難度 2：6 × 6</option>
+                <option value="3">難度 3：5 × 10</option>
+            </select>
+
+            <button id="restartButton">重新開始</button>
+            <button id="soundButton">🔊 音效開啟</button>
+        </div>
+
+        <div class="status">
+            <span>翻牌次數：<strong id="moves">0</strong></span>
+            <span>配對組數：<strong id="matches">0</strong></span>
+            <span>剩餘時間：<strong id="time">0</strong> 秒</span>
+        </div>
+
+        <div id="gameBoard" class="game-board"></div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        /*
+         * 圖片副檔名設定
+         *
+         * 如果圖片是：
+         * BlueWhale.jpg，這裡填 jpg
+         * BlueWhale.png，這裡填 png
+         * BlueWhale.jpeg，這裡填 jpeg
+         */
+        const IMAGE_EXT = "BMP";
+
+        /*
+         * 圖片資料夾名稱
+         */
+        const IMAGE_FOLDER = "MO";
+
+        /*
+         * 25 張圖片名稱
+         */
+        const imageNames = [
+            "BlueWhale",
+            "Dolphin",
+            "Seaturtle",
+            "Shark-1",
+            "Clownfish",
+            "Jellyfish",
+            "Octopus-1",
+            "Crab-1",
+            "Seahorse",
+            "Lobster",
+            "Stingray",
+            "Penguin",
+            "Walrus",
+            "Seal",
+            "Manatee",
+            "Starfish-1",
+            "Seashell",
+            "Seaurchin",
+            "Tropicalfish",
+            "Coral",
+            "Crab-2",
+            "Octopus-2",
+            "Shark-2",
+            "Starfish-2",
+            "Belugawhale"
+        ];
+
+        /*
+         * 不同難度設定
+         */
+        const difficultySettings = {
+            1: {
+                pairs: 8,
+                className: "level-1",
+                time: 120
+            },
+            2: {
+                pairs: 18,
+                className: "level-2",
+                time: 240
+            },
+            3: {
+                pairs: 25,
+                className: "level-3",
+                time: 500
+            }
+        };
+
+        const difficultySelect =
+            document.getElementById("difficulty");
+
+        const restartButton =
+            document.getElementById("restartButton");
+
+        const soundButton =
+            document.getElementById("soundButton");
+
+        const gameBoard =
+            document.getElementById("gameBoard");
+
+        const movesText =
+            document.getElementById("moves");
+
+        const matchesText =
+            document.getElementById("matches");
+
+        const timeText =
+            document.getElementById("time");
+
+        const messageText =
+            document.getElementById("message");
+
+        let firstCard = null;
+        let secondCard = null;
+
+        let lockBoard = false;
+        let moves = 0;
+        let matches = 0;
+        let timeLeft = 0;
+        let timer = null;
+        let gameFinished = false;
+
+        let soundEnabled = true;
+        let audioContext = null;
+
+        /*
+         * 建立音效環境
+         */
+        function getAudioContext() {
+            if (!audioContext) {
+                const AudioContext =
+                    window.AudioContext ||
+                    window.webkitAudioContext;
+
+                audioContext = new AudioContext();
+            }
+
+            if (audioContext.state === "suspended") {
+                audioContext.resume();
+            }
+
+            return audioContext;
+        }
+
+        /*
+         * 播放音調
+         */
+        function playTone(
+            frequency,
+            duration,
+            type = "sine",
+            volume = 0.12
+        ) {
+            if (!soundEnabled) {
+                return;
+            }
+
+            const ctx = getAudioContext();
+
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            oscillator.type = type;
+            oscillator.frequency.value = frequency;
+
+            gainNode.gain.setValueAtTime(
+                volume,
+                ctx.currentTime
+            );
+
+            gainNode.gain.exponentialRampToValueAtTime(
+                0.001,
+                ctx.currentTime + duration
+            );
+
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            oscillator.start();
+            oscillator.stop(ctx.currentTime + duration);
+        }
+
+        /*
+         * 翻牌音效
+         */
+        function playFlipSound() {
+            playTone(520, 0.12, "triangle", 0.1);
+        }
+
+        /*
+         * 配對成功音效
+         */
+        function playMatchSound() {
+            playTone(660, 0.15, "sine", 0.13);
+
+            setTimeout(() => {
+                playTone(880, 0.2, "sine", 0.13);
+            }, 120);
+        }
+
+        /*
+         * 配對錯誤音效
+         */
+        function playWrongSound() {
+            playTone(220, 0.25, "sawtooth", 0.08);
+        }
+
+        /*
+         * 遊戲完成音效
+         */
+        function playWinSound() {
+            const notes = [523, 659, 784, 1047];
+
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    playTone(note, 0.25, "sine", 0.14);
+                }, index * 180);
+            });
+        }
+
+        /*
+         * 時間到音效
+         */
+        function playTimeUpSound() {
+            playTone(180, 0.3, "square", 0.1);
+
+            setTimeout(() => {
+                playTone(140, 0.4, "square", 0.1);
+            }, 250);
+        }
+
+        /*
+         * Fisher-Yates 洗牌
+         */
+        function shuffle(array) {
+            const result = [...array];
+
+            for (let i = result.length - 1; i > 0; i--) {
+                const randomIndex =
+                    Math.floor(Math.random() * (i + 1));
+
+                [
+                    result[i],
+                    result[randomIndex]
+                ] = [
+                    result[randomIndex],
+                    result[i]
+                ];
+            }
+
+            return result;
+        }
+
+        /*
+         * 建立卡片資料
+         */
+        function createCards(pairCount) {
+            const selectedImages =
+                shuffle(imageNames).slice(0, pairCount);
+
+            let cards = [];
+
+            selectedImages.forEach((imageName, index) => {
+                cards.push({
+                    id: index,
+                    name: imageName
+                });
+
+                cards.push({
+                    id: index,
+                    name: imageName
+                });
+            });
+
+            return shuffle(cards);
+        }
+
+        /*
+         * 開始遊戲
+         */
+        function startGame() {
+            clearInterval(timer);
+
+            const difficulty =
+                difficultySelect.value;
+
+            const setting =
+                difficultySettings[difficulty];
+
+            firstCard = null;
+            secondCard = null;
+            lockBoard = false;
+            moves = 0;
+            matches = 0;
+            timeLeft = setting.time;
+            gameFinished = false;
+
+            movesText.textContent = moves;
+            matchesText.textContent = matches;
+            timeText.textContent = timeLeft;
+            messageText.textContent = "";
+
+            gameBoard.innerHTML = "";
+            gameBoard.className =
+                `game-board ${setting.className}`;
+
+            const cards =
+                createCards(setting.pairs);
+
+            cards.forEach(cardData => {
+                const card =
+                    document.createElement("div");
+
+                card.className = "card";
+                card.dataset.id = cardData.id;
+                card.dataset.name = cardData.name;
+
+                const imagePath =
+                    `${IMAGE_FOLDER}/${encodeURIComponent(
+                        cardData.name
+                    )}.${IMAGE_EXT}`;
+
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front"></div>
+                        <div class="card-back">
+                            <img
+                                src="${imagePath}"
+                                alt="${cardData.name}"
+                                draggable="false"
+                            >
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener("click", () => {
+                    flipCard(card);
+                });
+
+                gameBoard.appendChild(card);
+            });
+
+            timer = setInterval(() => {
+                timeLeft--;
+                timeText.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+
+                    lockBoard = true;
+                    gameFinished = true;
+
+                    playTimeUpSound();
+
+                    messageText.textContent =
+                        "時間到！請按重新開始再玩一次。";
+                }
+            }, 1000);
+        }
+
+        /*
+         * 翻牌
+         */
+        function flipCard(card) {
+            if (
+                lockBoard ||
+                gameFinished ||
+                card === firstCard ||
+                card.classList.contains("matched") ||
+                card.classList.contains("flipped")
+            ) {
+                return;
+            }
+
+            card.classList.add("flipped");
+            playFlipSound();
+
+            if (!firstCard) {
+                firstCard = card;
+                return;
+            }
+
+            secondCard = card;
+
+            moves++;
+            movesText.textContent = moves;
+
+            checkMatch();
+        }
+
+        /*
+         * 檢查是否配對成功
+         */
+        function checkMatch() {
+            const isMatch =
+                firstCard.dataset.id === secondCard.dataset.id;
+
+            if (isMatch) {
+                handleMatch();
+            } else {
+                playWrongSound();
+                unflipCards();
+            }
+        }
+
+        /*
+         * 配對成功處理
+         */
+        function handleMatch() {
+            firstCard.classList.add("matched");
+            secondCard.classList.add("matched");
+
+            matches++;
+            matchesText.textContent = matches;
+
+            playMatchSound();
+
+            const difficulty =
+                difficultySelect.value;
+
+            const setting =
+                difficultySettings[difficulty];
+
+            /*
+             * 先讓圖片停留，
+             * 等待消除動畫完成後再判斷是否完成。
+             */
+            setTimeout(() => {
+                if (matches === setting.pairs) {
+                    clearInterval(timer);
+
+                    gameFinished = true;
+
+                    messageText.textContent =
+                        `恭喜完成遊戲！總共翻牌 ${moves} 次。`;
+
+                    playWinSound();
+                }
+            }, 3200);
+
+            resetTurn();
+        }
+
+        /*
+         * 配對錯誤，翻回背面
+         */
+        function unflipCards() {
+            lockBoard = true;
+
+            setTimeout(() => {
+                firstCard.classList.remove("flipped");
+                secondCard.classList.remove("flipped");
+
+                resetTurn();
+            }, 850);
+        }
+
+        /*
+         * 重設目前翻牌狀態
+         */
+        function resetTurn() {
+            firstCard = null;
+            secondCard = null;
+            lockBoard = false;
+        }
+
+        /*
+         * 音效開關
+         */
+        soundButton.addEventListener("click", () => {
+            soundEnabled = !soundEnabled;
+
+            if (soundEnabled) {
+                soundButton.textContent = "🔊 音效開啟";
+                soundButton.classList.remove("sound-off");
+            } else {
+                soundButton.textContent = "🔇 音效關閉";
+                soundButton.classList.add("sound-off");
+            }
+        });
+
+        difficultySelect.addEventListener(
+            "change",
+            startGame
+        );
+
+        restartButton.addEventListener(
+            "click",
+            startGame
+        );
+
+        /*
+         * 載入頁面時開始遊戲
+         */
+        startGame();
+    </script>
+</body>
+</html>

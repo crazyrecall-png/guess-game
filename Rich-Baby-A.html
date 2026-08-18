@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>可愛大富翁 v1.0.8 - Baby</title>
+  <style>
+    :root {
+      --bg-color: #fef6e4;
+      --board-bg: #ffffff;
+      --cell-bg: #ffeaa7;
+      --cell-border: #fdcb6e;
+      --cell-text: #d63031;
+      
+      --active-bg: #ff7675;
+      --active-text: #ffffff;
+      --active-shadow: 0 0 15px #ff7675;
+
+      --primary: #ff7675;
+      --secondary: #74b9ff;
+      --accent: #fd79a8;
+      --text: #2d3436;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Fredoka', 'Comic Sans MS', "Chalkboard SE", "Yu Gothic", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 6px;
+      overflow: hidden;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 560px;
+      height: calc(100vh - 12px);
+      max-height: 860px;
+      background: var(--board-bg);
+      border: 4px solid #fab1a0;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+      gap: 3px;
+      padding: 4px;
+      position: relative;
+    }
+
+    .cell {
+      background-color: var(--cell-bg);
+      border: 2px solid var(--cell-border);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--cell-text);
+      text-align: center;
+      position: relative;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .cell.start-cell {
+      background-color: #ffabe7;
+      border-color: #fd79a8;
+      color: #000;
+      font-size: 18px;
+    }
+
+    .cell.active {
+      background-color: var(--active-bg) !important;
+      color: var(--active-text) !important;
+      border-color: var(--active-bg);
+      box-shadow: var(--active-shadow);
+      font-size: 28px;
+      transform: scale(1.06);
+      z-index: 5;
+    }
+
+    .center-dashboard {
+      grid-column: 2 / 6;
+      grid-row: 2 / 10;
+      background: #f1f2f6;
+      border-radius: 12px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+      border: 2px dashed #dfe6e9;
+      z-index: 1;
+    }
+
+    .dashboard-title {
+      font-size: 18px;
+      color: #d63031;
+      font-weight: bold;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .version-tag {
+      font-size: 12px;
+      color: #636e72;
+      font-weight: normal;
+    }
+
+    .section-box {
+      width: 100%;
+      background: #ffffff;
+      padding: 6px 6px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .section-box-large {
+      padding: 10px 8px !important;
+      border: 2px solid #74b9ff;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #636e72;
+      margin-bottom: 4px;
+    }
+
+    .section-title-large {
+      font-size: 16px !important;
+      font-weight: 900 !important;
+      color: #2d3436 !important;
+      margin-bottom: 8px !important;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="number"] {
+      width: 52px;
+      height: 36px;
+      text-align: center;
+      font-size: 17px;
+      font-weight: bold;
+      border: 2px solid #74b9ff;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .input-large {
+      width: 75px !important;
+      height: 48px !important;
+      font-size: 24px !important;
+      border-width: 3px !important;
+    }
+
+    .btn {
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: bold;
+      color: white;
+      background-color: var(--secondary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #0984e3;
+    }
+
+    .btn:active {
+      box-shadow: 0 1px 0 #0984e3;
+      transform: translateY(2px);
+    }
+
+    .btn-big {
+      font-size: 18px !important;
+      padding: 10px 18px !important;
+      border-radius: 12px !important;
+      font-weight: 900 !important;
+      min-height: 48px;
+    }
+
+    .btn-adjust {
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      font-weight: 900;
+      border-radius: 8px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 0;
+    }
+
+    .btn-adjust-large {
+      width: 48px !important;
+      height: 48px !important;
+      font-size: 26px !important;
+      border-radius: 12px !important;
+    }
+
+    .btn-minus {
+      background-color: #ff7675;
+      box-shadow: 0 3px 0 #d63031;
+    }
+    .btn-minus:active {
+      box-shadow: 0 1px 0 #d63031;
+      transform: translateY(2px);
+    }
+
+    .btn-plus {
+      background-color: #2ed573;
+      box-shadow: 0 3px 0 #26af5f;
+    }
+    .btn-plus:active {
+      box-shadow: 0 1px 0 #26af5f;
+      transform: translateY(2px);
+    }
+
+    .dual-dice-group {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .dice-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dice-label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #2d3436;
+    }
+
+    .dice-box {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+      border: 4px solid #e17055;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      font-weight: 900;
+      color: #d63031;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #d63031;
+    }
+
+    .dice-box.rolling {
+      animation: diceRoll 0.8s ease-in-out infinite;
+    }
+
+    @keyframes diceRoll {
+      0% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-25deg) scale(1.15); }
+      50% { transform: rotate(25deg) scale(0.9); }
+      75% { transform: rotate(-15deg) scale(1.1); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    .money-total-box {
+      background: #f8efba;
+      border: 2px dashed #e1b12c;
+      border-radius: 10px;
+      padding: 6px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .money-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #222f3e;
+    }
+
+    .money-val {
+      font-size: 22px;
+      font-weight: 900;
+      color: #10ac84;
+    }
+
+    .stat-display {
+      font-size: 20px;
+      font-weight: bold;
+      color: #2d3436;
+      min-width: 32px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 18px;
+      border-radius: 18px;
+      text-align: center;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      border: 5px solid var(--accent);
+      transform: scale(0.8);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: 22px;
+      color: #ff7675;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .modal-desc {
+      font-size: 16px;
+      color: #2d3436;
+      margin-bottom: 12px;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+
+    .modal-btn {
+      font-size: 16px;
+      padding: 8px 18px;
+      margin: 4px;
+    }
+
+    .diff-btn-group, .option-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .opt-btn {
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 10px;
+      border: none;
+      background: #74b9ff;
+      color: white;
+      box-shadow: 0 3px 0 #0984e3;
+      cursor: pointer;
+    }
+
+    /* 三選項問答專用色彩 (紅、綠、黃) */
+    .opt-btn.opt-red {
+      background-color: #ff7675 !important;
+      color: white !important;
+      box-shadow: 0 3px 0 #d63031 !important;
+    }
+    .opt-btn.opt-red:active {
+      box-shadow: 0 1px 0 #d63031 !important;
+    }
+
+    .opt-btn.opt-green {
+      background-color: #2ed573 !important;
+      color: white !important;
+      box-shadow: 0 3px 0 #26af5f !important;
+    }
+    .opt-btn.opt-green:active {
+      box-shadow: 0 1px 0 #26af5f !important;
+    }
+
+    .opt-btn.opt-yellow {
+      background-color: #f1c40f !important;
+      color: #2d3436 !important;
+      box-shadow: 0 3px 0 #f39c12 !important;
+    }
+    .opt-btn.opt-yellow:active {
+      box-shadow: 0 1px 0 #f39c12 !important;
+    }
+
+    /* 猜球顏色按鈕 */
+    .opt-btn.color-black {
+      background-color: #222222;
+      color: white;
+      box-shadow: 0 3px 0 #000000;
+    }
+
+    .opt-btn.color-white {
+      background-color: #ffffff;
+      color: #2d3436;
+      border: 2px solid #b2bec3;
+      box-shadow: 0 3px 0 #636e72;
+    }
+
+    .opt-btn.color-red {
+      background-color: #e74c3c;
+      color: white;
+      box-shadow: 0 3px 0 #c0392b;
+    }
+
+    .opt-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #0984e3;
+    }
+
+    .opt-btn.disabled {
+      background: #b2bec3 !important;
+      box-shadow: 0 3px 0 #636e72 !important;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .sound-btn {
+      background: #fdcb6e;
+      color: #2d3436;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 8px 0;
+      cursor: pointer;
+      display: inline-block;
+      box-shadow: 0 3px 0 #e17055;
+    }
+    .sound-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #e17055;
+    }
+
+    .timer-display {
+      font-size: 22px;
+      font-weight: 900;
+      color: #d63031;
+      background: #ffeaa7;
+      border: 2px dashed #e17055;
+      border-radius: 10px;
+      padding: 4px 8px;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container" id="board">
+    <div class="center-dashboard">
+      <div class="dashboard-title">
+        🎲 歡樂大富翁 - Baby<span class="version-tag">v1.0.8</span>
+      </div>
+
+      <div class="section-box section-box-large">
+        <div class="section-title section-title-large">🎲 骰點區 (金額1-5 / 點數1-18)</div>
+        <div class="dual-dice-group">
+          <div class="dice-item">
+            <span class="dice-label">💰 金額骰(1-5)</span>
+            <div class="dice-box" id="moneyDiceBox" onclick="rollSingleDice('money')">1</div>
+            <button class="btn btn-big" style="background-color: #10ac84; box-shadow: 0 4px 0 #0abde3;" onclick="rollSingleDice('money')">擲金額</button>
+          </div>
+          <div class="dice-item">
+            <span class="dice-label">🎯 點數骰(1-18)</span>
+            <div class="dice-box" id="stepDiceBox" onclick="rollSingleDice('step')">1</div>
+            <button class="btn btn-big" style="background-color: #ff9f43; box-shadow: 0 4px 0 #ee5253;" onclick="rollSingleDice('step')">抽獎</button>
+          </div>
+        </div>
+
+        <div class="money-total-box">
+          <div class="money-title">目前總金額：</div>
+          <div class="money-val" id="totalMoneyDisplay">$0</div>
+          <div class="input-group">
+            <button class="btn-adjust btn-minus" style="width:32px; height:32px; font-size:18px;" onclick="customAdjustMoney(-1)">-</button>
+            <button class="btn-adjust btn-plus" style="width:32px; height:32px; font-size:18px;" onclick="customAdjustMoney(1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box section-box-large" style="border-color: #ff7675;">
+        <div class="section-title section-title-large">🚶‍♂️ 輸入移動步數 (不可為0)</div>
+        <div class="input-group">
+          <button class="btn-adjust btn-adjust-large btn-minus" onclick="changeStep(-1)">-</button>
+          <input type="number" id="stepInput" class="input-large" value="1">
+          <button class="btn-adjust btn-adjust-large btn-plus" onclick="changeStep(1)">+</button>
+          <button class="btn btn-big" style="margin-left: 6px; background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="handleManualMove()">移動</button>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">⏱️ 答題倒數秒數 (最少1秒)</div>
+        <div class="input-group">
+          <button class="btn-adjust btn-minus" onclick="changeTimerSetting(-1)">-</button>
+          <span class="stat-display" id="timerSettingDisplay">10</span>
+          <button class="btn-adjust btn-plus" onclick="changeTimerSetting(1)">+</button>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">目標圈數 / 已完成圈數</div>
+        <div class="input-group" style="margin-bottom: 2px;">
+          <button class="btn-adjust btn-minus" onclick="changeTargetLaps(-1)">-</button>
+          <input type="number" id="targetLapInput" value="1" min="1">
+          <button class="btn-adjust btn-plus" onclick="changeTargetLaps(1)">+</button>
+        </div>
+        <div style="font-size: 12px; font-weight: bold; color: #0984e3;">
+          已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">1</span> 圈
+        </div>
+      </div>
+
+      <button class="btn btn-big" style="background-color: #a55eea; box-shadow: 0 4px 0 #8854d0; width: 95%; min-height:42px; font-size:16px !important;" onclick="resetGame()">🔄 再開一局 (保留金額)</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="moneyModal">
+    <div class="modal-content" style="border-color: #fdcb6e;">
+      <div class="modal-title" id="moneyModalTitle" style="color: #e17055;">💰 調整金額</div>
+      <div style="font-size: 14px; color: #636e72; margin-bottom: 10px;">請點擊按鈕或手動輸入金額：</div>
+      <div class="input-group" style="margin-bottom: 12px;">
+        <button class="btn-adjust btn-minus" style="width:42px; height:42px; font-size:22px;" onclick="changeModalMoneyInput(-100)">-</button>
+        <input type="number" id="moneyModalInput" value="500" style="width: 100px; height: 42px; font-size: 20px;">
+        <button class="btn-adjust btn-plus" style="width:42px; height:42px; font-size:22px;" onclick="changeModalMoneyInput(100)">+</button>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 16px;">
+        <button class="btn" style="background-color: #ff7675; box-shadow: 0 3px 0 #d63031; padding: 6px 12px;" onclick="changeModalMoneyInput(-500)">-500</button>
+        <button class="btn" style="background-color: #2ed573; box-shadow: 0 3px 0 #26af5f; padding: 6px 12px;" onclick="changeModalMoneyInput(500)">+500</button>
+      </div>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="confirmCustomMoney()">確定</button>
+        <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('moneyModal')">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="diceModal">
+    <div class="modal-content" style="border-color: #74b9ff;">
+      <div class="modal-title" id="diceModalTitle" style="color: #0984e3;">🎲 骰子結果</div>
+      <div class="modal-desc" id="diceModalPoint">骰出點數：0 點</div>
+      <div class="modal-desc" style="color: #00b894; font-size: 20px;" id="diceModalMoney">獎品號碼：0 號</div>
+      <button class="btn modal-btn" onclick="closeModal('diceModal')">確定</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="winModal">
+    <div class="modal-content" style="border-color: #ff7675;">
+      <div class="modal-title">🏆 恭喜獲勝！</div>
+      <div class="modal-desc">你已經跑滿設定的圈數囉！</div>
+      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="resetGame()">再玩一次 (保留金額)</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="askChallengeModal">
+    <div class="modal-content" style="border-color: #ff7675;">
+      <div class="modal-title">⚔️ 觸發挑戰任務！</div>
+      <div class="modal-desc" id="askChallengeName">發現挑戰題！要接受挑戰嗎？</div>
+      <div style="display:flex; justify-content:center; gap: 10px;">
+        <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="acceptChallenge()">開始挑戰 (可以)</button>
+        <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('askChallengeModal')">不挑戰 (不可以)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="selectDiffModal">
+    <div class="modal-content" style="border-color: #74b9ff;">
+      <div class="modal-title" id="selectDiffTitle">選擇難度 / 選項</div>
+      <div class="modal-desc" style="font-size:14px; color:#e17055;" id="userMoneyHint">目前持有金額：$0</div>
+      <div class="diff-btn-group" id="diffBtnContainer"></div>
+      <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('selectDiffModal')">不挑戰 (不可以)</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="playGameModal">
+    <div class="modal-content" style="border-color: #a55eea;">
+      <div class="modal-title" id="gameModalTitle">挑戰進行中</div>
+      <div id="timerContainer" class="timer-display" style="display: none;">⏳ 剩餘時間：<span id="timerBox">10</span> 秒</div>
+      <div class="modal-desc" id="gameModalQuestion">題目載入中...</div>
+      <div id="gameSoundContainer"></div>
+      <div class="option-btn-group" id="gameOptionsContainer"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="resultModal">
+    <div class="modal-content" id="resultContent">
+      <div class="modal-title" id="resultModalTitle">挑戰結果</div>
+      <div class="modal-desc" id="resultModalText">...</div>
+      <div class="modal-desc" style="color: #d63031;" id="resultModalAnswer"></div>
+      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="closeModal('resultModal')">確定</button>
+    </div>
+  </div>
+
+  <script>
+    const wordBank = [
+      { zh: "蘋果", en: "Apple" }, { zh: "香蕉", en: "Banana" }, { zh: "貓咪", en: "Cat" }, { zh: "小狗", en: "Dog" },
+      { zh: "大象", en: "Elephant" }, { zh: "青蛙", en: "Frog" }, { zh: "長頸鹿", en: "Giraffe" }, { zh: "馬", en: "Horse" },
+      { zh: "獅子", en: "Lion" }, { zh: "猴子", en: "Monkey" }, { zh: "兔子", en: "Rabbit" }, { zh: "老虎", en: "Tiger" },
+      { zh: "熊", en: "Bear" }, { zh: "鳥", en: "Bird" }, { zh: "鴨子", en: "Duck" }, { zh: "魚", en: "Fish" },
+      { zh: "豬", en: "Pig" }, { zh: "綿羊", en: "Sheep" }, { zh: "烏龜", en: "Turtle" }, { zh: "斑馬", en: "Zebra" },
+      { zh: "麵包", en: "Bread" }, { zh: "蛋糕", en: "Cake" }, { zh: "牛奶", en: "Milk" }, { zh: "水", en: "Water" },
+      { zh: "雞蛋", en: "Egg" }, { zh: "果汁", en: "Juice" }, { zh: "米飯", en: "Rice" }, { zh: "湯", en: "Soup" },
+      { zh: "葡萄", en: "Grape" }, { zh: "檸檬", en: "Lemon" }, { zh: "柳橘", en: "Orange" }, { zh: "水蜜桃", en: "Peach" },
+      { zh: "草莓", en: "Strawberry" }, { zh: "西瓜", en: "Watermelon" }, { zh: "冰淇淋", en: "Ice cream" }, { zh: "糖果", en: "Candy" },
+      { zh: "餅乾", en: "Cookie" }, { zh: "披薩", en: "Pizza" }, { zh: "漢堡", en: "Burger" }, { zh: "起司", en: "Cheese" },
+      { zh: "爸爸", en: "Dad" }, { zh: "媽媽", en: "Mom" }, { zh: "哥哥弟弟", en: "Brother" }, { zh: "姊姊妹妹", en: "Sister" },
+      { zh: "爺爺外公", en: "Grandpa" }, { zh: "奶奶外婆", en: "Grandma" }, { zh: "嬰兒", en: "Baby" }, { zh: "男孩", en: "Boy" },
+      { zh: "女孩", en: "Girl" }, { zh: "老師", en: "Teacher" }, { zh: "學生", en: "Student" }, { zh: "朋友", en: "Friend" },
+      { zh: "眼睛", en: "Eye" }, { zh: "耳朵", en: "Ear" }, { zh: "嘴巴", en: "Mouth" }, { zh: "鼻子", en: "Nose" },
+      { zh: "頭", en: "Head" }, { zh: "手", en: "Hand" }, { zh: "腳", en: "Foot" }, { zh: "腿", en: "Leg" },
+      { zh: "手臂", en: "Arm" }, { zh: "頭髮", en: "Hair" },
+      { zh: "紅色", en: "Red" }, { zh: "藍色", en: "Blue" }, { zh: "黃色", en: "Yellow" }, { zh: "綠色", en: "Green" },
+      { zh: "黑色", en: "Black" }, { zh: "白色", en: "White" }, { zh: "粉紅色", en: "Pink" }, { zh: "紫色", en: "Purple" },
+      { zh: "橘色", en: "Orange" }, { zh: "圓形", en: "Circle" }, { zh: "正方形", en: "Square" }, { zh: "星形", en: "Star" },
+      { zh: "書本", en: "Book" }, { zh: "筆", en: "Pen" }, { zh: "鉛筆", en: "Pencil" }, { zh: "書包", en: "Bag" },
+      { zh: "桌子", en: "Table" }, { zh: "椅子", en: "Chair" }, { zh: "床", en: "Bed" }, { zh: "門", en: "Door" },
+      { zh: "窗戶", en: "Window" }, { zh: "鐘", en: "Clock" }, { zh: "盒子", en: "Box" }, { zh: "球", en: "Ball" },
+      { zh: "玩具", en: "Toy" }, { zh: "杯子", en: "Cup" }, { zh: "車子", en: "Car" }, { zh: "公車", en: "Bus" },
+      { zh: "火車", en: "Train" }, { zh: "飛機", en: "Plane" }, { zh: "腳踏車", en: "Bike" }, { zh: "船", en: "Boat" },
+      { zh: "太陽", en: "Sun" }, { zh: "月亮", en: "Moon" }, { zh: "星星", en: "Star" }, { zh: "天空", en: "Sky" },
+      { zh: "雲", en: "Cloud" }, { zh: "雨", en: "Rain" }, { zh: "雪", en: "Snow" }, { zh: "樹", en: "Tree" },
+      { zh: "花", en: "Flower" }, { zh: "草", en: "Grass" }, { zh: "房子", en: "House" }, { zh: "學校", en: "School" },
+      { zh: "公園", en: "Park" }, { zh: "海邊", en: "Beach" }, { zh: "白天", en: "Day" }, { zh: "夜晚", en: "Night" }
+    ];
+const oceanAnimals = [
+  { file: "BlueWhale", name: "藍鯨" },
+  { file: "Dolphin", name: "海豚" },
+  { file: "Seaturtle", name: "海龜" },
+  { file: "Shark-1", name: "鯊魚" },
+  { file: "Clownfish", name: "小丑魚" },
+  { file: "Jellyfish", name: "水母" },
+  { file: "Octopus-1", name: "章魚" },
+  { file: "Crab-1", name: "螃蟹" },
+  { file: "Seahorse", name: "海馬" },
+  { file: "Lobster", name: "龍蝦" },
+  { file: "Stingray", name: "魟魚" },
+  { file: "Penguin", name: "企鵝" },
+  { file: "Walrus", name: "海象" },
+  { file: "Seal", name: "海豹" },
+  { file: "Manatee", name: "海牛" },
+  { file: "Starfish-1", name: "海星" },
+  { file: "Seashell", name: "貝殼" },
+  { file: "Seaurchin", name: "海膽" },
+  { file: "Tropicalfish", name: "熱帶魚" },
+  { file: "Coral", name: "珊瑚" },
+  { file: "Crab-2", name: "螃蟹" },
+  { file: "Octopus-2", name: "章魚" },
+  { file: "Shark-2", name: "鯊魚" },
+  { file: "Starfish-2", name: "海星" },
+  { file: "Belugawhale", name: "白鯨" },
+{ file: "Lion-1", name: "獅子" },
+{ file: "Elephant", name: "大象" },
+{ file: "Giraffe", name: "長頸鹿" },
+{ file: "Tiger", name: "老虎" },
+{ file: "Zebra", name: "斑馬" },
+{ file: "Monkey", name: "猴子" },
+{ file: "Panda", name: "熊貓" },
+{ file: "Kangaroo", name: "袋鼠" },
+{ file: "Sloth", name: "樹懶" },
+{ file: "Koala", name: "考拉" },
+{ file: "Fox", name: "狐狸" },
+{ file: "Wolf", name: "狼" },
+{ file: "Squirrel", name: "松鼠" },
+{ file: "Rabbit", name: "兔子" },
+{ file: "Hedgehog", name: "刺蝟" },
+{ file: "Cat", name: "貓咪" },
+{ file: "Dog", name: "狗狗" },
+{ file: "Pig", name: "豬" },
+{ file: "Cow", name: "牛" },
+{ file: "Sheep", name: "羊" },
+{ file: "Donkey", name: "驢子" },
+{ file: "Horse", name: "馬" },
+{ file: "Lion-2", name: "獅子" },
+{ file: "Dromedarycamel", name: "單峰駱駝" },
+{ file: "Bactriancamel", name: "雙峰駱駝" }
+];
+
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playClickSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    function playStepSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    function playWinSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const startTime = audioCtx.currentTime + idx * 0.12;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+        gain.gain.setValueAtTime(0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(startTime); osc.stop(startTime + 0.3);
+      });
+    }
+
+    // 觸發挑戰 / 出題音效 (嗶嗶兩聲)
+    function playChallengeAlertSound() {
+      initAudio();
+      if (!audioCtx) return;
+      [0, 0.12].forEach((timeOffset, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const startTime = audioCtx.currentTime + timeOffset;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(idx === 0 ? 587.33 : 880, startTime);
+        gain.gain.setValueAtTime(0.25, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(startTime); osc.stop(startTime + 0.1);
+      });
+    }
+
+    // 挑戰失敗音效 (沉悶低音)
+    function playFailSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function speakText(text, lang = 'zh-TW') {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang;
+        utterance.rate = 0.8;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    const challengeCategories = [
+      {
+        name: "旋轉挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "30秒 (簡單)", reward: 200, need: 100, type: "action", target: "30秒" },
+          { diffName: "40秒 (中等)", reward: 500, need: 200, type: "action", target: "40秒" },
+          { diffName: "50秒 (困難)", reward: 1000, need: 300, type: "action", target: "50秒" }
+        ]
+      },
+      {
+        name: "擊飛挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "1顆 (簡單)", reward: 200, need: 100, type: "action", target: "1顆" },
+          { diffName: "2顆 (中等)", reward: 500, need: 200, type: "action", target: "2顆" },
+          { diffName: "3顆 (困難)", reward: 1000, need: 300, type: "action", target: "3顆" }
+        ]
+      },
+      {
+        name: "抽獎機台猜顏色",
+        type: "color_guess",
+        need: 200,
+        options: [
+          { colorName: "黑色", reward: 500 },
+          { colorName: "白色", reward: 500 },
+          { colorName: "紅色", reward: 500 }
+        ]
+      },
+      {
+        name: "數學遊戲",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (兩數相加)", reward: 200, need: 100, type: "math_add_2" },
+          { diffName: "中等 (兩數相減)", reward: 500, need: 200, type: "math_sub_2" },
+          { diffName: "困難 (三數加減)", reward: 1000, need: 300, type: "math_mix_3" }
+        ]
+      },
+      {
+        name: "英文字母發音挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (1個字母)", reward: 200, need: 100, type: "phonics_en", count: 1 },
+          { diffName: "中等 (2個字母)", reward: 500, need: 200, type: "phonics_en", count: 2 },
+          { diffName: "困難 (3個字母)", reward: 1000, need: 300, type: "phonics_en", count: 3 }
+        ]
+      },
+      {
+        name: "中文注音發音挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (1個注音)", reward: 200, need: 100, type: "phonics_zh", count: 1 },
+          { diffName: "中等 (2個注音)", reward: 500, need: 200, type: "phonics_zh", count: 2 },
+          { diffName: "困難 (3個注音)", reward: 1000, need: 300, type: "phonics_zh", count: 3 }
+        ]
+      },
+      {
+        name: "英文單字猜猜看",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_en" },
+          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_en" },
+          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_en" }
+        ]
+      },
+      {
+        name: "中文單字猜猜看",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_zh" },
+          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_zh" },
+          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_zh" }
+        ]
+      },
+ {
+    name: "動物猜猜看問答",
+    type: "normal",
+    levels: [
+      {
+        diffName: "題目1（扣$100／賺$200）",
+        reward: 200,
+        need: 100,
+        type: "ocean_yes_no"
+      },
+      {
+        diffName: "題目2（扣$100／賺$200）",
+        reward: 200,
+        need: 100,
+        type: "ocean_yes_no"
+      },
+      {
+        diffName: "題目3（扣$100／賺$200）",
+        reward: 200,
+        need: 100,
+        type: "ocean_yes_no"
+      }
+    ]
+  }
+];
+    const COLS = 6, ROWS = 10;
+    const pathCoords = [];
+    for (let c = 1; c <= COLS; c++) pathCoords.push({ r: 1, c: c });
+    for (let r = 2; r <= ROWS; r++) pathCoords.push({ r: r, c: COLS });
+    for (let c = COLS - 1; c >= 1; c--) pathCoords.push({ r: ROWS, c: c });
+    for (let r = ROWS - 1; r >= 2; r--) pathCoords.push({ r: r, c: 1 });
+
+    const totalCells = pathCoords.length;
+    let currentPosition = 0;
+    let totalStepsTaken = 0;
+    let timerSetting = 10;
+    let countdownInterval = null;
+    let completedLaps = 0;
+    let targetLaps = 1;
+    let totalMoney = 0;
+    let isMoving = false;
+    let isRolling = false;
+    let currentMoneyDir = 1;
+
+    let selectedCategory = null;
+
+    const cellElements = [];
+    const board = document.getElementById('board');
+
+    pathCoords.forEach((coord, idx) => {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.id = `cell-${idx}`;
+      cell.style.gridRow = coord.r;
+      cell.style.gridColumn = coord.c;
+
+      if (idx === 0) {
+        cell.classList.add('start-cell');
+        cell.innerHTML = '起點<br>0';
+      } else {
+        cell.innerText = idx;
+      }
+      board.appendChild(cell);
+      cellElements.push(cell);
+    });
+
+    updatePlayerPositionUI();
+
+    function rollSingleDice(type) {
+      if (isRolling || isMoving) return;
+      isRolling = true;
+      playClickSound();
+
+      const maxVal = (type === 'money') ? 5 : 18;
+      const targetBox = document.getElementById(type === 'money' ? 'moneyDiceBox' : 'stepDiceBox');
+      targetBox.classList.add('rolling');
+
+      const rollInterval = setInterval(() => {
+        targetBox.innerText = Math.floor(Math.random() * maxVal) + 1;
+        playStepSound();
+      }, 60);
+
+      setTimeout(() => {
+        clearInterval(rollInterval);
+        const finalValue = Math.floor(Math.random() * maxVal) + 1;
+        targetBox.innerText = finalValue;
+        targetBox.classList.remove('rolling');
+        isRolling = false;
+
+        if (type === 'money') {
+          const earned = finalValue * 100;
+          totalMoney += earned;
+          document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+          document.getElementById('diceModalTitle').innerText = '💰 金額骰結果';
+          document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
+          document.getElementById('diceModalMoney').innerText = `獲得金額：${earned} 元`;
+        } else {
+          document.getElementById('diceModalTitle').innerText = '🎁 抽獎結果';
+          document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
+          document.getElementById('diceModalMoney').innerText = `獎品號碼：${finalValue} 號`;
+        }
+        openModal('diceModal');
+      }, 800);
+    }
+
+    function customAdjustMoney(direction) {
+      playClickSound();
+      currentMoneyDir = direction;
+      document.getElementById('moneyModalTitle').innerText = direction > 0 ? "💰 增加金額 (+)" : "💰 扣除金額 (-)";
+      document.getElementById('moneyModalInput').value = 0;
+      openModal('moneyModal');
+    }
+
+    function changeModalMoneyInput(delta) {
+      playClickSound();
+      const input = document.getElementById('moneyModalInput');
+      let val = parseInt(input.value, 10) || 0;
+      input.value = Math.max(0, val + delta);
+    }
+
+    function confirmCustomMoney() {
+      playClickSound();
+      const input = document.getElementById('moneyModalInput');
+      let amount = parseInt(input.value, 10) || 0;
+      totalMoney += amount * currentMoneyDir;
+      document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+      closeModal('moneyModal');
+    }
+
+    function changeStep(delta) {
+      playClickSound();
+      const input = document.getElementById('stepInput');
+      let val = (parseInt(input.value, 10) || 0) + delta;
+      if (val === 0) val = delta > 0 ? 1 : -1;
+      input.value = val;
+    }
+
+    function changeTimerSetting(delta) {
+      playClickSound();
+      timerSetting = Math.max(1, timerSetting + delta);
+      document.getElementById('timerSettingDisplay').innerText = timerSetting;
+    }
+
+    function changeTargetLaps(delta) {
+      playClickSound();
+      const input = document.getElementById('targetLapInput');
+      targetLaps = Math.max(1, (parseInt(input.value, 10) || 1) + delta);
+      input.value = targetLaps;
+      document.getElementById('targetLapDisplay').innerText = targetLaps;
+    }
+
+    function handleManualMove() {
+      playClickSound();
+      if (isMoving) return;
+      const input = document.getElementById('stepInput');
+      let steps = parseInt(input.value, 10);
+      if (isNaN(steps) || steps === 0) {
+        alert("輸入步數不可為 0 ！");
+        input.value = 1;
+        return;
+      }
+      movePlayerStepByStep(steps);
+    }
+
+    async function movePlayerStepByStep(steps) {
+      isMoving = true;
+      const direction = steps > 0 ? 1 : -1;
+      const totalSteps = Math.abs(steps);
+
+      for (let i = 0; i < totalSteps; i++) {
+        currentPosition = (currentPosition + direction + totalCells) % totalCells;
+        totalStepsTaken += (direction > 0 ? 1 : -1);
+        totalStepsTaken = Math.max(0, totalStepsTaken);
+
+        completedLaps = Math.floor(totalStepsTaken / totalCells);
+        document.getElementById('completedLapDisplay').innerText = completedLaps;
+
+        updatePlayerPositionUI();
+        playStepSound();
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
+      isMoving = false;
+      document.getElementById('stepInput').value = 1;
+
+      if (completedLaps >= targetLaps) {
+        playWinSound();
+        openModal('winModal');
+      } else if (currentPosition !== 0) {
+        triggerChallengePrompt();
+      }
+    }
+
+    function updatePlayerPositionUI() {
+      cellElements.forEach(cell => cell.classList.remove('active'));
+      if (cellElements[currentPosition]) cellElements[currentPosition].classList.add('active');
+    }
+
+    function triggerChallengePrompt() {
+      const randIdx = Math.floor(Math.random() * challengeCategories.length);
+      selectedCategory = challengeCategories[randIdx];
+      
+      playChallengeAlertSound(); // 踩到挑戰格發出提示音
+      document.getElementById('askChallengeName').innerText = `踩到了挑戰格！【${selectedCategory.name}】\n請選擇是否挑戰！`;
+      openModal('askChallengeModal');
+    }
+
+    function acceptChallenge() {
+      closeModal('askChallengeModal');
+      document.getElementById('userMoneyHint').innerText = `目前持有金額：$${totalMoney}`;
+      const container = document.getElementById('diffBtnContainer');
+      container.innerHTML = '';
+
+      if (selectedCategory.type === "color_guess") {
+        document.getElementById('selectDiffTitle').innerText = `${selectedCategory.name} - 請猜一個顏色`;
+        const need = selectedCategory.need;
+        const canAfford = totalMoney >= need;
+
+        selectedCategory.options.forEach(opt => {
+          const btn = document.createElement('button');
+          const colorClass = {
+            "黑色": "color-black",
+            "白色": "color-white",
+            "紅色": "color-red"
+          }[opt.colorName];
+
+          btn.className = `opt-btn ${colorClass} ${canAfford ? '' : 'disabled'}`;
+          btn.innerText = `猜【${opt.colorName}】 (入場費$${need} / 猜中賺$${opt.reward})`;
+
+          if (canAfford) {
+            btn.onclick = () => startColorGuessGame(opt.colorName, opt.reward, need);
+          } else {
+            btn.onclick = () => {
+              alert(`金額不足！需要 $${need}，但你只有 $${totalMoney}。`);
+            };
+          }
+          container.appendChild(btn);
+        });
+      } else {
+        document.getElementById('selectDiffTitle').innerText = `${selectedCategory.name} - 選擇難度`;
+        selectedCategory.levels.forEach(lvl => {
+          const btn = document.createElement('button');
+          const canAfford = totalMoney >= lvl.need;
+          btn.className = `opt-btn ${canAfford ? '' : 'disabled'}`;
+          btn.innerText = `${lvl.diffName}`;
+          
+          if (canAfford) {
+            btn.onclick = () => startChallengeGame(lvl);
+          } else {
+            btn.onclick = () => {
+              alert(`金額不足！需要 $${lvl.need}，但你只有 $${totalMoney}。`);
+            };
+          }
+          container.appendChild(btn);
+        });
+      }
+
+      openModal('selectDiffModal');
+    }
+
+    function startColorGuessGame(chosenColor, reward, need) {
+      closeModal('selectDiffModal');
+      totalMoney -= need;
+      document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+
+      const allColors = ["黑色", "白色", "紅色"];
+      const actualColor = allColors[Math.floor(Math.random() * allColors.length)];
+      const isCorrect = (chosenColor === actualColor);
+
+      if (isCorrect) {
+        totalMoney += reward;
+        document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+      }
+
+      const title = document.getElementById('resultModalTitle');
+      const text = document.getElementById('resultModalText');
+      const ansText = document.getElementById('resultModalAnswer');
+
+      if (isCorrect) {
+        playWinSound();
+        title.innerText = "🎉 猜對了！恭喜獲勝！";
+        title.style.color = "#00b894";
+        text.innerText = `你猜【${chosenColor}】，機台開出【${actualColor}】！\n獲得獎金 $${reward} 元！`;
+        ansText.innerText = "";
+      } else {
+        playFailSound();
+        title.innerText = "❌ 猜錯了！沒中獎～";
+        title.style.color = "#d63031";
+        text.innerText = `你猜【${chosenColor}】，但機台開出【${actualColor}】！`;
+        ansText.innerText = `很可惜，扣除入場費 $${need}`;
+      }
+
+      openModal('resultModal');
+    }
+
+ function startChallengeGame(level) {
+  closeModal('selectDiffModal');
+
+  playChallengeAlertSound();
+
+  totalMoney -= level.need;
+  document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+
+  const title = document.getElementById('gameModalTitle');
+  const qText = document.getElementById('gameModalQuestion');
+  const soundContainer = document.getElementById('gameSoundContainer');
+  const optsContainer = document.getElementById('gameOptionsContainer');
+  const timerContainer = document.getElementById('timerContainer');
+  const timerBox = document.getElementById('timerBox');
+
+  title.innerText = `${selectedCategory.name} (${level.diffName})`;
+  soundContainer.innerHTML = '';
+  optsContainer.innerHTML = '';
+
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  let correctAnswer = "";
+  let options = [];
+
+  const isQuestionType = level.type !== 'action';
+
+  if (isQuestionType) {
+    timerContainer.style.display = 'inline-block';
+
+    let remainingTime = timerSetting;
+    timerBox.innerText = remainingTime;
+
+    countdownInterval = setInterval(() => {
+      remainingTime--;
+      timerBox.innerText = remainingTime;
+
+      if (remainingTime <= 0) {
+        clearInterval(countdownInterval);
+        finishChallenge(false, correctAnswer, level.reward, true);
+      }
+    }, 1000);
+  } else {
+    timerContainer.style.display = 'none';
+  }
+
+  if (level.type === 'action') {
+    qText.innerText =
+      `已扣除代幣 $${level.need}！\n任務目標：完成 ${selectedCategory.name} ${level.target}！`;
+
+    options = ["完成挑戰", "挑戰失敗"];
+    correctAnswer = "完成挑戰";
+  }
+
+  else if (level.type.startsWith('math')) {
+    let n1, n2, n3, ans;
+
+    if (level.type === 'math_add_2') {
+      n1 = Math.floor(Math.random() * 8) + 5;
+      n2 = Math.floor(Math.random() * 8) + 5;
+      ans = n1 + n2;
+
+      qText.innerText =
+        `[已扣 $${level.need}]\n題目：${n1} + ${n2} = ?`;
+    }
+
+    else if (level.type === 'math_sub_2') {
+      n1 = Math.floor(Math.random() * 10) + 10;
+      n2 = Math.floor(Math.random() * 8) + 1;
+      ans = n1 - n2;
+
+      qText.innerText =
+        `[已扣 $${level.need}]\n題目：${n1} - ${n2} = ?`;
+    }
+
+    else {
+      n1 = Math.floor(Math.random() * 10) + 5;
+      n2 = Math.floor(Math.random() * 10) + 2;
+      n3 = Math.floor(Math.random() * 5) + 1;
+      ans = n1 + n2 - n3;
+
+      qText.innerText =
+        `[已扣 $${level.need}]\n題目：${n1} + ${n2} - ${n3} = ?`;
+    }
+
+    correctAnswer = ans.toString();
+    options = generate3Options(ans);
+  }
+
+  else if (level.type === 'phonics_en') {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let targetStr = "";
+
+    for (let i = 0; i < level.count; i++) {
+      targetStr += letters.charAt(
+        Math.floor(Math.random() * letters.length)
+      );
+    }
+
+    qText.innerText =
+      `[已扣 $${level.need}]\n請聽發音選擇正確字母：`;
+
+    correctAnswer = targetStr;
+
+    options = generate3StrOptions(targetStr, () => {
+      let s = "";
+
+      for (let i = 0; i < level.count; i++) {
+        s += letters.charAt(
+          Math.floor(Math.random() * letters.length)
+        );
+      }
+
+      return s;
+    });
+
+    const sBtn = document.createElement('button');
+    sBtn.className = 'sound-btn';
+    sBtn.innerText = '🔊 點擊播放發音';
+    sBtn.onclick = () => speakText(targetStr, 'en-US');
+
+    soundContainer.appendChild(sBtn);
+    speakText(targetStr, 'en-US');
+  }
+
+  else if (level.type === 'phonics_zh') {
+    const zhList = [
+      "ㄅ", "ㄆ", "ㄇ", "ㄈ", "ㄉ", "ㄊ", "ㄋ", "ㄌ",
+      "ㄍ", "ㄎ", "ㄏ", "ㄐ", "ㄑ", "ㄒ", "ㄓ", "ㄔ",
+      "ㄕ", "ㄖ", "ㄗ", "ㄘ", "ㄙ", "ㄚ", "ㄛ", "ㄜ",
+      "ㄝ", "ㄞ", "ㄟ", "ㄠ", "ㄡ", "ㄢ", "ㄣ", "ㄤ",
+      "ㄥ", "ㄦ", "ㄧ", "ㄨ", "ㄩ"
+    ];
+
+    let targetStr = "";
+
+    for (let i = 0; i < level.count; i++) {
+      targetStr += zhList[
+        Math.floor(Math.random() * zhList.length)
+      ];
+    }
+
+    qText.innerText =
+      `[已扣 $${level.need}]\n請聽發音選擇正確注音：`;
+
+    correctAnswer = targetStr;
+
+    options = generate3StrOptions(targetStr, () => {
+      let s = "";
+
+      for (let i = 0; i < level.count; i++) {
+        s += zhList[
+          Math.floor(Math.random() * zhList.length)
+        ];
+      }
+
+      return s;
+    });
+
+    const sBtn = document.createElement('button');
+    sBtn.className = 'sound-btn';
+    sBtn.innerText = '🔊 點擊播放發音';
+    sBtn.onclick = () => speakText(targetStr, 'zh-TW');
+
+    soundContainer.appendChild(sBtn);
+    speakText(targetStr, 'zh-TW');
+  }
+
+  else if (level.type === "ocean_yes_no") {
+    const imageItem =
+      oceanAnimals[
+        Math.floor(Math.random() * oceanAnimals.length)
+      ];
+
+    const isYes = Math.random() < 0.5;
+
+    let statementItem = imageItem;
+
+    if (!isYes) {
+      const otherAnimals = oceanAnimals.filter(item => {
+        return item.name !== imageItem.name;
+      });
+
+      statementItem =
+        otherAnimals[
+          Math.floor(Math.random() * otherAnimals.length)
+        ];
+    }
+
+    const imagePath =
+      `ALLAO/${encodeURIComponent(imageItem.file)}.BMP`;
+
+    qText.innerHTML = `
+      <img
+        class="ocean-question-image"
+        src="${imagePath}"
+        alt="${imageItem.name}"
+      >
+      <div class="ocean-question-label">
+        看圖片回答問題
+      </div>
+      <div>
+        這是「${statementItem.name}」嗎？
+      </div>
+    `;
+
+    correctAnswer = isYes ? "YES" : "NO";
+    options = ["YES", "NO"];
+  }
+
+  else if (level.type === 'word_en' || level.type === 'word_zh') {
+    const targetItem =
+      wordBank[
+        Math.floor(Math.random() * wordBank.length)
+      ];
+
+    if (level.type === 'word_en') {
+      qText.innerText =
+        `[已扣 $${level.need}]\n請聽發音選擇正確英文單字：`;
+
+      correctAnswer = `${targetItem.en} (${targetItem.zh})`;
+
+      options = generate3WordObjOptions(targetItem, 'en');
+
+      const sBtn = document.createElement('button');
+      sBtn.className = 'sound-btn';
+      sBtn.innerText = '🔊 點擊播放英文發音';
+      sBtn.onclick = () => speakText(targetItem.en, 'en-US');
+
+      soundContainer.appendChild(sBtn);
+      speakText(targetItem.en, 'en-US');
+    }
+
+    else {
+      qText.innerText =
+        `[已扣 $${level.need}]\n請聽發音選擇正確中文單字：`;
+
+      correctAnswer = `${targetItem.zh} (${targetItem.en})`;
+
+      options = generate3WordObjOptions(targetItem, 'zh');
+
+      const sBtn = document.createElement('button');
+      sBtn.className = 'sound-btn';
+      sBtn.innerText = '🔊 點擊播放中文發音';
+      sBtn.onclick = () => speakText(targetItem.zh, 'zh-TW');
+
+      soundContainer.appendChild(sBtn);
+      speakText(targetItem.zh, 'zh-TW');
+    }
+  }
+
+  const colorClasses = [
+    'opt-red',
+    'opt-green',
+    'opt-yellow'
+  ];
+
+  options.forEach((opt, idx) => {
+    const btn = document.createElement("button");
+
+    if (level.type === "ocean_yes_no") {
+      btn.className =
+        opt === "YES"
+          ? "opt-btn opt-green"
+          : "opt-btn opt-red";
+
+      btn.innerText =
+        opt === "YES"
+          ? "✅ YES，是這個動物"
+          : "❌ NO，不是這個動物";
+    }
+
+    else if (options.length === 3) {
+      btn.className =
+        `opt-btn ${colorClasses[idx % 3]}`;
+
+      btn.innerText = opt;
+    }
+
+    else {
+      btn.className =
+        `opt-btn ${idx === 0 ? "opt-green" : "opt-red"}`;
+
+      btn.innerText = opt;
+    }
+
+    btn.onclick = () => {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+
+      finishChallenge(
+        opt === correctAnswer,
+        correctAnswer,
+        level.reward,
+        false
+      );
+    };
+
+    optsContainer.appendChild(btn);
+  });
+
+  openModal('playGameModal');
+}
+    function generate3Options(correctVal) {
+      const set = new Set([correctVal.toString()]);
+      while(set.size < 3) {
+        let delta = (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
+        set.add((correctVal + delta).toString());
+      }
+      return Array.from(set).sort(() => Math.random() - 0.5);
+    }
+
+    function generate3StrOptions(correctStr, genFunc) {
+      const set = new Set([correctStr]);
+      while(set.size < 3) {
+        set.add(genFunc());
+      }
+      return Array.from(set).sort(() => Math.random() - 0.5);
+    }
+
+    function generate3WordObjOptions(correctItem, mode) {
+      const set = new Set();
+      const formatStr = (item) => mode === 'en' ? `${item.en} (${item.zh})` : `${item.zh} (${item.en})`;
+      
+      set.add(formatStr(correctItem));
+      while(set.size < 3) {
+        const randomItem = wordBank[Math.floor(Math.random() * wordBank.length)];
+        set.add(formatStr(randomItem));
+      }
+      return Array.from(set).sort(() => Math.random() - 0.5);
+    }
+
+    function finishChallenge(isSuccess, correctAnswer, reward, isTimeout = false) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      closeModal('playGameModal');
+      
+      const title = document.getElementById('resultModalTitle');
+      const text = document.getElementById('resultModalText');
+      const ansText = document.getElementById('resultModalAnswer');
+
+      if (isSuccess) {
+        playWinSound(); // 答對播放獲勝音效
+        title.innerText = "🎉 挑戰成功！";
+        title.style.color = "#00b894";
+        if (reward > 0) {
+          totalMoney += reward;
+          document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+          text.innerText = `恭喜答對！獲得獎金 $${reward} 元！`;
+        } else {
+          text.innerText = `挑戰成功！`;
+        }
+        ansText.innerText = `正確答案為：${correctAnswer}`;
+      } else {
+        playFailSound(); // 答錯/逾時播放失敗音效
+        title.innerText = isTimeout ? "⏰ 時間到！挑戰失敗" : "❌ 答錯了！挑戰失敗";
+        title.style.color = "#d63031";
+        text.innerText = isTimeout ? `超過設定的時間限制，無法拿回扣除的費用。` : `挑戰失敗，無法拿回扣除的費用。`;
+        ansText.innerText = correctAnswer ? `正確答案為：${correctAnswer}` : "";
+      }
+
+      openModal('resultModal');
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      playClickSound();
+      if (id === 'playGameModal' && countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function resetGame() {
+      playClickSound();
+      if (countdownInterval) clearInterval(countdownInterval);
+      currentPosition = 0;
+      totalStepsTaken = 0;
+      completedLaps = 0;
+      
+      document.getElementById('completedLapDisplay').innerText = completedLaps;
+      document.getElementById('stepInput').value = 1;
+      document.getElementById('moneyDiceBox').innerText = "1";
+      document.getElementById('stepDiceBox').innerText = "1";
+      updatePlayerPositionUI();
+      closeModal('winModal');
+    }
+  </script>
+</body>
+</html>

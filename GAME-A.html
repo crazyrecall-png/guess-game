@@ -1,0 +1,474 @@
+<!DOCTYPE html> <!--要是要改成不能斜角 return rowDifference + colDifference === 1; -->
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>移動式圈圈叉叉</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-width: 520px;
+      min-height: 100vh;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background: linear-gradient(135deg, #dbeafe, #fef3c7);
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      color: #1f2937;
+
+      overflow: auto;
+    }
+
+    /* 固定遊戲框架 */
+    .game-container {
+      width: 480px;
+      height: 680px;
+      min-width: 480px;
+      min-height: 680px;
+      flex-shrink: 0;
+
+      padding: 24px;
+      text-align: center;
+
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      color: #111827;
+      font-size: 30px;
+    }
+
+    .rules {
+      width: 100%;
+      min-height: 90px;
+      padding: 12px;
+      margin-bottom: 16px;
+
+      background: #f3f4f6;
+      border-radius: 12px;
+
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .status {
+      height: 28px;
+      margin: 14px 0;
+
+      color: #2563eb;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    /* 固定棋盤大小 */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 8px;
+
+      width: 360px;
+      height: 360px;
+
+      padding: 8px;
+      margin: 20px auto;
+
+      background: #374151;
+      border-radius: 14px;
+    }
+
+    .cell {
+      width: 100%;
+      height: 100%;
+
+      border: none;
+      border-radius: 10px;
+
+      background: #ffffff;
+      cursor: pointer;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      font-size: 68px;
+      font-weight: bold;
+
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .cell:hover {
+      background: #e5e7eb;
+      transform: scale(1.03);
+    }
+
+    .cell.x {
+      color: #dc2626;
+    }
+
+    .cell.o {
+      color: #2563eb;
+    }
+
+    /* 被選取的棋子 */
+    .cell.selected {
+      outline: 5px solid #f59e0b;
+      background: #fef3c7;
+    }
+
+    .score {
+      display: flex;
+      justify-content: space-around;
+
+      width: 100%;
+      margin: 12px 0 18px;
+
+      font-size: 16px;
+    }
+
+    .x-score {
+      color: #dc2626;
+      font-weight: bold;
+    }
+
+    .o-score {
+      color: #2563eb;
+      font-weight: bold;
+    }
+
+    .reset-button {
+      border: none;
+      border-radius: 10px;
+
+      padding: 12px 24px;
+
+      background: #111827;
+      color: white;
+
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .reset-button:hover {
+      background: #374151;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game-container">
+    <h1>移動式圈圈叉叉</h1>
+
+    <div class="rules">
+      雙方輪流放置自己的 3 顆棋子。<br />
+      6 顆棋子都放完後，只能移動到相鄰的空格。<br />
+      允許上下左右以及斜角移動，先連成三條線者獲勝。
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div class="score">
+      <div class="x-score">
+        ❌：<span id="xCount">0</span> / 3
+      </div>
+
+      <div class="o-score">
+        ⭕：<span id="oCount">0</span> / 3
+      </div>
+    </div>
+
+    <div id="board" class="board"></div>
+
+    <button id="resetButton" class="reset-button">
+      重新開始
+    </button>
+  </main>
+
+  <script>
+    const boardElement = document.getElementById("board");
+    const statusElement = document.getElementById("status");
+    const xCountElement = document.getElementById("xCount");
+    const oCountElement = document.getElementById("oCount");
+    const resetButton = document.getElementById("resetButton");
+
+    const winningLines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    let board = [];
+    let currentPlayer = "X";
+    let phase = "placing";
+    let selectedIndex = null;
+    let gameOver = false;
+
+    function resetGame() {
+      board = Array(9).fill(null);
+      currentPlayer = "X";
+      phase = "placing";
+      selectedIndex = null;
+      gameOver = false;
+
+      render();
+      updateStatus();
+    }
+
+    function render() {
+      boardElement.innerHTML = "";
+
+      board.forEach((value, index) => {
+        const cell = document.createElement("button");
+
+        cell.className = "cell";
+        cell.type = "button";
+
+        if (value === "X") {
+          cell.textContent = "❌";
+          cell.classList.add("x");
+        }
+
+        if (value === "O") {
+          cell.textContent = "⭕";
+          cell.classList.add("o");
+        }
+
+        if (index === selectedIndex) {
+          cell.classList.add("selected");
+        }
+
+        cell.addEventListener("click", function () {
+          handleCellClick(index);
+        });
+
+        boardElement.appendChild(cell);
+      });
+
+      xCountElement.textContent = board.filter(
+        value => value === "X"
+      ).length;
+
+      oCountElement.textContent = board.filter(
+        value => value === "O"
+      ).length;
+    }
+
+    function updateStatus(message = "") {
+      if (message) {
+        statusElement.textContent = message;
+        return;
+      }
+
+      if (gameOver) {
+        return;
+      }
+
+      const playerName =
+        currentPlayer === "X" ? "❌ 玩家" : "⭕ 玩家";
+
+      if (phase === "placing") {
+        statusElement.textContent =
+          `${playerName}，請放置棋子`;
+      } else {
+        if (selectedIndex === null) {
+          statusElement.textContent =
+            `${playerName}，請選擇要移動的棋子`;
+        } else {
+          statusElement.textContent =
+            "請選擇相鄰的空格移動";
+        }
+      }
+    }
+
+    function handleCellClick(index) {
+      if (gameOver) {
+        return;
+      }
+
+      if (phase === "placing") {
+        placePiece(index);
+      } else {
+        movePiece(index);
+      }
+    }
+
+    function placePiece(index) {
+      if (board[index] !== null) {
+        updateStatus("這個位置已經有棋子了");
+        return;
+      }
+
+      const currentPlayerCount = board.filter(
+        value => value === currentPlayer
+      ).length;
+
+      if (currentPlayerCount >= 3) {
+        updateStatus("你已經放置 3 顆棋子，請等待對方");
+        return;
+      }
+
+      board[index] = currentPlayer;
+
+      if (checkWin(currentPlayer)) {
+        gameOver = true;
+        render();
+
+        updateStatus(
+          `${getPlayerSymbol(currentPlayer)} 玩家獲勝！`
+        );
+
+        return;
+      }
+
+      const xCount = board.filter(
+        value => value === "X"
+      ).length;
+
+      const oCount = board.filter(
+        value => value === "O"
+      ).length;
+
+      if (xCount === 3 && oCount === 3) {
+        phase = "moving";
+      }
+
+      switchPlayer();
+
+      render();
+      updateStatus();
+    }
+
+    function movePiece(index) {
+      /*
+        第一次點擊：
+        選擇目前玩家自己的棋子
+      */
+      if (selectedIndex === null) {
+        if (board[index] !== currentPlayer) {
+          updateStatus("請先選擇你自己的棋子");
+          return;
+        }
+
+        selectedIndex = index;
+
+        render();
+        updateStatus();
+
+        return;
+      }
+
+      /*
+        如果再次點擊自己的棋子，
+        可以改選另一顆棋子
+      */
+      if (board[index] === currentPlayer) {
+        selectedIndex = index;
+
+        render();
+        updateStatus();
+
+        return;
+      }
+
+      /*
+        目的地必須是空格
+      */
+      if (board[index] !== null) {
+        updateStatus("目的地必須是空格");
+        return;
+      }
+
+      /*
+        目的地必須是相鄰格子。
+        相鄰包含：
+        上、下、左、右，以及四個斜角。
+      */
+      if (!isAdjacent(selectedIndex, index)) {
+        updateStatus("棋子只能移動到相鄰的格子");
+        return;
+      }
+
+      board[index] = currentPlayer;
+      board[selectedIndex] = null;
+      selectedIndex = null;
+
+      if (checkWin(currentPlayer)) {
+        gameOver = true;
+        render();
+
+        updateStatus(
+          `${getPlayerSymbol(currentPlayer)} 玩家獲勝！`
+        );
+
+        return;
+      }
+
+      switchPlayer();
+
+      render();
+      updateStatus();
+    }
+
+    function isAdjacent(index1, index2) {
+      const row1 = Math.floor(index1 / 3);
+      const col1 = index1 % 3;
+
+      const row2 = Math.floor(index2 / 3);
+      const col2 = index2 % 3;
+
+      const rowDifference = Math.abs(row1 - row2);
+      const colDifference = Math.abs(col1 - col2);
+
+      /*
+        兩格的列、欄距離都不能超過 1，
+        且不能是同一格。
+      */
+      return (
+        rowDifference <= 1 &&
+        colDifference <= 1 &&
+        (rowDifference !== 0 || colDifference !== 0)
+      );
+    }
+
+    function switchPlayer() {
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+    }
+
+    function getPlayerSymbol(player) {
+      return player === "X" ? "❌" : "⭕";
+    }
+
+    function checkWin(player) {
+      return winningLines.some(line => {
+        return line.every(index => board[index] === player);
+      });
+    }
+
+    resetButton.addEventListener("click", resetGame);
+
+    resetGame();
+  </script>
+</body>
+</html>
