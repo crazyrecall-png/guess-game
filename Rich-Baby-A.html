@@ -482,6 +482,19 @@
       margin-bottom: 8px;
       display: inline-block;
     }
+
+    .ocean-question-image {
+      max-width: 120px;
+      max-height: 120px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    .ocean-question-label {
+      font-size: 14px;
+      color: #636e72;
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 <body>
@@ -659,58 +672,59 @@
       { zh: "花", en: "Flower" }, { zh: "草", en: "Grass" }, { zh: "房子", en: "House" }, { zh: "學校", en: "School" },
       { zh: "公園", en: "Park" }, { zh: "海邊", en: "Beach" }, { zh: "白天", en: "Day" }, { zh: "夜晚", en: "Night" }
     ];
-const oceanAnimals = [
-  { file: "BlueWhale", name: "藍鯨" },
-  { file: "Dolphin", name: "海豚" },
-  { file: "Seaturtle", name: "海龜" },
-  { file: "Shark-1", name: "鯊魚" },
-  { file: "Clownfish", name: "小丑魚" },
-  { file: "Jellyfish", name: "水母" },
-  { file: "Octopus-1", name: "章魚" },
-  { file: "Crab-1", name: "螃蟹" },
-  { file: "Seahorse", name: "海馬" },
-  { file: "Lobster", name: "龍蝦" },
-  { file: "Stingray", name: "魟魚" },
-  { file: "Penguin", name: "企鵝" },
-  { file: "Walrus", name: "海象" },
-  { file: "Seal", name: "海豹" },
-  { file: "Manatee", name: "海牛" },
-  { file: "Starfish-1", name: "海星" },
-  { file: "Seashell", name: "貝殼" },
-  { file: "Seaurchin", name: "海膽" },
-  { file: "Tropicalfish", name: "熱帶魚" },
-  { file: "Coral", name: "珊瑚" },
-  { file: "Crab-2", name: "螃蟹" },
-  { file: "Octopus-2", name: "章魚" },
-  { file: "Shark-2", name: "鯊魚" },
-  { file: "Starfish-2", name: "海星" },
-  { file: "Belugawhale", name: "白鯨" },
-{ file: "Lion-1", name: "獅子" },
-{ file: "Elephant", name: "大象" },
-{ file: "Giraffe", name: "長頸鹿" },
-{ file: "Tiger", name: "老虎" },
-{ file: "Zebra", name: "斑馬" },
-{ file: "Monkey", name: "猴子" },
-{ file: "Panda", name: "熊貓" },
-{ file: "Kangaroo", name: "袋鼠" },
-{ file: "Sloth", name: "樹懶" },
-{ file: "Koala", name: "考拉" },
-{ file: "Fox", name: "狐狸" },
-{ file: "Wolf", name: "狼" },
-{ file: "Squirrel", name: "松鼠" },
-{ file: "Rabbit", name: "兔子" },
-{ file: "Hedgehog", name: "刺蝟" },
-{ file: "Cat", name: "貓咪" },
-{ file: "Dog", name: "狗狗" },
-{ file: "Pig", name: "豬" },
-{ file: "Cow", name: "牛" },
-{ file: "Sheep", name: "羊" },
-{ file: "Donkey", name: "驢子" },
-{ file: "Horse", name: "馬" },
-{ file: "Lion-2", name: "獅子" },
-{ file: "Dromedarycamel", name: "單峰駱駝" },
-{ file: "Bactriancamel", name: "雙峰駱駝" }
-];
+
+    const oceanAnimals = [
+      { file: "BlueWhale", name: "藍鯨" },
+      { file: "Dolphin", name: "海豚" },
+      { file: "Seaturtle", name: "海龜" },
+      { file: "Shark-1", name: "鯊魚" },
+      { file: "Clownfish", name: "小丑魚" },
+      { file: "Jellyfish", name: "水母" },
+      { file: "Octopus-1", name: "章魚" },
+      { file: "Crab-1", name: "螃蟹" },
+      { file: "Seahorse", name: "海馬" },
+      { file: "Lobster", name: "龍蝦" },
+      { file: "Stingray", name: "魟魚" },
+      { file: "Penguin", name: "企鵝" },
+      { file: "Walrus", name: "海象" },
+      { file: "Seal", name: "海豹" },
+      { file: "Manatee", name: "海牛" },
+      { file: "Starfish-1", name: "海星" },
+      { file: "Seashell", name: "貝殼" },
+      { file: "Seaurchin", name: "海膽" },
+      { file: "Tropicalfish", name: "熱帶魚" },
+      { file: "Coral", name: "珊瑚" },
+      { file: "Crab-2", name: "螃蟹" },
+      { file: "Octopus-2", name: "章魚" },
+      { file: "Shark-2", name: "鯊魚" },
+      { file: "Starfish-2", name: "海星" },
+      { file: "Belugawhale", name: "白鯨" },
+      { file: "Lion-1", name: "獅子" },
+      { file: "Elephant", name: "大象" },
+      { file: "Giraffe", name: "長頸鹿" },
+      { file: "Tiger", name: "老虎" },
+      { file: "Zebra", name: "斑馬" },
+      { file: "Monkey", name: "猴子" },
+      { file: "Panda", name: "熊貓" },
+      { file: "Kangaroo", name: "袋鼠" },
+      { file: "Sloth", name: "樹懶" },
+      { file: "Koala", name: "考拉" },
+      { file: "Fox", name: "狐狸" },
+      { file: "Wolf", name: "狼" },
+      { file: "Squirrel", name: "松鼠" },
+      { file: "Rabbit", name: "兔子" },
+      { file: "Hedgehog", name: "刺蝟" },
+      { file: "Cat", name: "貓咪" },
+      { file: "Dog", name: "狗狗" },
+      { file: "Pig", name: "豬" },
+      { file: "Cow", name: "牛" },
+      { file: "Sheep", name: "羊" },
+      { file: "Donkey", name: "驢子" },
+      { file: "Horse", name: "馬" },
+      { file: "Lion-2", name: "獅子" },
+      { file: "Dromedarycamel", name: "單峰駱駝" },
+      { file: "Bactriancamel", name: "雙峰駱駝" }
+    ];
 
     let lastTouchEnd = 0;
     document.addEventListener('touchend', function (event) {
@@ -772,7 +786,6 @@ const oceanAnimals = [
       });
     }
 
-    // 觸發挑戰 / 出題音效 (嗶嗶兩聲)
     function playChallengeAlertSound() {
       initAudio();
       if (!audioCtx) return;
@@ -789,7 +802,6 @@ const oceanAnimals = [
       });
     }
 
-    // 挑戰失敗音效 (沉悶低音)
     function playFailSound() {
       initAudio();
       if (!audioCtx) return;
@@ -888,31 +900,17 @@ const oceanAnimals = [
           { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_zh" }
         ]
       },
- {
-    name: "動物猜猜看問答",
-    type: "normal",
-    levels: [
       {
-        diffName: "題目1（扣$100／賺$200）",
-        reward: 200,
-        need: 100,
-        type: "ocean_yes_no"
-      },
-      {
-        diffName: "題目2（扣$100／賺$200）",
-        reward: 200,
-        need: 100,
-        type: "ocean_yes_no"
-      },
-      {
-        diffName: "題目3（扣$100／賺$200）",
-        reward: 200,
-        need: 100,
-        type: "ocean_yes_no"
+        name: "動物猜猜看問答",
+        type: "normal",
+        levels: [
+          { diffName: "題目1（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" },
+          { diffName: "題目2（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" },
+          { diffName: "題目3（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" }
+        ]
       }
-    ]
-  }
-];
+    ];
+
     const COLS = 6, ROWS = 10;
     const pathCoords = [];
     for (let c = 1; c <= COLS; c++) pathCoords.push({ r: 1, c: c });
@@ -1075,6 +1073,7 @@ const oceanAnimals = [
 
       if (completedLaps >= targetLaps) {
         playWinSound();
+        speakText("恭喜獲勝！你已經跑滿設定的圈數囉！");
         openModal('winModal');
       } else if (currentPosition !== 0) {
         triggerChallengePrompt();
@@ -1090,9 +1089,11 @@ const oceanAnimals = [
       const randIdx = Math.floor(Math.random() * challengeCategories.length);
       selectedCategory = challengeCategories[randIdx];
       
-      playChallengeAlertSound(); // 踩到挑戰格發出提示音
+      playChallengeAlertSound();
       document.getElementById('askChallengeName').innerText = `踩到了挑戰格！【${selectedCategory.name}】\n請選擇是否挑戰！`;
       openModal('askChallengeModal');
+
+      speakText(`踩到了挑戰格！${selectedCategory.name}，要接受挑戰嗎？`);
     }
 
     function acceptChallenge() {
@@ -1172,322 +1173,233 @@ const oceanAnimals = [
         title.style.color = "#00b894";
         text.innerText = `你猜【${chosenColor}】，機台開出【${actualColor}】！\n獲得獎金 $${reward} 元！`;
         ansText.innerText = "";
+
+        speakText(`太棒了！機台開出 ${actualColor}，恭喜猜對！`);
       } else {
         playFailSound();
         title.innerText = "❌ 猜錯了！沒中獎～";
         title.style.color = "#d63031";
         text.innerText = `你猜【${chosenColor}】，但機台開出【${actualColor}】！`;
         ansText.innerText = `很可惜，扣除入場費 $${need}`;
+
+        speakText(`可惜，機台開出 ${actualColor}，沒猜中。`);
       }
 
       openModal('resultModal');
     }
 
- function startChallengeGame(level) {
-  closeModal('selectDiffModal');
+    function startChallengeGame(level) {
+      closeModal('selectDiffModal');
+      playChallengeAlertSound();
 
-  playChallengeAlertSound();
+      totalMoney -= level.need;
+      document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
 
-  totalMoney -= level.need;
-  document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+      const title = document.getElementById('gameModalTitle');
+      const qText = document.getElementById('gameModalQuestion');
+      const soundContainer = document.getElementById('gameSoundContainer');
+      const optsContainer = document.getElementById('gameOptionsContainer');
+      const timerContainer = document.getElementById('timerContainer');
+      const timerBox = document.getElementById('timerBox');
 
-  const title = document.getElementById('gameModalTitle');
-  const qText = document.getElementById('gameModalQuestion');
-  const soundContainer = document.getElementById('gameSoundContainer');
-  const optsContainer = document.getElementById('gameOptionsContainer');
-  const timerContainer = document.getElementById('timerContainer');
-  const timerBox = document.getElementById('timerBox');
+      title.innerText = `${selectedCategory.name} (${level.diffName})`;
+      soundContainer.innerHTML = '';
+      optsContainer.innerHTML = '';
 
-  title.innerText = `${selectedCategory.name} (${level.diffName})`;
-  soundContainer.innerHTML = '';
-  optsContainer.innerHTML = '';
+      if (countdownInterval) clearInterval(countdownInterval);
 
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-  }
+      let correctAnswer = "";
+      let options = [];
+      const isQuestionType = level.type !== 'action';
 
-  let correctAnswer = "";
-  let options = [];
+      if (isQuestionType) {
+        timerContainer.style.display = 'inline-block';
+        let remainingTime = timerSetting;
+        timerBox.innerText = remainingTime;
 
-  const isQuestionType = level.type !== 'action';
+        countdownInterval = setInterval(() => {
+          remainingTime--;
+          timerBox.innerText = remainingTime;
 
-  if (isQuestionType) {
-    timerContainer.style.display = 'inline-block';
-
-    let remainingTime = timerSetting;
-    timerBox.innerText = remainingTime;
-
-    countdownInterval = setInterval(() => {
-      remainingTime--;
-      timerBox.innerText = remainingTime;
-
-      if (remainingTime <= 0) {
-        clearInterval(countdownInterval);
-        finishChallenge(false, correctAnswer, level.reward, true);
-      }
-    }, 1000);
-  } else {
-    timerContainer.style.display = 'none';
-  }
-
-  if (level.type === 'action') {
-    qText.innerText =
-      `已扣除代幣 $${level.need}！\n任務目標：完成 ${selectedCategory.name} ${level.target}！`;
-
-    options = ["完成挑戰", "挑戰失敗"];
-    correctAnswer = "完成挑戰";
-  }
-
-  else if (level.type.startsWith('math')) {
-    let n1, n2, n3, ans;
-
-    if (level.type === 'math_add_2') {
-      n1 = Math.floor(Math.random() * 8) + 5;
-      n2 = Math.floor(Math.random() * 8) + 5;
-      ans = n1 + n2;
-
-      qText.innerText =
-        `[已扣 $${level.need}]\n題目：${n1} + ${n2} = ?`;
-    }
-
-    else if (level.type === 'math_sub_2') {
-      n1 = Math.floor(Math.random() * 10) + 10;
-      n2 = Math.floor(Math.random() * 8) + 1;
-      ans = n1 - n2;
-
-      qText.innerText =
-        `[已扣 $${level.need}]\n題目：${n1} - ${n2} = ?`;
-    }
-
-    else {
-      n1 = Math.floor(Math.random() * 10) + 5;
-      n2 = Math.floor(Math.random() * 10) + 2;
-      n3 = Math.floor(Math.random() * 5) + 1;
-      ans = n1 + n2 - n3;
-
-      qText.innerText =
-        `[已扣 $${level.need}]\n題目：${n1} + ${n2} - ${n3} = ?`;
-    }
-
-    correctAnswer = ans.toString();
-    options = generate3Options(ans);
-  }
-
-  else if (level.type === 'phonics_en') {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let targetStr = "";
-
-    for (let i = 0; i < level.count; i++) {
-      targetStr += letters.charAt(
-        Math.floor(Math.random() * letters.length)
-      );
-    }
-
-    qText.innerText =
-      `[已扣 $${level.need}]\n請聽發音選擇正確字母：`;
-
-    correctAnswer = targetStr;
-
-    options = generate3StrOptions(targetStr, () => {
-      let s = "";
-
-      for (let i = 0; i < level.count; i++) {
-        s += letters.charAt(
-          Math.floor(Math.random() * letters.length)
-        );
+          if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+            finishChallenge(false, correctAnswer, level.reward, true);
+          }
+        }, 1000);
+      } else {
+        timerContainer.style.display = 'none';
       }
 
-      return s;
-    });
+      if (level.type === 'action') {
+        qText.innerText = `已扣除代幣 $${level.need}！\n任務目標：完成 ${selectedCategory.name} ${level.target}！`;
+        options = ["完成挑戰", "挑戰失敗"];
+        correctAnswer = "完成挑戰";
 
-    const sBtn = document.createElement('button');
-    sBtn.className = 'sound-btn';
-    sBtn.innerText = '🔊 點擊播放發音';
-    sBtn.onclick = () => speakText(targetStr, 'en-US');
+        speakText(`任務目標：請完成 ${selectedCategory.name} ${level.target}`);
+      }
+      else if (level.type.startsWith('math')) {
+        let n1, n2, n3, ans;
 
-    soundContainer.appendChild(sBtn);
-    speakText(targetStr, 'en-US');
-  }
+        if (level.type === 'math_add_2') {
+          n1 = Math.floor(Math.random() * 8) + 5;
+          n2 = Math.floor(Math.random() * 8) + 5;
+          ans = n1 + n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} = ?`;
 
-  else if (level.type === 'phonics_zh') {
-    const zhList = [
-      "ㄅ", "ㄆ", "ㄇ", "ㄈ", "ㄉ", "ㄊ", "ㄋ", "ㄌ",
-      "ㄍ", "ㄎ", "ㄏ", "ㄐ", "ㄑ", "ㄒ", "ㄓ", "ㄔ",
-      "ㄕ", "ㄖ", "ㄗ", "ㄘ", "ㄙ", "ㄚ", "ㄛ", "ㄜ",
-      "ㄝ", "ㄞ", "ㄟ", "ㄠ", "ㄡ", "ㄢ", "ㄣ", "ㄤ",
-      "ㄥ", "ㄦ", "ㄧ", "ㄨ", "ㄩ"
-    ];
+          speakText(`${n1} 加 ${n2} 等於多少？`);
+        }
+        else if (level.type === 'math_sub_2') {
+          n1 = Math.floor(Math.random() * 10) + 10;
+          n2 = Math.floor(Math.random() * 8) + 1;
+          ans = n1 - n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} - ${n2} = ?`;
 
-    let targetStr = "";
+          speakText(`${n1} 減 ${n2} 等於多少？`);
+        }
+        else {
+          n1 = Math.floor(Math.random() * 10) + 5;
+          n2 = Math.floor(Math.random() * 10) + 2;
+          n3 = Math.floor(Math.random() * 5) + 1;
+          ans = n1 + n2 - n3;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} - ${n3} = ?`;
 
-    for (let i = 0; i < level.count; i++) {
-      targetStr += zhList[
-        Math.floor(Math.random() * zhList.length)
-      ];
-    }
+          speakText(`${n1} 加 ${n2} 減 ${n3} 等於多少？`);
+        }
 
-    qText.innerText =
-      `[已扣 $${level.need}]\n請聽發音選擇正確注音：`;
+        correctAnswer = ans.toString();
+        options = generate3Options(ans);
+      }
+      else if (level.type === 'phonics_en') {
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let targetStr = "";
+        for (let i = 0; i < level.count; i++) {
+          targetStr += letters.charAt(Math.floor(Math.random() * letters.length));
+        }
 
-    correctAnswer = targetStr;
+        qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確字母：`;
+        correctAnswer = targetStr;
+        options = generate3StrOptions(targetStr, () => {
+          let s = "";
+          for (let i = 0; i < level.count; i++) s += letters.charAt(Math.floor(Math.random() * letters.length));
+          return s;
+        });
 
-    options = generate3StrOptions(targetStr, () => {
-      let s = "";
+        const sBtn = document.createElement('button');
+        sBtn.className = 'sound-btn';
+        sBtn.innerText = '🔊 點擊重播發音';
+        sBtn.onclick = () => speakText(targetStr, 'en-US');
+        soundContainer.appendChild(sBtn);
 
-      for (let i = 0; i < level.count; i++) {
-        s += zhList[
-          Math.floor(Math.random() * zhList.length)
+        speakText("請聽英文發音");
+        setTimeout(() => speakText(targetStr, 'en-US'), 1000);
+      }
+      else if (level.type === 'phonics_zh') {
+        const zhList = [
+          "ㄅ", "ㄆ", "ㄇ", "ㄈ", "ㄉ", "ㄊ", "ㄋ", "ㄌ", "ㄍ", "ㄎ", "ㄏ", "ㄐ", "ㄑ", "ㄒ",
+          "ㄓ", "ㄔ", "ㄕ", "ㄖ", "ㄗ", "ㄘ", "ㄙ", "ㄚ", "ㄛ", "ㄜ", "ㄝ", "ㄞ", "ㄟ", "ㄠ",
+          "ㄡ", "ㄢ", "ㄣ", "ㄤ", "ㄥ", "ㄦ", "ㄧ", "ㄨ", "ㄩ"
         ];
+        let targetStr = "";
+        for (let i = 0; i < level.count; i++) {
+          targetStr += zhList[Math.floor(Math.random() * zhList.length)];
+        }
+
+        qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確注音：`;
+        correctAnswer = targetStr;
+        options = generate3StrOptions(targetStr, () => {
+          let s = "";
+          for (let i = 0; i < level.count; i++) s += zhList[Math.floor(Math.random() * zhList.length)];
+          return s;
+        });
+
+        const sBtn = document.createElement('button');
+        sBtn.className = 'sound-btn';
+        sBtn.innerText = '🔊 點擊重播發音';
+        sBtn.onclick = () => speakText(targetStr, 'zh-TW');
+        soundContainer.appendChild(sBtn);
+
+        speakText("請聽注音發音");
+        setTimeout(() => speakText(targetStr, 'zh-TW'), 1000);
+      }
+      else if (level.type === "ocean_yes_no") {
+        const imageItem = oceanAnimals[Math.floor(Math.random() * oceanAnimals.length)];
+        const isYes = Math.random() < 0.5;
+        let statementItem = imageItem;
+
+        if (!isYes) {
+          const otherAnimals = oceanAnimals.filter(item => item.name !== imageItem.name);
+          statementItem = otherAnimals[Math.floor(Math.random() * otherAnimals.length)];
+        }
+
+        const imagePath = `ALLAO/${encodeURIComponent(imageItem.file)}.png`;
+        qText.innerHTML = `
+          <img class="ocean-question-image" src="${imagePath}" alt="${imageItem.name}">
+          <div class="ocean-question-label">看圖片回答問題</div>
+          <div>這是「${statementItem.name}」嗎？</div>
+        `;
+
+        correctAnswer = isYes ? "YES" : "NO";
+        options = ["YES", "NO"];
+
+        speakText(`看圖片回答，這是 ${statementItem.name} 嗎？`);
+      }
+      else if (level.type === 'word_en' || level.type === 'word_zh') {
+        const targetItem = wordBank[Math.floor(Math.random() * wordBank.length)];
+
+        if (level.type === 'word_en') {
+          qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確英文單字：`;
+          correctAnswer = `${targetItem.en} (${targetItem.zh})`;
+          options = generate3WordObjOptions(targetItem, 'en');
+
+          const sBtn = document.createElement('button');
+          sBtn.className = 'sound-btn';
+          sBtn.innerText = '🔊 點擊重播英文發音';
+          sBtn.onclick = () => speakText(targetItem.en, 'en-US');
+          soundContainer.appendChild(sBtn);
+
+          speakText("請聽英文單字");
+          setTimeout(() => speakText(targetItem.en, 'en-US'), 1000);
+        } else {
+          qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確中文單字：`;
+          correctAnswer = `${targetItem.zh} (${targetItem.en})`;
+          options = generate3WordObjOptions(targetItem, 'zh');
+
+          const sBtn = document.createElement('button');
+          sBtn.className = 'sound-btn';
+          sBtn.innerText = '🔊 點擊重播中文發音';
+          sBtn.onclick = () => speakText(targetItem.zh, 'zh-TW');
+          soundContainer.appendChild(sBtn);
+
+          speakText("請聽中文單字");
+          setTimeout(() => speakText(targetItem.zh, 'zh-TW'), 1000);
+        }
       }
 
-      return s;
-    });
+      const colorClasses = ['opt-red', 'opt-green', 'opt-yellow'];
+      options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        if (level.type === "ocean_yes_no") {
+          btn.className = opt === "YES" ? "opt-btn opt-green" : "opt-btn opt-red";
+          btn.innerText = opt === "YES" ? "✅ YES，是這個動物" : "❌ NO，不是這個動物";
+        } else if (options.length === 3) {
+          btn.className = `opt-btn ${colorClasses[idx % 3]}`;
+          btn.innerText = opt;
+        } else {
+          btn.className = `opt-btn ${idx === 0 ? "opt-green" : "opt-red"}`;
+          btn.innerText = opt;
+        }
 
-    const sBtn = document.createElement('button');
-    sBtn.className = 'sound-btn';
-    sBtn.innerText = '🔊 點擊播放發音';
-    sBtn.onclick = () => speakText(targetStr, 'zh-TW');
+        btn.onclick = () => {
+          if (countdownInterval) clearInterval(countdownInterval);
+          finishChallenge(opt === correctAnswer, correctAnswer, level.reward, false);
+        };
 
-    soundContainer.appendChild(sBtn);
-    speakText(targetStr, 'zh-TW');
-  }
-
-  else if (level.type === "ocean_yes_no") {
-    const imageItem =
-      oceanAnimals[
-        Math.floor(Math.random() * oceanAnimals.length)
-      ];
-
-    const isYes = Math.random() < 0.5;
-
-    let statementItem = imageItem;
-
-    if (!isYes) {
-      const otherAnimals = oceanAnimals.filter(item => {
-        return item.name !== imageItem.name;
+        optsContainer.appendChild(btn);
       });
 
-      statementItem =
-        otherAnimals[
-          Math.floor(Math.random() * otherAnimals.length)
-        ];
+      openModal('playGameModal');
     }
 
-    const imagePath =
-      `ALLAO/${encodeURIComponent(imageItem.file)}.png`;
-
-    qText.innerHTML = `
-      <img
-        class="ocean-question-image"
-        src="${imagePath}"
-        alt="${imageItem.name}"
-      >
-      <div class="ocean-question-label">
-        看圖片回答問題
-      </div>
-      <div>
-        這是「${statementItem.name}」嗎？
-      </div>
-    `;
-
-    correctAnswer = isYes ? "YES" : "NO";
-    options = ["YES", "NO"];
-  }
-
-  else if (level.type === 'word_en' || level.type === 'word_zh') {
-    const targetItem =
-      wordBank[
-        Math.floor(Math.random() * wordBank.length)
-      ];
-
-    if (level.type === 'word_en') {
-      qText.innerText =
-        `[已扣 $${level.need}]\n請聽發音選擇正確英文單字：`;
-
-      correctAnswer = `${targetItem.en} (${targetItem.zh})`;
-
-      options = generate3WordObjOptions(targetItem, 'en');
-
-      const sBtn = document.createElement('button');
-      sBtn.className = 'sound-btn';
-      sBtn.innerText = '🔊 點擊播放英文發音';
-      sBtn.onclick = () => speakText(targetItem.en, 'en-US');
-
-      soundContainer.appendChild(sBtn);
-      speakText(targetItem.en, 'en-US');
-    }
-
-    else {
-      qText.innerText =
-        `[已扣 $${level.need}]\n請聽發音選擇正確中文單字：`;
-
-      correctAnswer = `${targetItem.zh} (${targetItem.en})`;
-
-      options = generate3WordObjOptions(targetItem, 'zh');
-
-      const sBtn = document.createElement('button');
-      sBtn.className = 'sound-btn';
-      sBtn.innerText = '🔊 點擊播放中文發音';
-      sBtn.onclick = () => speakText(targetItem.zh, 'zh-TW');
-
-      soundContainer.appendChild(sBtn);
-      speakText(targetItem.zh, 'zh-TW');
-    }
-  }
-
-  const colorClasses = [
-    'opt-red',
-    'opt-green',
-    'opt-yellow'
-  ];
-
-  options.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-
-    if (level.type === "ocean_yes_no") {
-      btn.className =
-        opt === "YES"
-          ? "opt-btn opt-green"
-          : "opt-btn opt-red";
-
-      btn.innerText =
-        opt === "YES"
-          ? "✅ YES，是這個動物"
-          : "❌ NO，不是這個動物";
-    }
-
-    else if (options.length === 3) {
-      btn.className =
-        `opt-btn ${colorClasses[idx % 3]}`;
-
-      btn.innerText = opt;
-    }
-
-    else {
-      btn.className =
-        `opt-btn ${idx === 0 ? "opt-green" : "opt-red"}`;
-
-      btn.innerText = opt;
-    }
-
-    btn.onclick = () => {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
-
-      finishChallenge(
-        opt === correctAnswer,
-        correctAnswer,
-        level.reward,
-        false
-      );
-    };
-
-    optsContainer.appendChild(btn);
-  });
-
-  openModal('playGameModal');
-}
     function generate3Options(correctVal) {
       const set = new Set([correctVal.toString()]);
       while(set.size < 3) {
@@ -1526,7 +1438,7 @@ const oceanAnimals = [
       const ansText = document.getElementById('resultModalAnswer');
 
       if (isSuccess) {
-        playWinSound(); // 答對播放獲勝音效
+        playWinSound();
         title.innerText = "🎉 挑戰成功！";
         title.style.color = "#00b894";
         if (reward > 0) {
@@ -1537,12 +1449,20 @@ const oceanAnimals = [
           text.innerText = `挑戰成功！`;
         }
         ansText.innerText = `正確答案為：${correctAnswer}`;
+
+        speakText("太棒了！恭喜挑戰成功！");
       } else {
-        playFailSound(); // 答錯/逾時播放失敗音效
+        playFailSound();
         title.innerText = isTimeout ? "⏰ 時間到！挑戰失敗" : "❌ 答錯了！挑戰失敗";
         title.style.color = "#d63031";
         text.innerText = isTimeout ? `超過設定的時間限制，無法拿回扣除的費用。` : `挑戰失敗，無法拿回扣除的費用。`;
         ansText.innerText = correctAnswer ? `正確答案為：${correctAnswer}` : "";
+
+        if (isTimeout) {
+          speakText("時間到了，挑戰失敗，下次再加油！");
+        } else {
+          speakText("答錯囉，挑戰失敗，再接再勵！");
+        }
       }
 
       openModal('resultModal');
