@@ -393,7 +393,6 @@
       cursor: pointer;
     }
 
-    /* 三選項問答專用色彩 (紅、綠、黃) */
     .opt-btn.opt-red {
       background-color: #ff7675 !important;
       color: white !important;
@@ -421,7 +420,6 @@
       box-shadow: 0 1px 0 #f39c12 !important;
     }
 
-    /* 猜球顏色按鈕 */
     .opt-btn.color-black {
       background-color: #222222;
       color: white;
@@ -643,34 +641,116 @@
 
   <script>
     const wordBank = [
-      { zh: "蘋果", en: "Apple" }, { zh: "香蕉", en: "Banana" }, { zh: "貓咪", en: "Cat" }, { zh: "小狗", en: "Dog" },
-      { zh: "大象", en: "Elephant" }, { zh: "青蛙", en: "Frog" }, { zh: "長頸鹿", en: "Giraffe" }, { zh: "馬", en: "Horse" },
-      { zh: "獅子", en: "Lion" }, { zh: "猴子", en: "Monkey" }, { zh: "兔子", en: "Rabbit" }, { zh: "老虎", en: "Tiger" },
-      { zh: "熊", en: "Bear" }, { zh: "鳥", en: "Bird" }, { zh: "鴨子", en: "Duck" }, { zh: "魚", en: "Fish" },
-      { zh: "豬", en: "Pig" }, { zh: "綿羊", en: "Sheep" }, { zh: "烏龜", en: "Turtle" }, { zh: "斑馬", en: "Zebra" },
-      { zh: "麵包", en: "Bread" }, { zh: "蛋糕", en: "Cake" }, { zh: "牛奶", en: "Milk" }, { zh: "水", en: "Water" },
-      { zh: "雞蛋", en: "Egg" }, { zh: "果汁", en: "Juice" }, { zh: "米飯", en: "Rice" }, { zh: "湯", en: "Soup" },
-      { zh: "葡萄", en: "Grape" }, { zh: "檸檬", en: "Lemon" }, { zh: "柳橘", en: "Orange" }, { zh: "水蜜桃", en: "Peach" },
-      { zh: "草莓", en: "Strawberry" }, { zh: "西瓜", en: "Watermelon" }, { zh: "冰淇淋", en: "Ice cream" }, { zh: "糖果", en: "Candy" },
-      { zh: "餅乾", en: "Cookie" }, { zh: "披薩", en: "Pizza" }, { zh: "漢堡", en: "Burger" }, { zh: "起司", en: "Cheese" },
-      { zh: "爸爸", en: "Dad" }, { zh: "媽媽", en: "Mom" }, { zh: "哥哥弟弟", en: "Brother" }, { zh: "姊姊妹妹", en: "Sister" },
-      { zh: "爺爺外公", en: "Grandpa" }, { zh: "奶奶外婆", en: "Grandma" }, { zh: "嬰兒", en: "Baby" }, { zh: "男孩", en: "Boy" },
-      { zh: "女孩", en: "Girl" }, { zh: "老師", en: "Teacher" }, { zh: "學生", en: "Student" }, { zh: "朋友", en: "Friend" },
-      { zh: "眼睛", en: "Eye" }, { zh: "耳朵", en: "Ear" }, { zh: "嘴巴", en: "Mouth" }, { zh: "鼻子", en: "Nose" },
-      { zh: "頭", en: "Head" }, { zh: "手", en: "Hand" }, { zh: "腳", en: "Foot" }, { zh: "腿", en: "Leg" },
-      { zh: "手臂", en: "Arm" }, { zh: "頭髮", en: "Hair" },
-      { zh: "紅色", en: "Red" }, { zh: "藍色", en: "Blue" }, { zh: "黃色", en: "Yellow" }, { zh: "綠色", en: "Green" },
-      { zh: "黑色", en: "Black" }, { zh: "白色", en: "White" }, { zh: "粉紅色", en: "Pink" }, { zh: "紫色", en: "Purple" },
-      { zh: "橘色", en: "Orange" }, { zh: "圓形", en: "Circle" }, { zh: "正方形", en: "Square" }, { zh: "星形", en: "Star" },
-      { zh: "書本", en: "Book" }, { zh: "筆", en: "Pen" }, { zh: "鉛筆", en: "Pencil" }, { zh: "書包", en: "Bag" },
-      { zh: "桌子", en: "Table" }, { zh: "椅子", en: "Chair" }, { zh: "床", en: "Bed" }, { zh: "門", en: "Door" },
-      { zh: "窗戶", en: "Window" }, { zh: "鐘", en: "Clock" }, { zh: "盒子", en: "Box" }, { zh: "球", en: "Ball" },
-      { zh: "玩具", en: "Toy" }, { zh: "杯子", en: "Cup" }, { zh: "車子", en: "Car" }, { zh: "公車", en: "Bus" },
-      { zh: "火車", en: "Train" }, { zh: "飛機", en: "Plane" }, { zh: "腳踏車", en: "Bike" }, { zh: "船", en: "Boat" },
-      { zh: "太陽", en: "Sun" }, { zh: "月亮", en: "Moon" }, { zh: "星星", en: "Star" }, { zh: "天空", en: "Sky" },
-      { zh: "雲", en: "Cloud" }, { zh: "雨", en: "Rain" }, { zh: "雪", en: "Snow" }, { zh: "樹", en: "Tree" },
-      { zh: "花", en: "Flower" }, { zh: "草", en: "Grass" }, { zh: "房子", en: "House" }, { zh: "學校", en: "School" },
-      { zh: "公園", en: "Park" }, { zh: "海邊", en: "Beach" }, { zh: "白天", en: "Day" }, { zh: "夜晚", en: "Night" }
+      { zh: "蘋果", zhPy: "ㄆㄧㄥˊ ㄍㄨㄛˇ", en: "Apple" },
+      { zh: "香蕉", zhPy: "ㄒㄧㄤ ㄐㄧㄠ", en: "Banana" },
+      { zh: "貓咪", zhPy: "ㄇㄠ ㄇㄧ", en: "Cat" },
+      { zh: "小狗", zhPy: "ㄒㄧㄠˇ ㄍㄡˇ", en: "Dog" },
+      { zh: "大象", zhPy: "ㄉㄚˋ ㄒㄧㄤˋ", en: "Elephant" },
+      { zh: "青蛙", zhPy: "ㄑㄧㄥ ㄨㄚ", en: "Frog" },
+      { zh: "長頸鹿", zhPy: "ㄔㄤˊ ㄐㄧㄥˇ ㄌㄨˋ", en: "Giraffe" },
+      { zh: "馬", zhPy: "ㄇㄚˇ", en: "Horse" },
+      { zh: "獅子", zhPy: "ㄕ ㄗˇ", en: "Lion" },
+      { zh: "猴子", zhPy: "ㄏㄡˊ ㄗˇ", en: "Monkey" },
+      { zh: "兔子", zhPy: "ㄊㄨˋ ㄗˇ", en: "Rabbit" },
+      { zh: "老虎", zhPy: "ㄌㄠˇ ㄏㄨˇ", en: "Tiger" },
+      { zh: "熊", zhPy: "ㄒㄧㄨㄥ", en: "Bear" },
+      { zh: "鳥", zhPy: "ㄋㄧㄠˇ", en: "Bird" },
+      { zh: "鴨子", zhPy: "ㄧㄚ ㄗˇ", en: "Duck" },
+      { zh: "魚", zhPy: "ㄩˊ", en: "Fish" },
+      { zh: "豬", zhPy: "ㄓㄨ", en: "Pig" },
+      { zh: "綿羊", zhPy: "ㄇㄧㄢˊ ㄧㄤˊ", en: "Sheep" },
+      { zh: "烏龜", zhPy: "ㄨ ㄍㄨㄟ", en: "Turtle" },
+      { zh: "斑馬", zhPy: "ㄅㄢ ㄇㄚˇ", en: "Zebra" },
+      { zh: "麵包", zhPy: "ㄇㄧㄢˋ ㄅㄠ", en: "Bread" },
+      { zh: "蛋糕", zhPy: "ㄉㄢˋ ㄍㄠ", en: "Cake" },
+      { zh: "牛奶", zhPy: "ㄋㄧㄡˊ ㄋㄞˇ", en: "Milk" },
+      { zh: "水", zhPy: "ㄕㄨㄟˇ", en: "Water" },
+      { zh: "雞蛋", zhPy: "ㄐㄧ ㄉㄢˋ", en: "Egg" },
+      { zh: "果汁", zhPy: "ㄍㄨㄛˇ ㄓ", en: "Juice" },
+      { zh: "米飯", zhPy: "ㄇㄧˇ ㄈㄢˋ", en: "Rice" },
+      { zh: "湯", zhPy: "ㄊㄤ", en: "Soup" },
+      { zh: "葡萄", zhPy: "ㄆㄨˊ ㄊㄠˊ", en: "Grape" },
+      { zh: "檸檬", zhPy: "ㄋㄧㄥˊ ㄇㄥˊ", en: "Lemon" },
+      { zh: "柳橘", zhPy: "ㄌㄧㄡˇ ㄐㄩˊ", en: "Orange" },
+      { zh: "水蜜桃", zhPy: "ㄕㄨㄟˇ ㄇㄧˋ ㄊㄠˊ", en: "Peach" },
+      { zh: "草莓", zhPy: " brownies ㄘㄠˇ ㄇㄟˊ", en: "Strawberry" },
+      { zh: "西瓜", zhPy: "ㄒㄧ ㄍㄨㄚ", en: "Watermelon" },
+      { zh: "冰淇淋", zhPy: "ㄅㄧㄥ ㄑㄧˊ ㄌㄧㄣˊ", en: "Ice cream" },
+      { zh: "糖果", zhPy: "ㄊㄤˊ ㄍㄨㄛˇ", en: "Candy" },
+      { zh: "餅乾", zhPy: "ㄅㄧㄥˇ ㄍㄢ", en: "Cookie" },
+      { zh: "披薩", zhPy: "ㄆㄧ ㄙㄚˋ", en: "Pizza" },
+      { zh: "漢堡", zhPy: "ㄏㄢˋ ㄅㄠˇ", en: "Burger" },
+      { zh: "起司", zhPy: "ㄑㄧˇ ㄙ", en: "Cheese" },
+      { zh: "爸爸", zhPy: "ㄅㄚˋ ㄅㄚ˙", en: "Dad" },
+      { zh: "媽媽", zhPy: "ㄇㄚ ㄇㄚ˙", en: "Mom" },
+      { zh: "哥哥", zhPy: "ㄍㄜ ㄍㄜ˙", en: "Brother" },
+      { zh: "姊姊", zhPy: "ㄐㄧㄝˇ ㄐㄧㄝ˙", en: "Sister" },
+      { zh: "爺爺", zhPy: "ㄧㄝˊ ㄧㄝ˙", en: "Grandpa" },
+      { zh: "奶奶", zhPy: "ㄋㄞˇ ㄋㄞ˙", en: "Grandma" },
+      { zh: "嬰兒", zhPy: "ㄧㄥ ㄦˊ", en: "Baby" },
+      { zh: "男孩", zhPy: "ㄋㄢˊ ㄏㄞˊ", en: "Boy" },
+      { zh: "女孩", zhPy: "ㄋㄩˇ ㄏㄞˊ", en: "Girl" },
+      { zh: "老師", zhPy: "ㄌㄠˇ ㄕ", en: "Teacher" },
+      { zh: "學生", zhPy: "ㄒㄩㄝˊ ㄕㄥ", en: "Student" },
+      { zh: "朋友", zhPy: "ㄆㄥˊ ㄧㄡˇ", en: "Friend" },
+      { zh: "眼睛", zhPy: "ㄧㄢˇ ㄐㄧㄥ", en: "Eye" },
+      { zh: "耳朵", zhPy: "ㄦˇ ㄉㄨㄛ", en: "Ear" },
+      { zh: "嘴巴", zhPy: "ㄗㄨㄟˇ ㄅㄚ", en: "Mouth" },
+      { zh: "鼻子", zhPy: "ㄅㄧˊ ㄗˇ", en: "Nose" },
+      { zh: "頭", zhPy: "ㄊㄡˊ", en: "Head" },
+      { zh: "手", zhPy: "ㄕㄡˇ", en: "Hand" },
+      { zh: "腳", zhPy: "ㄐㄧㄠˇ", en: "Foot" },
+      { zh: "腿", zhPy: "ㄊㄨㄟˇ", en: "Leg" },
+      { zh: "手臂", zhPy: "ㄕㄡˇ ㄅㄧˋ", en: "Arm" },
+      { zh: "頭髮", zhPy: "ㄊㄡˊ ㄈㄚˇ", en: "Hair" },
+      { zh: "紅色", zhPy: "ㄏㄨㄥˊ ㄙㄜˋ", en: "Red" },
+      { zh: "藍色", zhPy: "ㄌㄢˊ ㄙㄜˋ", en: "Blue" },
+      { zh: "黃色", zhPy: "ㄏㄨㄤˊ ㄙㄜˋ", en: "Yellow" },
+      { zh: "綠色", zhPy: "ㄌㄩˋ ㄙㄜˋ", en: "Green" },
+      { zh: "黑色", zhPy: "ㄏㄟ ㄙㄜˋ", en: "Black" },
+      { zh: "白色", zhPy: "ㄅㄞˊ ㄙㄜˋ", en: "White" },
+      { zh: "粉紅色", zhPy: "ㄈㄣˇ ㄏㄨㄥˊ ㄙㄜˋ", en: "Pink" },
+      { zh: "紫色", zhPy: "ㄗˇ ㄙㄜˋ", en: "Purple" },
+      { zh: "橘色", zhPy: "ㄐㄩˊ ㄙㄜˋ", en: "Orange" },
+      { zh: "圓形", zhPy: "ㄩㄢˊ ㄒㄧㄥˊ", en: "Circle" },
+      { zh: "正方形", zhPy: "ㄓㄥˋ ㄈㄤ ㄒㄧㄥˊ", en: "Square" },
+      { zh: "星形", zhPy: "ㄒㄧㄥ ㄒㄧㄥˊ", en: "Star" },
+      { zh: "書本", zhPy: "ㄕㄨ ㄅㄣˇ", en: "Book" },
+      { zh: "筆", zhPy: "ㄅㄧˇ", en: "Pen" },
+      { zh: "鉛筆", zhPy: "ㄑㄧㄢ ㄅㄧˇ", en: "Pencil" },
+      { zh: "書包", zhPy: "ㄕㄨ ㄅㄠ", en: "Bag" },
+      { zh: "桌子", zhPy: "ㄓㄨㄛ ㄗˇ", en: "Table" },
+      { zh: "椅子", zhPy: "ㄧˇ ㄗˇ", en: "Chair" },
+      { zh: "床", zhPy: "ㄔㄨㄤˊ", en: "Bed" },
+      { zh: "門", zhPy: "ㄇㄣˊ", en: "Door" },
+      { zh: "窗戶", zhPy: "ㄔㄨㄤ ㄏㄨˋ", en: "Window" },
+      { zh: "鐘", zhPy: "ㄓㄨㄥ", en: "Clock" },
+      { zh: "盒子", zhPy: "ㄏㄜˊ ㄗˇ", en: "Box" },
+      { zh: "球", zhPy: "ㄑㄧㄡˊ", en: "Ball" },
+      { zh: "玩具", zhPy: "ㄨㄢˊ ㄐㄩˋ", en: "Toy" },
+      { zh: "杯子", zhPy: "ㄅㄟ ㄗˇ", en: "Cup" },
+      { zh: "車子", zhPy: "ㄔㄜ ㄗˇ", en: "Car" },
+      { zh: "公車", zhPy: "ㄍㄨㄥ ㄔㄜ", en: "Bus" },
+      { zh: "火車", zhPy: "ㄏㄨㄛˇ ㄔㄜ", en: "Train" },
+      { zh: "飛機", zhPy: "ㄈㄟ ㄐㄧ", en: "Plane" },
+      { zh: "腳踏車", zhPy: "ㄐㄧㄠˇ ㄊㄚˋ ㄔㄜ", en: "Bike" },
+      { zh: "船", zhPy: "ㄔㄨㄢˊ", en: "Boat" },
+      { zh: "太陽", zhPy: "ㄊㄞˋ ㄧㄤˊ", en: "Sun" },
+      { zh: "月亮", zhPy: "ㄩㄝˋ ㄌㄧㄤˋ", en: "Moon" },
+      { zh: "星星", zhPy: "ㄒㄧㄥ ㄒㄧㄥ", en: "Star" },
+      { zh: "天空", zhPy: "ㄊㄧㄢ ㄎㄨㄥ", en: "Sky" },
+      { zh: "雲", zhPy: "ㄩㄣˊ", en: "Cloud" },
+      { zh: "雨", zhPy: "ㄩˇ", en: "Rain" },
+      { zh: "雪", zhPy: "ㄒㄩㄝˇ", en: "Snow" },
+      { zh: "樹", zhPy: "ㄕㄨˋ", en: "Tree" },
+      { zh: "花", zhPy: "ㄏㄨㄚ", en: "Flower" },
+      { zh: "草", zhPy: "ㄘㄠˇ", en: "Grass" },
+      { zh: "房子", zhPy: "ㄈㄤˊ ㄗˇ", en: "House" },
+      { zh: "學校", zhPy: "ㄒㄩㄝˊ ㄒㄧㄠˋ", en: "School" },
+      { zh: "公園", zhPy: "ㄍㄨㄥ ㄩㄢˊ", en: "Park" },
+      { zh: "海邊", zhPy: "ㄏㄞˇ ㄅㄧㄢ", en: "Beach" },
+      { zh: "白天", zhPy: "ㄅㄞˊ ㄊㄧㄢ", en: "Day" },
+      { zh: "夜晚", zhPy: "ㄧㄝˋ ㄨㄢˇ", en: "Night" }
     ];
 
     const oceanAnimals = [
@@ -1361,7 +1441,7 @@
           setTimeout(() => speakText(targetItem.en, 'en-US'), 1000);
         } else {
           qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確中文單字：`;
-          correctAnswer = `${targetItem.zh} (${targetItem.en})`;
+          correctAnswer = `${targetItem.zh} (${targetItem.zhPy})`;
           options = generate3WordObjOptions(targetItem, 'zh');
 
           const sBtn = document.createElement('button');
@@ -1419,7 +1499,7 @@
 
     function generate3WordObjOptions(correctItem, mode) {
       const set = new Set();
-      const formatStr = (item) => mode === 'en' ? `${item.en} (${item.zh})` : `${item.zh} (${item.en})`;
+      const formatStr = (item) => mode === 'en' ? `${item.en} (${item.zh})` : `${item.zh} (${item.zhPy})`;
       
       set.add(formatStr(correctItem));
       while(set.size < 3) {
