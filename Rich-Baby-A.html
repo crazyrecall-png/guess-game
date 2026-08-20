@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.1.3 - Baby</title>
+  <title>可愛大富翁 v1.0.8 - Baby</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -500,7 +500,7 @@
   <div class="game-container" id="board">
     <div class="center-dashboard">
       <div class="dashboard-title">
-        🎲 歡樂大富翁 - Baby<span class="version-tag">v1.1.3</span>
+        🎲 歡樂大富翁 - Baby<span class="version-tag">v1.0.8</span>
       </div>
 
       <div class="section-box section-box-large">
@@ -547,34 +547,15 @@
         </div>
       </div>
 
-      <!-- 勝利條件區區塊 -->
-      <div class="section-box" style="border: 2px solid #fd79a8;">
-        <div class="section-title" style="color:#d63031; font-weight:bold;">🏆 勝利條件設定</div>
-        
-        <!-- 圈數設定 -->
-        <div style="margin-bottom: 6px;">
-          <div style="font-size: 12px; font-weight: bold; color: #2d3436; margin-bottom: 2px;">目標圈數</div>
-          <div class="input-group">
-            <button class="btn-adjust btn-minus" onclick="changeTargetLaps(-1)">-</button>
-            <input type="number" id="targetLapInput" value="1" min="1">
-            <button class="btn-adjust btn-plus" onclick="changeTargetLaps(1)">+</button>
-          </div>
-          <div style="font-size: 12px; font-weight: bold; color: #0984e3; margin-top: 2px;">
-            已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">1</span> 圈
-          </div>
+      <div class="section-box">
+        <div class="section-title">目標圈數 / 已完成圈數</div>
+        <div class="input-group" style="margin-bottom: 2px;">
+          <button class="btn-adjust btn-minus" onclick="changeTargetLaps(-1)">-</button>
+          <input type="number" id="targetLapInput" value="1" min="1">
+          <button class="btn-adjust btn-plus" onclick="changeTargetLaps(1)">+</button>
         </div>
-
-        <!-- 挑戰數設定 -->
-        <div>
-          <div style="font-size: 12px; font-weight: bold; color: #2d3436; margin-bottom: 2px;">目標挑戰數</div>
-          <div class="input-group">
-            <button class="btn-adjust btn-minus" onclick="changeTargetChallenges(-1)">-</button>
-            <input type="number" id="targetChallengeInput" value="1" min="0">
-            <button class="btn-adjust btn-plus" onclick="changeTargetChallenges(1)">+</button>
-          </div>
-          <div style="font-size: 12px; font-weight: bold; color: #a55eea; margin-top: 2px;">
-            已完成 <span id="completedChallengeDisplay">0</span> / <span id="targetChallengeDisplay">1</span> 次
-          </div>
+        <div style="font-size: 12px; font-weight: bold; color: #0984e3;">
+          已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">1</span> 圈
         </div>
       </div>
 
@@ -614,7 +595,7 @@
   <div class="modal-overlay" id="winModal">
     <div class="modal-content" style="border-color: #ff7675;">
       <div class="modal-title">🏆 恭喜獲勝！</div>
-      <div class="modal-desc">你已經達成設定的勝利條件囉！</div>
+      <div class="modal-desc">你已經跑滿設定的圈數囉！</div>
       <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="resetGame()">再玩一次 (保留金額)</button>
     </div>
   </div>
@@ -930,18 +911,18 @@
         name: "旋轉挑戰",
         type: "normal",
         levels: [
-          { diffName: "30秒 (簡單)", reward: 200, need: 100, type: "action", target: "30秒", seconds: 30 },
-          { diffName: "40秒 (中等)", reward: 500, need: 200, type: "action", target: "40秒", seconds: 40 },
-          { diffName: "50秒 (困難)", reward: 1000, need: 300, type: "action", target: "50秒", seconds: 50 }
+          { diffName: "30秒 (簡單)", reward: 200, need: 100, type: "action", target: "30秒" },
+          { diffName: "40秒 (中等)", reward: 500, need: 200, type: "action", target: "40秒" },
+          { diffName: "50秒 (困難)", reward: 1000, need: 300, type: "action", target: "50秒" }
         ]
       },
       {
         name: "擊飛挑戰",
         type: "normal",
         levels: [
-          { diffName: "1顆 (簡單)", reward: 200, need: 100, type: "action", target: "1顆", seconds: 15 },
-          { diffName: "2顆 (中等)", reward: 500, need: 200, type: "action", target: "2顆", seconds: 20 },
-          { diffName: "3顆 (困難)", reward: 1000, need: 300, type: "action", target: "3顆", seconds: 30 }
+          { diffName: "1顆 (簡單)", reward: 200, need: 100, type: "action", target: "1顆" },
+          { diffName: "2顆 (中等)", reward: 500, need: 200, type: "action", target: "2顆" },
+          { diffName: "3顆 (困難)", reward: 1000, need: 300, type: "action", target: "3顆" }
         ]
       },
       {
@@ -1022,12 +1003,8 @@
     let totalStepsTaken = 0;
     let timerSetting = 10;
     let countdownInterval = null;
-
     let completedLaps = 0;
     let targetLaps = 1;
-    let completedChallenges = 0;
-    let targetChallenges = 1;
-
     let totalMoney = 0;
     let isMoving = false;
     let isRolling = false;
@@ -1138,24 +1115,6 @@
       targetLaps = Math.max(1, (parseInt(input.value, 10) || 1) + delta);
       input.value = targetLaps;
       document.getElementById('targetLapDisplay').innerText = targetLaps;
-      checkWinCondition();
-    }
-
-    function changeTargetChallenges(delta) {
-      playClickSound();
-      const input = document.getElementById('targetChallengeInput');
-      targetChallenges = Math.max(0, (parseInt(input.value, 10) || 0) + delta);
-      input.value = targetChallenges;
-      document.getElementById('targetChallengeDisplay').innerText = targetChallenges;
-      checkWinCondition();
-    }
-
-    function checkWinCondition() {
-      if (completedLaps >= targetLaps && completedChallenges >= targetChallenges && !isMoving) {
-        playWinSound();
-        speakText("恭喜獲勝！你已經達成設定的勝利條件囉！");
-        openModal('winModal');
-      }
     }
 
     function handleManualMove() {
@@ -1192,8 +1151,10 @@
       isMoving = false;
       document.getElementById('stepInput').value = 1;
 
-      if (completedLaps >= targetLaps && completedChallenges >= targetChallenges) {
-        checkWinCondition();
+      if (completedLaps >= targetLaps) {
+        playWinSound();
+        speakText("恭喜獲勝！你已經跑滿設定的圈數囉！");
+        openModal('winModal');
       } else if (currentPosition !== 0) {
         triggerChallengePrompt();
       }
@@ -1278,10 +1239,33 @@
       const isCorrect = (chosenColor === actualColor);
 
       if (isCorrect) {
-        finishChallenge(true, chosenColor, reward, false, true);
-      } else {
-        finishChallenge(false, chosenColor, 0, false, true);
+        totalMoney += reward;
+        document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
       }
+
+      const title = document.getElementById('resultModalTitle');
+      const text = document.getElementById('resultModalText');
+      const ansText = document.getElementById('resultModalAnswer');
+
+      if (isCorrect) {
+        playWinSound();
+        title.innerText = "🎉 猜對了！恭喜獲勝！";
+        title.style.color = "#00b894";
+        text.innerText = `你猜【${chosenColor}】，機台開出【${actualColor}】！\n獲得獎金 $${reward} 元！`;
+        ansText.innerText = "";
+
+        speakText(`太棒了！機台開出 ${actualColor}，恭喜猜對！`);
+      } else {
+        playFailSound();
+        title.innerText = "❌ 猜錯了！沒中獎～";
+        title.style.color = "#d63031";
+        text.innerText = `你猜【${chosenColor}】，但機台開出【${actualColor}】！`;
+        ansText.innerText = `很可惜，扣除入場費 $${need}`;
+
+        speakText(`可惜，機台開出 ${actualColor}，沒猜中。`);
+      }
+
+      openModal('resultModal');
     }
 
     function startChallengeGame(level) {
@@ -1306,34 +1290,9 @@
 
       let correctAnswer = "";
       let options = [];
+      const isQuestionType = level.type !== 'action';
 
-      // 針對動作類 (如 旋轉挑戰) 專用倒數機制
-      if (level.type === 'action') {
-        let actionSec = level.seconds || parseInt(level.target) || timerSetting;
-        timerContainer.style.display = 'inline-block';
-        let remainingTime = actionSec;
-        timerBox.innerText = remainingTime;
-
-        qText.innerText = `[已扣 $${level.need}]\n任務目標：完成 ${selectedCategory.name} ${level.target}！\n請開始進行，時間到後點擊下面按鈕判定。`;
-
-        options = ["完成挑戰", "挑戰失敗"];
-        correctAnswer = "完成挑戰";
-
-        countdownInterval = setInterval(() => {
-          remainingTime--;
-          timerBox.innerText = remainingTime;
-
-          if (remainingTime <= 0) {
-            clearInterval(countdownInterval);
-            playChallengeAlertSound();
-            qText.innerText = `⏳ 時間到！\n請選擇是否成功完成 ${selectedCategory.name} ${level.target}：`;
-            speakText("時間到了！請選擇成功還是失敗");
-          }
-        }, 1000);
-
-        speakText(`任務目標：請完成 ${selectedCategory.name} ${level.target}，倒數開始！`);
-      } else {
-        // 問答類等倒數計時
+      if (isQuestionType) {
         timerContainer.style.display = 'inline-block';
         let remainingTime = timerSetting;
         timerBox.innerText = remainingTime;
@@ -1347,9 +1306,18 @@
             finishChallenge(false, correctAnswer, level.reward, true);
           }
         }, 1000);
+      } else {
+        timerContainer.style.display = 'none';
       }
 
-      if (level.type.startsWith('math')) {
+      if (level.type === 'action') {
+        qText.innerText = `已扣除代幣 $${level.need}！\n任務目標：完成 ${selectedCategory.name} ${level.target}！`;
+        options = ["完成挑戰", "挑戰失敗"];
+        correctAnswer = "完成挑戰";
+
+        speakText(`任務目標：請完成 ${selectedCategory.name} ${level.target}`);
+      }
+      else if (level.type.startsWith('math')) {
         let n1, n2, n3, ans;
 
         if (level.type === 'math_add_2') {
@@ -1493,9 +1461,6 @@
         if (level.type === "ocean_yes_no") {
           btn.className = opt === "YES" ? "opt-btn opt-green" : "opt-btn opt-red";
           btn.innerText = opt === "YES" ? "✅ YES，是這個動物" : "❌ NO，不是這個動物";
-        } else if (level.type === "action") {
-          btn.className = idx === 0 ? "opt-btn opt-green" : "opt-btn opt-red";
-          btn.innerText = opt === "完成挑戰" ? "✅ 成功完成挑戰" : "❌ 挑戰失敗";
         } else if (options.length === 3) {
           btn.className = `opt-btn ${colorClasses[idx % 3]}`;
           btn.innerText = opt;
@@ -1544,7 +1509,7 @@
       return Array.from(set).sort(() => Math.random() - 0.5);
     }
 
-    function finishChallenge(isSuccess, correctAnswer, reward, isTimeout = false, isColorGuess = false) {
+    function finishChallenge(isSuccess, correctAnswer, reward, isTimeout = false) {
       if (countdownInterval) clearInterval(countdownInterval);
       closeModal('playGameModal');
       
@@ -1553,38 +1518,34 @@
       const ansText = document.getElementById('resultModalAnswer');
 
       if (isSuccess) {
-        completedChallenges++;
-        document.getElementById('completedChallengeDisplay').innerText = completedChallenges;
-
         playWinSound();
         title.innerText = "🎉 挑戰成功！";
         title.style.color = "#00b894";
         if (reward > 0) {
           totalMoney += reward;
           document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
-          text.innerText = `恭喜成功！獲得獎金 $${reward} 元！`;
+          text.innerText = `恭喜答對！獲得獎金 $${reward} 元！`;
         } else {
-          text.innerText = `挑戰成功！已累計成功次數！`;
+          text.innerText = `挑戰成功！`;
         }
-        ansText.innerText = (correctAnswer && !isColorGuess) ? `目標答案：${correctAnswer}` : "";
+        ansText.innerText = `正確答案為：${correctAnswer}`;
 
         speakText("太棒了！恭喜挑戰成功！");
       } else {
         playFailSound();
-        title.innerText = isTimeout ? "⏰ 時間到！挑戰失敗" : "❌ 挑戰失敗";
+        title.innerText = isTimeout ? "⏰ 時間到！挑戰失敗" : "❌ 答錯了！挑戰失敗";
         title.style.color = "#d63031";
-        text.innerText = isTimeout ? `超過設定的時間限制，沒能順利完成。` : `很可惜，這次挑戰失敗了。`;
-        ansText.innerText = (correctAnswer && !isColorGuess) ? `目標答案：${correctAnswer}` : "";
+        text.innerText = isTimeout ? `超過設定的時間限制，無法拿回扣除的費用。` : `挑戰失敗，無法拿回扣除的費用。`;
+        ansText.innerText = correctAnswer ? `正確答案為：${correctAnswer}` : "";
 
         if (isTimeout) {
           speakText("時間到了，挑戰失敗，下次再加油！");
         } else {
-          speakText("挑戰失敗，再接再勵！");
+          speakText("答錯囉，挑戰失敗，再接再勵！");
         }
       }
 
       openModal('resultModal');
-      checkWinCondition();
     }
 
     function openModal(id) {
@@ -1605,10 +1566,8 @@
       currentPosition = 0;
       totalStepsTaken = 0;
       completedLaps = 0;
-      completedChallenges = 0;
       
       document.getElementById('completedLapDisplay').innerText = completedLaps;
-      document.getElementById('completedChallengeDisplay').innerText = completedChallenges;
       document.getElementById('stepInput').value = 1;
       document.getElementById('moneyDiceBox').innerText = "1";
       document.getElementById('stepDiceBox').innerText = "1";
