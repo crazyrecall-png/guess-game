@@ -1,171 +1,257 @@
-<!DOCTYPE html> <!--要是要改成不能斜角 return rowDifference + colDifference === 1; -->
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>移動式圈圈叉叉</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>移動式圈圈叉叉 - 兒童多模式版</title>
 
   <style>
     * {
       box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      min-width: 520px;
-      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       display: flex;
       justify-content: center;
       align-items: center;
-
-      background: linear-gradient(135deg, #dbeafe, #fef3c7);
-      font-family: Arial, "Microsoft JhengHei", sans-serif;
-      color: #1f2937;
-
+      margin: 0;
+      padding: 20px 0;
+      min-height: 100vh;
+      
+      background: #fdf2f8;
+      background-image:
+        radial-gradient(#fecdd3 10%, transparent 10%),
+        radial-gradient(#fee2e2 15%, transparent 15%);
+      background-position: 0 0, 30px 30px;
+      background-size: 60px 60px;
+      
+      font-family: "Noto Sans TC", "Microsoft JhengHei", cursive, sans-serif;
+      color: #333;
       overflow: auto;
     }
 
-    /* 固定遊戲框架 */
     .game-container {
       width: 480px;
-      height: 680px;
-      min-width: 480px;
-      min-height: 680px;
-      flex-shrink: 0;
-
+      min-height: 760px;
       padding: 24px;
       text-align: center;
-
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 20px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 40px;
+      border: 10px solid #f9a8d4; 
+      box-shadow: 0 15px 30px rgba(244, 114, 182, 0.2);
     }
 
     h1 {
       margin: 0 0 12px;
-      color: #111827;
-      font-size: 30px;
+      color: #be185d;
+      font-size: 32px;
+      text-shadow: 2px 2px 0px #fecdd3;
     }
 
-    .rules {
-      width: 100%;
-      min-height: 90px;
+    /* 模式選擇區塊 */
+    .mode-selector {
+      background: #fff1f2;
+      border: 2px dashed #fda4af;
+      border-radius: 20px;
       padding: 12px;
       margin-bottom: 16px;
-
-      background: #f3f4f6;
-      border-radius: 12px;
-
-      color: #4b5563;
-      font-size: 14px;
-      line-height: 1.7;
+      text-align: left;
     }
 
-    .status {
-      height: 28px;
-      margin: 14px 0;
-
-      color: #2563eb;
-      font-size: 18px;
+    .mode-title {
+      font-size: 15px;
       font-weight: bold;
+      color: #be185d;
+      margin-bottom: 8px;
+      text-align: center;
     }
 
-    /* 固定棋盤大小 */
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 8px;
-
-      width: 360px;
-      height: 360px;
-
-      padding: 8px;
-      margin: 20px auto;
-
-      background: #374151;
-      border-radius: 14px;
+    .mode-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 14px;
+      color: #881337;
     }
 
-    .cell {
-      width: 100%;
-      height: 100%;
-
-      border: none;
-      border-radius: 10px;
-
-      background: #ffffff;
+    .mode-options label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       cursor: pointer;
+      font-weight: 500;
+    }
 
+    .mode-options input[type="radio"] {
+      accent-color: #be185d;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* 規則面板 */
+    .rules {
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      background: #fce7f3;
+      border-radius: 16px;
+      color: #831843;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .status-container {
+      height: 36px;
+      margin: 10px 0;
       display: flex;
       justify-content: center;
       align-items: center;
+    }
 
-      font-size: 68px;
+    .status {
+      font-size: 20px;
       font-weight: bold;
-
-      transition: background 0.15s, transform 0.15s;
+      color: #9333ea;
+      padding: 4px 16px;
+      border-radius: 15px;
+      transition: all 0.3s ease;
     }
 
-    .cell:hover {
-      background: #e5e7eb;
-      transform: scale(1.03);
+    .status.win {
+      background: #ec4899;
+      color: #ffffff;
+      transform: scale(1.1);
+      animation: pulse 1s infinite;
     }
 
-    .cell.x {
-      color: #dc2626;
-    }
-
-    .cell.o {
-      color: #2563eb;
-    }
-
-    /* 被選取的棋子 */
-    .cell.selected {
-      outline: 5px solid #f59e0b;
-      background: #fef3c7;
+    @keyframes pulse {
+      0%, 100% { transform: scale(1.1); }
+      50% { transform: scale(1.15); }
     }
 
     .score {
       display: flex;
       justify-content: space-around;
-
       width: 100%;
-      margin: 12px 0 18px;
-
+      margin: 10px 0 16px;
       font-size: 16px;
     }
 
-    .x-score {
-      color: #dc2626;
-      font-weight: bold;
+    .score-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
     }
 
-    .o-score {
-      color: #2563eb;
-      font-weight: bold;
+    .x-score { color: #dc2626; border: 2px solid #fecaca; }
+    .o-score { color: #2563eb; border: 2px solid #bfdbfe; }
+    .count { font-weight: bold; font-size: 18px; }
+
+    /* 棋盤大改造 */
+    .board-container {
+      position: relative;
+      width: 360px;
+      height: 360px;
+      margin: 10px auto;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      height: 100%;
+      padding: 12px;
+      background: #dbeafe;
+      border-radius: 25px;
+      box-shadow: inset 0 3px 10px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 2;
+    }
+
+    .cell {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 20px;
+      background: #ffffff;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 0px #e0e0e0;
+      z-index: 3;
+    }
+
+    .cell:hover:not(.x):not(.o) {
+      background: #f0f9ff;
+      transform: translateY(-2px);
+    }
+
+    .cell.x, .cell.o {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .cell.x::after, .cell.o::after {
+      content: "";
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    /* 可愛卡通圖案 */
+    .cell.x::after {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23fee2e2" stroke="%23dc2626" stroke-width="6"/><path d="M30,30 L70,70 M70,30 L30,70" stroke="%23dc2626" stroke-width="12" stroke-linecap="round"/><circle cx="35" cy="40" r="5" fill="%23333"/><circle cx="65" cy="40" r="5" fill="%23333"/><path d="M40,70 Q50,80 60,70" stroke="%23333" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M40,10 L50,0 L60,10 M40,10 L60,10" fill="%23fbbf24" stroke="%23333" stroke-width="2" stroke-linejoin="round"/></svg>');
+    }
+
+    .cell.o::after {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23dbeafe" stroke="%232563eb" stroke-width="6"/><circle cx="35" cy="40" r="8" fill="white" stroke="%232563eb" stroke-width="3"/><circle cx="35" cy="40" r="4" fill="%232563eb"/><circle cx="65" cy="40" r="8" fill="white" stroke="%232563eb" stroke-width="3"/><circle cx="65" cy="40" r="4" fill="%232563eb"/><path d="M40,70 Q50,80 60,70" stroke="%232563eb" stroke-width="5" fill="none" stroke-linecap="round"/></svg>');
+    }
+
+    /* 選取跳動動畫 */
+    .cell.selected {
+      outline: 6px solid #fbbf24;
+      background: #fef3c7;
+      animation: selectDance 0.5s ease infinite;
+    }
+
+    @keyframes selectDance {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08) translateY(-5px); }
     }
 
     .reset-button {
       border: none;
-      border-radius: 10px;
-
-      padding: 12px 24px;
-
-      background: #111827;
+      border-radius: 25px;
+      padding: 12px 28px;
+      background: #be185d;
       color: white;
-
-      font-size: 16px;
+      font-size: 18px;
+      font-weight: bold;
       cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 0 #831843;
+      margin: 12px auto 0;
     }
 
     .reset-button:hover {
-      background: #374151;
+      background: #ec4899;
+      transform: translateY(-2px);
+    }
+
+    .reset-button:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #be185d;
     }
   </style>
 </head>
@@ -174,56 +260,181 @@
   <main class="game-container">
     <h1>移動式圈圈叉叉</h1>
 
-    <div class="rules">
-      雙方輪流放置自己的 3 顆棋子。<br />
-      6 顆棋子都放完後，只能移動到相鄰的空格。<br />
-      允許上下左右以及斜角移動，先連成三條線者獲勝。
+    <div class="mode-selector">
+      <div class="mode-title">🎮 選擇移動規則：</div>
+      <div class="mode-options">
+        <label>
+          <input type="radio" name="moveMode" value="free" checked onchange="changeMode()">
+          <span><b>任意移動</b>：可以飛到棋盤上任何空格（最簡單）</span>
+        </label>
+        <label>
+          <input type="radio" name="moveMode" value="orthogonal" onchange="changeMode()">
+          <span><b>鄰近移動</b>：只能移到上下左右的空格</span>
+        </label>
+        <label>
+          <input type="radio" name="moveMode" value="diagonal" onchange="changeMode()">
+          <span><b>鄰近移動（含斜角）</b>：可移到周圍 8 個相鄰空格</span>
+        </label>
+      </div>
     </div>
 
-    <div id="status" class="status"></div>
+    <div class="rules" id="ruleText">
+      雙方輪流放置 3 個卡通棋子。放滿後，可以任意移動棋子到空格！
+    </div>
+
+    <div class="status-container">
+      <div id="status" class="status"></div>
+    </div>
 
     <div class="score">
-      <div class="x-score">
-        ❌：<span id="xCount">0</span> / 3
+      <div class="score-item x-score">
+        ❌ <span class="count" id="xCount">0</span> / 3
       </div>
-
-      <div class="o-score">
-        ⭕：<span id="oCount">0</span> / 3
+      <div class="score-item o-score">
+        ⭕ <span class="count" id="oCount">0</span> / 3
       </div>
     </div>
 
-    <div id="board" class="board"></div>
+    <div class="board-container">
+      <div id="board" class="board"></div>
+    </div>
 
-    <button id="resetButton" class="reset-button">
-      重新開始
+    <button id="resetButton" class="reset-button" onclick="resetGame()">
+      ↺ 重新開始
     </button>
   </main>
 
   <script>
     const boardElement = document.getElementById("board");
     const statusElement = document.getElementById("status");
+    const ruleText = document.getElementById("ruleText");
     const xCountElement = document.getElementById("xCount");
     const oCountElement = document.getElementById("oCount");
-    const resetButton = document.getElementById("resetButton");
 
     const winningLines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-
-      [0, 4, 8],
-      [2, 4, 6]
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
     ];
+
+    // 相鄰位置定義 (0 ~ 8 九宮格)
+    const neighborsMap = {
+      // 僅上下左右
+      orthogonal: {
+        0: [1, 3],
+        1: [0, 2, 4],
+        2: [1, 5],
+        3: [0, 4, 6],
+        4: [1, 3, 5, 7],
+        5: [2, 4, 8],
+        6: [3, 7],
+        7: [4, 6, 8],
+        8: [5, 7]
+      },
+      // 上下左右 + 斜角 (周圍 8 格)
+      diagonal: {
+        0: [1, 3, 4],
+        1: [0, 2, 3, 4, 5],
+        2: [1, 4, 5],
+        3: [0, 1, 4, 6, 7],
+        4: [0, 1, 2, 3, 5, 6, 7, 8],
+        5: [1, 2, 4, 7, 8],
+        6: [3, 4, 7],
+        7: [3, 4, 5, 6, 8],
+        8: [4, 5, 7]
+      }
+    };
 
     let board = [];
     let currentPlayer = "X";
     let phase = "placing";
     let selectedIndex = null;
     let gameOver = false;
+    let currentMode = "free";
+
+    // --- 音效系統 (使用 Web Audio API 自動合成) ---
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSound(type) {
+      initAudio();
+      if (!audioCtx) return;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'place') {
+        // 放置棋子：木頭叩擊聲
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+        gain.gain.setValueAtTime(0.6, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+
+      } else if (type === 'select') {
+        // 選擇棋子：清脆提醒音
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.05); // E5
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+        osc.start(now);
+        osc.stop(now + 0.12);
+
+      } else if (type === 'move') {
+        // 移動棋子：滑音效果（解決沉悶感）
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+
+      } else if (type === 'win') {
+        // 獲勝音效：歡樂音樂短句
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, index) => {
+          const noteOsc = audioCtx.createOscillator();
+          const noteGain = audioCtx.createGain();
+          noteOsc.type = 'triangle';
+          noteOsc.frequency.setValueAtTime(freq, now + index * 0.08);
+          noteGain.gain.setValueAtTime(0.3, now + index * 0.08);
+          noteGain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.08 + 0.2);
+          noteOsc.connect(noteGain);
+          noteGain.connect(audioCtx.destination);
+          noteOsc.start(now + index * 0.08);
+          noteOsc.stop(now + index * 0.08 + 0.2);
+        });
+      }
+    }
+
+    // 變更模式
+    function changeMode() {
+      const selected = document.querySelector('input[name="moveMode"]:checked').value;
+      currentMode = selected;
+
+      if (currentMode === "free") {
+        ruleText.textContent = "雙方輪流放置 3 個卡通棋子。放滿後，可以任意移動棋子到空格！";
+      } else if (currentMode === "orthogonal") {
+        ruleText.textContent = "雙方輪流放置 3 個卡通棋子。放滿後，只能移到「上下左右」相鄰空格！";
+      } else if (currentMode === "diagonal") {
+        ruleText.textContent = "雙方輪流放置 3 個卡通棋子。放滿後，可以移到「周圍 8 個相鄰空格（含斜角）」！";
+      }
+
+      resetGame();
+    }
 
     function resetGame() {
       board = Array(9).fill(null);
@@ -232,6 +443,7 @@
       selectedIndex = null;
       gameOver = false;
 
+      statusElement.classList.remove("win");
       render();
       updateStatus();
     }
@@ -241,23 +453,11 @@
 
       board.forEach((value, index) => {
         const cell = document.createElement("button");
-
         cell.className = "cell";
-        cell.type = "button";
 
-        if (value === "X") {
-          cell.textContent = "❌";
-          cell.classList.add("x");
-        }
-
-        if (value === "O") {
-          cell.textContent = "⭕";
-          cell.classList.add("o");
-        }
-
-        if (index === selectedIndex) {
-          cell.classList.add("selected");
-        }
+        if (value === "X") cell.classList.add("x");
+        if (value === "O") cell.classList.add("o");
+        if (index === selectedIndex) cell.classList.add("selected");
 
         cell.addEventListener("click", function () {
           handleCellClick(index);
@@ -266,13 +466,8 @@
         boardElement.appendChild(cell);
       });
 
-      xCountElement.textContent = board.filter(
-        value => value === "X"
-      ).length;
-
-      oCountElement.textContent = board.filter(
-        value => value === "O"
-      ).length;
+      xCountElement.textContent = board.filter(v => v === "X").length;
+      oCountElement.textContent = board.filter(v => v === "O").length;
     }
 
     function updateStatus(message = "") {
@@ -281,31 +476,23 @@
         return;
       }
 
-      if (gameOver) {
-        return;
-      }
+      if (gameOver) return;
 
-      const playerName =
-        currentPlayer === "X" ? "❌ 玩家" : "⭕ 玩家";
+      const playerName = currentPlayer === "X" ? "❌ 小紅" : "⭕ 小藍";
 
       if (phase === "placing") {
-        statusElement.textContent =
-          `${playerName}，請放置棋子`;
+        statusElement.textContent = `${playerName}，換你放囉！😊`;
       } else {
         if (selectedIndex === null) {
-          statusElement.textContent =
-            `${playerName}，請選擇要移動的棋子`;
+          statusElement.textContent = `${playerName}，請選擇要移動的棋子`;
         } else {
-          statusElement.textContent =
-            "請選擇相鄰的空格移動";
+          statusElement.textContent = "請選擇可移動的空格 🚚";
         }
       }
     }
 
     function handleCellClick(index) {
-      if (gameOver) {
-        return;
-      }
+      if (gameOver) return;
 
       if (phase === "placing") {
         placePiece(index);
@@ -316,158 +503,105 @@
 
     function placePiece(index) {
       if (board[index] !== null) {
-        updateStatus("這個位置已經有棋子了");
-        return;
-      }
-
-      const currentPlayerCount = board.filter(
-        value => value === currentPlayer
-      ).length;
-
-      if (currentPlayerCount >= 3) {
-        updateStatus("你已經放置 3 顆棋子，請等待對方");
+        updateStatus("這個位置已經有棋子了！");
         return;
       }
 
       board[index] = currentPlayer;
+      playSound('place');
 
       if (checkWin(currentPlayer)) {
-        gameOver = true;
-        render();
-
-        updateStatus(
-          `${getPlayerSymbol(currentPlayer)} 玩家獲勝！`
-        );
-
+        endGame(currentPlayer);
         return;
       }
 
-      const xCount = board.filter(
-        value => value === "X"
-      ).length;
-
-      const oCount = board.filter(
-        value => value === "O"
-      ).length;
+      const xCount = board.filter(v => v === "X").length;
+      const oCount = board.filter(v => v === "O").length;
 
       if (xCount === 3 && oCount === 3) {
         phase = "moving";
       }
 
       switchPlayer();
-
       render();
       updateStatus();
     }
 
     function movePiece(index) {
-      /*
-        第一次點擊：
-        選擇目前玩家自己的棋子
-      */
+      // 1. 還沒選取要移動的棋子
       if (selectedIndex === null) {
         if (board[index] !== currentPlayer) {
-          updateStatus("請先選擇你自己的棋子");
+          updateStatus("請選擇你自己的棋子！");
           return;
         }
-
         selectedIndex = index;
-
+        playSound('select');
         render();
         updateStatus();
-
         return;
       }
 
-      /*
-        如果再次點擊自己的棋子，
-        可以改選另一顆棋子
-      */
+      // 2. 重新點擊自己的其他棋子（切換選擇）
       if (board[index] === currentPlayer) {
         selectedIndex = index;
-
+        playSound('select');
         render();
         updateStatus();
-
         return;
       }
 
-      /*
-        目的地必須是空格
-      */
+      // 3. 點擊目的地 (必須是空格)
       if (board[index] !== null) {
-        updateStatus("目的地必須是空格");
+        updateStatus("目的地必須是空格！");
         return;
       }
 
-      /*
-        目的地必須是相鄰格子。
-        相鄰包含：
-        上、下、左、右，以及四個斜角。
-      */
-      if (!isAdjacent(selectedIndex, index)) {
-        updateStatus("棋子只能移動到相鄰的格子");
-        return;
+      // 4. 檢查移動規則
+      if (currentMode !== "free") {
+        const allowedNeighbors = neighborsMap[currentMode][selectedIndex];
+        if (!allowedNeighbors.includes(index)) {
+          updateStatus("不行這樣走！只能移到相鄰的空格喔！");
+          return;
+        }
       }
 
+      // 執行移動
       board[index] = currentPlayer;
       board[selectedIndex] = null;
       selectedIndex = null;
+      
+      playSound('move'); // 播放滑動移動聲
 
       if (checkWin(currentPlayer)) {
-        gameOver = true;
-        render();
-
-        updateStatus(
-          `${getPlayerSymbol(currentPlayer)} 玩家獲勝！`
-        );
-
+        endGame(currentPlayer);
         return;
       }
 
       switchPlayer();
-
       render();
       updateStatus();
     }
 
-    function isAdjacent(index1, index2) {
-      const row1 = Math.floor(index1 / 3);
-      const col1 = index1 % 3;
-
-      const row2 = Math.floor(index2 / 3);
-      const col2 = index2 % 3;
-
-      const rowDifference = Math.abs(row1 - row2);
-      const colDifference = Math.abs(col1 - col2);
-
-      /*
-        兩格的列、欄距離都不能超過 1，
-        且不能是同一格。
-      */
-      return (
-        rowDifference <= 1 &&
-        colDifference <= 1 &&
-        (rowDifference !== 0 || colDifference !== 0)
-      );
+    function endGame(player) {
+      gameOver = true;
+      const playerSymbol = player === "X" ? "❌ 小紅" : "⭕ 小藍";
+      
+      playSound('win');
+      statusElement.classList.add("win");
+      
+      render();
+      updateStatus(`🎉 太棒了！${playerSymbol} 玩家獲勝！🎉`);
     }
 
     function switchPlayer() {
       currentPlayer = currentPlayer === "X" ? "O" : "X";
     }
 
-    function getPlayerSymbol(player) {
-      return player === "X" ? "❌" : "⭕";
-    }
-
     function checkWin(player) {
-      return winningLines.some(line => {
-        return line.every(index => board[index] === player);
-      });
+      return winningLines.some(line => line.every(index => board[index] === player));
     }
 
-    resetButton.addEventListener("click", resetGame);
-
+    // 初始化
     resetGame();
   </script>
 </body>
