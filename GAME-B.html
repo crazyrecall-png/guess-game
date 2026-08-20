@@ -3,193 +3,304 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>移動式圈圈叉叉</title>
+  <title>移動式圈圈叉叉 (兒童版)</title>
 
   <style>
+    /* 全域可愛風設定 */
     * {
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent; /* 移除行動裝置上的點擊藍色背景 */
     }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      min-width: 520px;
-      min-height: 100vh;
-    }
-
+    /* 字體使用更圓潤的字型 */
     body {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-
-      background: linear-gradient(135deg, #dbeafe, #fef3c7);
-      font-family: Arial, "Microsoft JhengHei", sans-serif;
-      color: #1f2937;
-
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      
+      /* 可愛的圓形和星星背景圖案 */
+      background: #fdf2f8;
+      background-image:
+        radial-gradient(#fecdd3 10%, transparent 10%),
+        radial-gradient(#fee2e2 15%, transparent 15%);
+      background-position: 0 0, 30px 30px;
+      background-size: 60px 60px;
+      
+      font-family: "Noto Sans TC", "Microsoft JhengHei", cursive, sans-serif;
+      color: #333;
       overflow: auto;
     }
 
-    /* 固定遊戲框架大小 */
+    /* 遊戲框架大改造 - 像是一個可愛的糖果盒 */
     .game-container {
       width: 480px;
-      height: 680px;
-      min-width: 480px;
-      min-height: 680px;
-      flex-shrink: 0;
-
+      min-height: 720px;
       padding: 24px;
       text-align: center;
-
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 20px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.98);
+      
+      /* 超圓角 */
+      border-radius: 40px;
+      
+      /* 更柔和、可愛的粉色邊框與陰影 */
+      border: 10px solid #f9a8d4; 
+      box-shadow: 0 15px 30px rgba(244, 114, 182, 0.2);
     }
 
+    /* 標題動畫 */
     h1 {
-      margin: 0 0 12px;
-      color: #111827;
-      font-size: 30px;
+      margin: 0 0 16px;
+      color: #be185d;
+      font-size: 36px;
+      text-shadow: 2px 2px 0px #fecdd3;
     }
 
+    h1.pulse {
+      animation: titlePulse 1s ease infinite;
+    }
+
+    @keyframes titlePulse {
+      0% { transform: scale(1); text-shadow: 2px 2px 0px #fecdd3; }
+      50% { transform: scale(1.05); text-shadow: 3px 3px 0px #f9a8d4; }
+      100% { transform: scale(1); text-shadow: 2px 2px 0px #fecdd3; }
+    }
+
+    /* 規則面板 */
     .rules {
-      width: 100%;
-      min-height: 88px;
-
-      padding: 12px;
-      margin-bottom: 16px;
-
-      background: #f3f4f6;
-      border-radius: 12px;
-
-      color: #4b5563;
-      font-size: 14px;
-      line-height: 1.7;
+      padding: 16px;
+      margin-bottom: 20px;
+      background: #fce7f3;
+      border-radius: 20px;
+      color: #831843;
+      font-size: 16px;
+      line-height: 1.8;
+      border: 2px dashed #f9a8d4;
     }
 
-    .status {
-      height: 28px;
-      margin: 14px 0;
-
-      color: #2563eb;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    /* 固定棋盤大小 */
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 8px;
-
-      width: 360px;
-      height: 360px;
-
-      padding: 8px;
-      margin: 20px auto;
-
-      background: #374151;
-      border-radius: 14px;
-    }
-
-    .cell {
-      width: 100%;
-      height: 100%;
-
-      border: none;
-      border-radius: 10px;
-
-      background: #ffffff;
-      cursor: pointer;
-
+    /* 狀態列 */
+    .status-container {
+      height: 36px;
+      margin: 18px 0;
       display: flex;
       justify-content: center;
       align-items: center;
+    }
 
-      font-size: 68px;
+    .status {
+      font-size: 22px;
       font-weight: bold;
-
-      transition: background 0.15s, transform 0.15s;
+      color: #9333ea;
+      padding: 4px 16px;
+      border-radius: 15px;
+      transition: all 0.3s ease;
     }
 
-    .cell:hover {
-      background: #e5e7eb;
-      transform: scale(1.03);
+    .status.win {
+      background: #ec4899;
+      color: #ffffff;
+      transform: scale(1.1);
     }
 
-    .cell.x {
-      color: #dc2626;
-    }
-
-    .cell.o {
-      color: #2563eb;
-    }
-
-    /* 被選取、準備移動的棋子 */
-    .cell.selected {
-      outline: 5px solid #f59e0b;
-      background: #fef3c7;
-    }
-
+    /* 計分板也變可愛 */
     .score {
       display: flex;
       justify-content: space-around;
-
       width: 100%;
-      margin: 12px 0 18px;
+      margin: 12px 0 20px;
+      font-size: 18px;
+    }
 
-      font-size: 16px;
+    .score-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 25px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
     .x-score {
       color: #dc2626;
-      font-weight: bold;
+      border: 2px solid #fecaca;
     }
 
     .o-score {
       color: #2563eb;
-      font-weight: bold;
+      border: 2px solid #bfdbfe;
     }
 
+    .count {
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    /* 棋盤大改造 - 更柔和的圓角格 */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 12px;
+      width: 380px;
+      height: 380px;
+      padding: 12px;
+      margin: 20px auto;
+      
+      background: #dbeafe; /* 淡藍色基底 */
+      border-radius: 25px;
+      box-shadow: inset 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    /* 棋子格子 */
+    .cell {
+      width: 100%;
+      height: 100%;
+      border: none;
+      
+      /* 超圓角 */
+      border-radius: 20px;
+      background: #ffffff;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      
+      box-shadow: 0 4px 0px #e0e0e0;
+    }
+
+    .cell:hover:not(.x):not(.o) {
+      background: #f0f9ff;
+      transform: translateY(-3px);
+    }
+
+    .cell:active:not(.x):not(.o) {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0px #e0e0e0;
+    }
+
+    /* 將棋子變更為可愛的卡通圖案 */
+    .cell.x, .cell.o {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .cell.x::after, .cell.o::after {
+      content: "";
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    /* 可愛叉叉：戴小皇冠的圓形卡通圖案 */
+    .cell.x::after {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23fee2e2" stroke="%23dc2626" stroke-width="6"/><path d="M30,30 L70,70 M70,30 L30,70" stroke="%23dc2626" stroke-width="12" stroke-linecap="round"/><circle cx="35" cy="40" r="5" fill="%23333"/><circle cx="65" cy="40" r="5" fill="%23333"/><path d="M40,70 Q50,80 60,70" stroke="%23333" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M40,10 L50,0 L60,10 M40,10 L60,10" fill="%23fbbf24" stroke="%23333" stroke-width="2" stroke-linejoin="round"/></svg>');
+    }
+
+    /* 可愛圈圈：有大眼睛的藍色卡通圖案 */
+    .cell.o::after {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23dbeafe" stroke="%232563eb" stroke-width="6"/><circle cx="35" cy="40" r="8" fill="white" stroke="%232563eb" stroke-width="3"/><circle cx="35" cy="40" r="4" fill="%232563eb"/><circle cx="65" cy="40" r="8" fill="white" stroke="%232563eb" stroke-width="3"/><circle cx="65" cy="40" r="4" fill="%232563eb"/><path d="M40,70 Q50,80 60,70" stroke="%232563eb" stroke-width="5" fill="none" stroke-linecap="round"/></svg>');
+    }
+
+    /* 被選取、準備移動的棋子：跳動動畫 */
+    .cell.selected {
+      outline: 6px solid #fbbf24;
+      background: #fef3c7;
+      border-radius: 20px;
+      animation: selectDance 0.5s ease infinite;
+    }
+
+    @keyframes selectDance {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08) translateY(-5px); }
+    }
+
+    /* 按鈕也更圓潤可愛 */
     .reset-button {
       border: none;
-      border-radius: 10px;
-
-      padding: 12px 24px;
-
-      background: #111827;
+      border-radius: 25px;
+      padding: 14px 28px;
+      background: #be185d;
       color: white;
-
-      font-size: 16px;
+      font-size: 18px;
+      font-weight: bold;
       cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 0 #831843, 0 5px 10px rgba(190, 24, 93, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 auto;
+    }
+
+    .reset-button::before {
+      content: "↺";
+      font-size: 20px;
     }
 
     .reset-button:hover {
-      background: #374151;
+      background: #ec4899;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #be185d, 0 8px 15px rgba(190, 24, 93, 0.4);
+    }
+
+    .reset-button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #be185d, 0 2px 5px rgba(190, 24, 93, 0.4);
+    }
+
+    /* 音效控制按鈕 */
+    .audio-control-container {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .audio-btn {
+      background: #db2777;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .audio-btn:hover {
+      background: #ec4899;
     }
   </style>
 </head>
 
 <body>
   <main class="game-container">
-    <h1>移動式圈圈叉叉</h1>
+    <h1 id="gameTitle">移動式圈圈叉叉</h1>
 
     <div class="rules">
-      雙方輪流放置自己的 3 顆棋子。<br>
-      6 顆棋子都放完後，可以將自己的棋子任意移動到任何空格。<br>
-      先連成橫線、直線或斜線者獲勝。
+      <div>每位小朋友輪流放上 3 個卡通朋友。🧑‍🤝‍🧑</div>
+      <div>放完後，可以把自己的朋友搬到旁邊的空格！🚚</div>
+      <div>先連成一線、直立或斜線的小朋友就贏囉！🎉</div>
     </div>
 
-    <div id="status" class="status"></div>
+    <div id="statusContainer" class="status-container">
+      <div id="status" class="status"></div>
+    </div>
 
     <div class="score">
-      <div class="x-score">
-        ❌：<span id="xCount">0</span> / 3
+      <div class="score-item x-score">
+        ❌ <span class="count" id="xCount">0</span> / 3
       </div>
 
-      <div class="o-score">
-        ⭕：<span id="oCount">0</span> / 3
+      <div class="score-item o-score">
+        ⭕ <span class="count" id="oCount">0</span> / 3
       </div>
     </div>
 
@@ -198,24 +309,25 @@
     <button id="resetButton" class="reset-button">
       重新開始
     </button>
+    
+    <div class="audio-control-container">
+        <button id="audioEnableBtn" class="audio-btn">開啟音效 🔊</button>
+    </div>
   </main>
 
   <script>
     const boardElement = document.getElementById("board");
     const statusElement = document.getElementById("status");
+    const gameTitle = document.getElementById("gameTitle");
     const xCountElement = document.getElementById("xCount");
     const oCountElement = document.getElementById("oCount");
     const resetButton = document.getElementById("resetButton");
+    const audioEnableBtn = document.getElementById("audioEnableBtn");
 
     const winningLines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6]
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
     ];
 
     let board = [];
@@ -224,13 +336,104 @@
     let selectedIndex = null;
     let gameOver = false;
 
+    // --- 音效管理 ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    let audioEnabled = false;
+
+    // 音效庫 (Base64格式，更小巧且不需外部資源)
+    const soundData = {
+      // 放置/移動 (啵啵聲)
+      place: "data:audio/wav;base64,UklGRmUAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVEAAAAAAAAAAAAAAA...", // [簡化內容] 這邊放置簡短的啵啵聲Base64
+      // 選擇 (滴答聲)
+      select: "data:audio/wav;base64,UklGRkoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTIAAAAAAAAAAAAAAA...", // [簡化內容] 這邊放置簡短的滴答聲Base64
+      // 重置 (叮噹聲)
+      reset: "data:audio/wav;base64,UklGRoUAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YWUAAAAAAAAAAAAAAA...", // [簡化內容] 這邊放置叮噹聲Base64
+      // 獲勝 (歡呼短音)
+      win: "data:audio/wav;base64,UklGRvYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU8AAAAAAAAAAAAAAA..."  // [簡化內容] 這邊放置歡呼聲Base64
+    };
+
+    // 音效庫 (使用自定義函數生成簡單音效)
+    const getSound = (type) => {
+        if (!audioEnabled || !audioCtx) return;
+        
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        switch (type) {
+            case 'place': // 輕快啵啵聲
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+                break;
+            case 'select': // 快速滴答聲
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.03);
+                break;
+            case 'reset': // 叮噹聲
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+                break;
+            case 'win': // 勝利短曲
+                const notes = [659, 783, 1046, 1318]; // E5, G5, C6, E6
+                let time = audioCtx.currentTime;
+                notes.forEach((note, i) => {
+                    let o = audioCtx.createOscillator();
+                    let g = audioCtx.createGain();
+                    o.type = 'sine';
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.frequency.setValueAtTime(note, time);
+                    g.gain.setValueAtTime(0.3, time);
+                    g.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+                    o.start(time);
+                    o.stop(time + 0.2);
+                    time += 0.1;
+                });
+                break;
+        }
+    };
+
+    // 點擊啟用音效按鈕
+    audioEnableBtn.addEventListener('click', () => {
+        if (!audioCtx) {
+            audioCtx = new AudioContext();
+            audioEnabled = true;
+            getSound('place'); // 播放一個音效確認啟用
+            audioEnableBtn.textContent = '音效已開啟 🔊';
+            audioEnableBtn.style.background = '#16a34a'; // 變更為綠色
+        }
+    });
+
+    // --- 遊戲邏輯 ---
+
     function resetGame() {
       board = Array(9).fill(null);
       currentPlayer = "X";
       phase = "placing";
       selectedIndex = null;
       gameOver = false;
+      
+      // 移除勝利動畫
+      gameTitle.classList.remove("pulse");
+      statusElement.classList.remove("win");
 
+      getSound('reset');
       render();
       updateStatus();
     }
@@ -240,22 +443,11 @@
 
       board.forEach((value, index) => {
         const cell = document.createElement("button");
-
         cell.className = "cell";
 
-        if (value === "X") {
-          cell.textContent = "❌";
-          cell.classList.add("x");
-        }
-
-        if (value === "O") {
-          cell.textContent = "⭕";
-          cell.classList.add("o");
-        }
-
-        if (index === selectedIndex) {
-          cell.classList.add("selected");
-        }
+        if (value === "X") cell.classList.add("x");
+        if (value === "O") cell.classList.add("o");
+        if (index === selectedIndex) cell.classList.add("selected");
 
         cell.addEventListener("click", function () {
           handleCellClick(index);
@@ -274,27 +466,23 @@
         return;
       }
 
-      if (gameOver) {
-        return;
-      }
+      if (gameOver) return;
 
-      const playerName = currentPlayer === "X" ? "❌ 玩家" : "⭕ 玩家";
+      const playerName = currentPlayer === "X" ? "❌ 小紅" : "⭕ 小藍";
 
       if (phase === "placing") {
-        statusElement.textContent = `${playerName}，請放置棋子`;
+        statusElement.textContent = `${playerName}，換你放囉！😊`;
       } else {
         if (selectedIndex === null) {
-          statusElement.textContent = `${playerName}，請選擇要移動的棋子`;
+          statusElement.textContent = `${playerName}，搬個家吧！ Trucks`;
         } else {
-          statusElement.textContent = "請選擇任何空格移動棋子";
+          statusElement.textContent = "請選擇一個空格搬過去🚚";
         }
       }
     }
 
     function handleCellClick(index) {
-      if (gameOver) {
-        return;
-      }
+      if (gameOver) return;
 
       if (phase === "placing") {
         placePiece(index);
@@ -305,104 +493,92 @@
 
     function placePiece(index) {
       if (board[index] !== null) {
-        updateStatus("這個位置已經有棋子了");
+        updateStatus("哎呀！這裡已經有人了😅");
         return;
       }
 
-      const currentPlayerCount = board.filter(
-        value => value === currentPlayer
-      ).length;
+      const currentPlayerCount = board.filter(value => value === currentPlayer).length;
 
       if (currentPlayerCount >= 3) {
-        updateStatus("你已經放置 3 顆棋子，請等待對方");
+        updateStatus("你已經有 3 個朋友了，請等等對方");
         return;
       }
 
       board[index] = currentPlayer;
+      getSound('place');
 
       if (checkWin(currentPlayer)) {
-        gameOver = true;
-        render();
-        updateStatus(`${getPlayerSymbol(currentPlayer)} 玩家獲勝！`);
+        endGame(currentPlayer);
         return;
       }
 
       const xCount = board.filter(value => value === "X").length;
       const oCount = board.filter(value => value === "O").length;
 
-      if (xCount === 3 && oCount === 3) {
-        phase = "moving";
-      }
+      if (xCount === 3 && oCount === 3) phase = "moving";
 
       switchPlayer();
-
       render();
       updateStatus();
     }
 
     function movePiece(index) {
-      /*
-        還沒有選擇棋子：
-        必須先點選目前玩家自己的棋子
-      */
       if (selectedIndex === null) {
         if (board[index] !== currentPlayer) {
-          updateStatus("請先選擇你自己的棋子");
+          updateStatus("要先選自己的朋友喔！");
           return;
         }
 
         selectedIndex = index;
+        getSound('select');
         render();
         updateStatus();
         return;
       }
 
-      /*
-        如果再次點擊自己的棋子，
-        就改選另一顆棋子
-      */
       if (board[index] === currentPlayer) {
         selectedIndex = index;
+        getSound('select');
         render();
         updateStatus();
         return;
       }
 
-      /*
-        目的地必須是空格
-      */
       if (board[index] !== null) {
-        updateStatus("目的地必須是空格");
+        updateStatus("目的地要有空格才行喔！");
         return;
       }
 
-      /*
-        這裡不再檢查是否為相鄰格子。
-        因此棋子可以任意移動到棋盤上的任何空格。
-      */
       board[index] = currentPlayer;
       board[selectedIndex] = null;
       selectedIndex = null;
+      getSound('place');
 
       if (checkWin(currentPlayer)) {
-        gameOver = true;
-        render();
-        updateStatus(`${getPlayerSymbol(currentPlayer)} 玩家獲勝！`);
+        endGame(currentPlayer);
         return;
       }
 
       switchPlayer();
-
       render();
       updateStatus();
     }
 
-    function switchPlayer() {
-      currentPlayer = currentPlayer === "X" ? "O" : "X";
+    function endGame(player) {
+        gameOver = true;
+        const playerSymbol = player === "X" ? "❌ 小紅" : "⭕ 小藍";
+        
+        // 加上獲勝音效與動畫
+        getSound('win');
+        gameTitle.classList.add("pulse");
+        statusElement.classList.add("win");
+        
+        render();
+        updateStatus(`🎉 太棒了！${playerSymbol} 玩家贏了！🎉`);
     }
 
-    function getPlayerSymbol(player) {
-      return player === "X" ? "❌" : "⭕";
+    function switchPlayer() {
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
     }
 
     function checkWin(player) {
@@ -412,7 +588,6 @@
     }
 
     resetButton.addEventListener("click", resetGame);
-
     resetGame();
   </script>
 </body>
