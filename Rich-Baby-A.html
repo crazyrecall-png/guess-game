@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.0.8 - Baby</title>
+  <title>可愛大富翁 v1.1.0 - Baby</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -36,25 +36,22 @@
       background-color: var(--bg-color);
       color: var(--text);
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
       min-height: 100vh;
-      padding: 6px;
-      overflow: hidden;
+      padding: 10px;
+      overflow-y: auto;
     }
 
     .game-container {
       width: 100%;
       max-width: 560px;
-      height: calc(100vh - 12px);
-      max-height: 860px;
+      height: 780px;
       background: var(--board-bg);
       border: 4px solid #fab1a0;
       border-radius: 18px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      grid-template-rows: repeat(10, 1fr);
       gap: 3px;
       padding: 4px;
       position: relative;
@@ -67,7 +64,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 800;
       color: var(--cell-text);
       text-align: center;
@@ -79,7 +76,7 @@
       background-color: #ffabe7;
       border-color: #fd79a8;
       color: #000;
-      font-size: 18px;
+      font-size: 16px;
     }
 
     .cell.active {
@@ -87,14 +84,12 @@
       color: var(--active-text) !important;
       border-color: var(--active-bg);
       box-shadow: var(--active-shadow);
-      font-size: 28px;
+      font-size: 26px;
       transform: scale(1.06);
       z-index: 5;
     }
 
     .center-dashboard {
-      grid-column: 2 / 6;
-      grid-row: 2 / 10;
       background: #f1f2f6;
       border-radius: 12px;
       padding: 6px 8px;
@@ -318,6 +313,110 @@
       min-width: 32px;
     }
 
+    /* 外部控制區面板 */
+    .filter-section {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border: 3px solid #74b9ff;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .filter-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #0984e3;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .radio-group-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #f1f2f6;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .win-cond-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .win-cond-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f1f2f6;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .win-cond-item label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .win-cond-item input[type="number"] {
+      width: 80px;
+      height: 32px;
+      font-size: 15px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f1f2f6;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .filter-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -498,9 +597,9 @@
 <body>
 
   <div class="game-container" id="board">
-    <div class="center-dashboard">
+    <div class="center-dashboard" id="centerDashboard">
       <div class="dashboard-title">
-        🎲 歡樂大富翁 - Baby<span class="version-tag">v1.0.8</span>
+        🎲 歡樂大富翁 - Baby<span class="version-tag">v1.1.0</span>
       </div>
 
       <div class="section-box section-box-large">
@@ -547,20 +646,66 @@
         </div>
       </div>
 
-      <div class="section-box">
-        <div class="section-title">目標圈數 / 已完成圈數</div>
-        <div class="input-group" style="margin-bottom: 2px;">
-          <button class="btn-adjust btn-minus" onclick="changeTargetLaps(-1)">-</button>
-          <input type="number" id="targetLapInput" value="1" min="1">
-          <button class="btn-adjust btn-plus" onclick="changeTargetLaps(1)">+</button>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #0984e3;">
-          已完成 <span id="completedLapDisplay">0</span> / <span id="targetLapDisplay">1</span> 圈
+      <div class="section-box" style="background: #eccc68; border: 2px solid #ffa502;">
+        <div class="section-title" style="color: #2f3542; font-size: 14px;">🏆 遊戲即時成就進度</div>
+        <div style="font-size: 13px; font-weight: bold; color: #2f3542; line-height: 1.6;">
+          已完成圈數：<span id="completedLapDisplay" style="color: #d63031; font-size: 16px;">0</span> 圈<br>
+          成功挑戰次數：<span id="successChallengeDisplay" style="color: #00b894; font-size: 18px;">0</span> 次
         </div>
       </div>
-
-      <button class="btn btn-big" style="background-color: #a55eea; box-shadow: 0 4px 0 #8854d0; width: 95%; min-height:42px; font-size:16px !important;" onclick="resetGame()">🔄 再開一局 (保留金額)</button>
     </div>
+  </div>
+
+  <!-- 外框外圍：一圈格數選擇 -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <div class="filter-title">📐 設定一圈格數</div>
+    </div>
+    <div class="radio-group-container">
+      <label class="radio-item"><input type="radio" name="boardSize" value="20" onchange="changeBoardSize(20)"> 20 格 (5x7)</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="28" checked onchange="changeBoardSize(28)"> 28 格 (6x10)</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="36" onchange="changeBoardSize(36)"> 36 格 (8x12)</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="44" onchange="changeBoardSize(44)"> 44 格 (10x14)</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="50" onchange="changeBoardSize(50)"> 50 格 (11x16)</label>
+    </div>
+  </div>
+
+  <!-- 外框外圍：勝利條件設定 -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <div class="filter-title">🏆 設定勝利條件（可多選）</div>
+    </div>
+    <div class="win-cond-grid">
+      <div class="win-cond-item">
+        <label><input type="checkbox" id="winCondMoneyCb"> 1. 累積多少錢：</label>
+        <div>$<input type="number" id="winCondMoneyInput" value="3000" min="100" step="100"> 元</div>
+      </div>
+      <div class="win-cond-item">
+        <label><input type="checkbox" id="winCondLapsCb" checked> 2. 走完指定圈數：</label>
+        <div><input type="number" id="winCondLapsInput" value="1" min="1"> 圈</div>
+      </div>
+      <div class="win-cond-item">
+        <label><input type="checkbox" id="winCondChallengesCb"> 3. 成功完成挑戰數：</label>
+        <div><input type="number" id="winCondChallengesInput" value="3" min="1"> 次</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 外框外圍：開放挑戰類型勾選選單 -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <div class="filter-title">⚙️ 挑戰項目設定（可依小孩年齡勾選）</div>
+      <div class="filter-actions">
+        <button class="btn" style="background-color: #00b894; box-shadow: 0 2px 0 #008f68; padding: 4px 8px; font-size: 12px;" onclick="toggleAllFilters(true)">全選</button>
+        <button class="btn" style="background-color: #ff7675; box-shadow: 0 2px 0 #d63031; padding: 4px 8px; font-size: 12px;" onclick="toggleAllFilters(false)">全不選</button>
+      </div>
+    </div>
+    <div class="filter-grid" id="filterGrid"></div>
+  </div>
+
+  <!-- 再開一局按鈕移到框框外圍 -->
+  <div style="width: 100%; max-width: 560px; margin-top: 12px;">
+    <button class="btn btn-big" style="background-color: #a55eea; box-shadow: 0 4px 0 #8854d0; width: 100%; font-size: 18px !important;" onclick="resetGame()">🔄 再開一局 (保留金額)</button>
   </div>
 
   <div class="modal-overlay" id="moneyModal">
@@ -595,7 +740,7 @@
   <div class="modal-overlay" id="winModal">
     <div class="modal-content" style="border-color: #ff7675;">
       <div class="modal-title">🏆 恭喜獲勝！</div>
-      <div class="modal-desc">你已經跑滿設定的圈數囉！</div>
+      <div class="modal-desc" id="winModalText">你已經達成勝利條件囉！</div>
       <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="resetGame()">再玩一次 (保留金額)</button>
     </div>
   </div>
@@ -673,7 +818,7 @@
       { zh: "檸檬", zhPy: "ㄋㄧㄥˊ ㄇㄥˊ", en: "Lemon" },
       { zh: "柳橘", zhPy: "ㄌㄧㄡˇ ㄐㄩˊ", en: "Orange" },
       { zh: "水蜜桃", zhPy: "ㄕㄨㄟˇ ㄇㄧˋ ㄊㄠˊ", en: "Peach" },
-      { zh: "草莓", zhPy: " brownies ㄘㄠˇ ㄇㄟˊ", en: "Strawberry" },
+      { zh: "草莓", zhPy: "ㄘㄠˇ ㄇㄟˊ", en: "Strawberry" },
       { zh: "西瓜", zhPy: "ㄒㄧ ㄍㄨㄚ", en: "Watermelon" },
       { zh: "冰淇淋", zhPy: "ㄅㄧㄥ ㄑㄧˊ ㄌㄧㄣˊ", en: "Ice cream" },
       { zh: "糖果", zhPy: "ㄊㄤˊ ㄍㄨㄛˇ", en: "Candy" },
@@ -806,6 +951,100 @@
       { file: "Bactriancamel", name: "雙峰駱駝" }
     ];
 
+    const challengeCategories = [
+      {
+        id: "spin",
+        name: "旋轉挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "30秒 (簡單)", reward: 200, need: 100, type: "action", target: "30秒", timeLimit: 30 },
+          { diffName: "40秒 (中等)", reward: 500, need: 200, type: "action", target: "40秒", timeLimit: 40 },
+          { diffName: "50秒 (困難)", reward: 1000, need: 300, type: "action", target: "50秒", timeLimit: 50 }
+        ]
+      },
+      {
+        id: "knock",
+        name: "擊飛挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "1顆 (簡單)", reward: 200, need: 100, type: "action", target: "1顆" },
+          { diffName: "2顆 (中等)", reward: 500, need: 200, type: "action", target: "2顆" },
+          { diffName: "3顆 (困難)", reward: 1000, need: 300, type: "action", target: "3顆" }
+        ]
+      },
+      {
+        id: "color",
+        name: "抽獎機台猜顏色",
+        type: "color_guess",
+        need: 200,
+        options: [
+          { colorName: "黑色", reward: 500 },
+          { colorName: "白色", reward: 500 },
+          { colorName: "紅色", reward: 500 }
+        ]
+      },
+      {
+        id: "math",
+        name: "數學遊戲",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (兩數相加)", reward: 200, need: 100, type: "math_add_2" },
+          { diffName: "中等 (兩數相減)", reward: 500, need: 200, type: "math_sub_2" },
+          { diffName: "困難 (三數加減)", reward: 1000, need: 300, type: "math_mix_3" }
+        ]
+      },
+      {
+        id: "phonics_en",
+        name: "英文字母發音挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (1個字母)", reward: 200, need: 100, type: "phonics_en", count: 1 },
+          { diffName: "中等 (2個字母)", reward: 500, need: 200, type: "phonics_en", count: 2 },
+          { diffName: "困難 (3個字母)", reward: 1000, need: 300, type: "phonics_en", count: 3 }
+        ]
+      },
+      {
+        id: "phonics_zh",
+        name: "中文注音發音挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (1個注音)", reward: 200, need: 100, type: "phonics_zh", count: 1 },
+          { diffName: "中等 (2個注音)", reward: 500, need: 200, type: "phonics_zh", count: 2 },
+          { diffName: "困難 (3個注音)", reward: 1000, need: 300, type: "phonics_zh", count: 3 }
+        ]
+      },
+      {
+        id: "word_en",
+        name: "英文單字猜猜看",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_en" },
+          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_en" },
+          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_en" }
+        ]
+      },
+      {
+        id: "word_zh",
+        name: "中文單字猜猜看",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_zh" },
+          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_zh" },
+          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_zh" }
+        ]
+      },
+      {
+        id: "animal",
+        name: "動物猜猜看問答",
+        type: "normal",
+        levels: [
+          { diffName: "題目1（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" },
+          { diffName: "題目2（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" },
+          { diffName: "題目3（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" }
+        ]
+      }
+    ];
+
     let lastTouchEnd = 0;
     document.addEventListener('touchend', function (event) {
       const now = (new Date()).getTime();
@@ -906,133 +1145,106 @@
       }
     }
 
-    const challengeCategories = [
-      {
-        name: "旋轉挑戰",
-        type: "normal",
-        levels: [
-          { diffName: "30秒 (簡單)", reward: 200, need: 100, type: "action", target: "30秒" },
-          { diffName: "40秒 (中等)", reward: 500, need: 200, type: "action", target: "40秒" },
-          { diffName: "50秒 (困難)", reward: 1000, need: 300, type: "action", target: "50秒" }
-        ]
-      },
-      {
-        name: "擊飛挑戰",
-        type: "normal",
-        levels: [
-          { diffName: "1顆 (簡單)", reward: 200, need: 100, type: "action", target: "1顆" },
-          { diffName: "2顆 (中等)", reward: 500, need: 200, type: "action", target: "2顆" },
-          { diffName: "3顆 (困難)", reward: 1000, need: 300, type: "action", target: "3顆" }
-        ]
-      },
-      {
-        name: "抽獎機台猜顏色",
-        type: "color_guess",
-        need: 200,
-        options: [
-          { colorName: "黑色", reward: 500 },
-          { colorName: "白色", reward: 500 },
-          { colorName: "紅色", reward: 500 }
-        ]
-      },
-      {
-        name: "數學遊戲",
-        type: "normal",
-        levels: [
-          { diffName: "簡單 (兩數相加)", reward: 200, need: 100, type: "math_add_2" },
-          { diffName: "中等 (兩數相減)", reward: 500, need: 200, type: "math_sub_2" },
-          { diffName: "困難 (三數加減)", reward: 1000, need: 300, type: "math_mix_3" }
-        ]
-      },
-      {
-        name: "英文字母發音挑戰",
-        type: "normal",
-        levels: [
-          { diffName: "簡單 (1個字母)", reward: 200, need: 100, type: "phonics_en", count: 1 },
-          { diffName: "中等 (2個字母)", reward: 500, need: 200, type: "phonics_en", count: 2 },
-          { diffName: "困難 (3個字母)", reward: 1000, need: 300, type: "phonics_en", count: 3 }
-        ]
-      },
-      {
-        name: "中文注音發音挑戰",
-        type: "normal",
-        levels: [
-          { diffName: "簡單 (1個注音)", reward: 200, need: 100, type: "phonics_zh", count: 1 },
-          { diffName: "中等 (2個注音)", reward: 500, need: 200, type: "phonics_zh", count: 2 },
-          { diffName: "困難 (3個注音)", reward: 1000, need: 300, type: "phonics_zh", count: 3 }
-        ]
-      },
-      {
-        name: "英文單字猜猜看",
-        type: "normal",
-        levels: [
-          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_en" },
-          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_en" },
-          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_en" }
-        ]
-      },
-      {
-        name: "中文單字猜猜看",
-        type: "normal",
-        levels: [
-          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_zh" },
-          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_zh" },
-          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_zh" }
-        ]
-      },
-      {
-        name: "動物猜猜看問答",
-        type: "normal",
-        levels: [
-          { diffName: "題目1（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" },
-          { diffName: "題目2（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" },
-          { diffName: "題目3（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" }
-        ]
-      }
-    ];
+    // 動態地圖規格設定
+    const boardConfigs = {
+      20: { cols: 5, rows: 7 },
+      28: { cols: 6, rows: 10 },
+      36: { cols: 8, rows: 12 },
+      44: { cols: 10, rows: 14 },
+      50: { cols: 11, rows: 16 }
+    };
 
-    const COLS = 6, ROWS = 10;
-    const pathCoords = [];
-    for (let c = 1; c <= COLS; c++) pathCoords.push({ r: 1, c: c });
-    for (let r = 2; r <= ROWS; r++) pathCoords.push({ r: r, c: COLS });
-    for (let c = COLS - 1; c >= 1; c--) pathCoords.push({ r: ROWS, c: c });
-    for (let r = ROWS - 1; r >= 2; r--) pathCoords.push({ r: r, c: 1 });
+    let boardCellCount = 28;
+    let pathCoords = [];
+    let cellElements = [];
 
-    const totalCells = pathCoords.length;
     let currentPosition = 0;
     let totalStepsTaken = 0;
     let timerSetting = 10;
     let countdownInterval = null;
     let completedLaps = 0;
-    let targetLaps = 1;
+    let successfulChallenges = 0;
     let totalMoney = 0;
     let isMoving = false;
     let isRolling = false;
     let currentMoneyDir = 1;
-
     let selectedCategory = null;
 
-    const cellElements = [];
-    const board = document.getElementById('board');
+    function buildBoard(cellCount) {
+      boardCellCount = cellCount;
+      const config = boardConfigs[cellCount] || boardConfigs[28];
+      const cols = config.cols;
+      const rows = config.rows;
 
-    pathCoords.forEach((coord, idx) => {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      cell.id = `cell-${idx}`;
-      cell.style.gridRow = coord.r;
-      cell.style.gridColumn = coord.c;
+      const board = document.getElementById('board');
+      // 清空舊的格子
+      const oldCells = board.querySelectorAll('.cell');
+      oldCells.forEach(cell => cell.remove());
 
-      if (idx === 0) {
-        cell.classList.add('start-cell');
-        cell.innerHTML = '起點<br>0';
-      } else {
-        cell.innerText = idx;
-      }
-      board.appendChild(cell);
-      cellElements.push(cell);
-    });
+      board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
 
-    updatePlayerPositionUI();
+      pathCoords = [];
+      for (let c = 1; c <= cols; c++) pathCoords.push({ r: 1, c: c });
+      for (let r = 2; r <= rows; r++) pathCoords.push({ r: r, c: cols });
+      for (let c = cols - 1; c >= 1; c--) pathCoords.push({ r: rows, c: c });
+      for (let r = rows - 1; r >= 2; r--) pathCoords.push({ r: r, c: 1 });
+
+      cellElements = [];
+      pathCoords.forEach((coord, idx) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.id = `cell-${idx}`;
+        cell.style.gridRow = coord.r;
+        cell.style.gridColumn = coord.c;
+
+        if (idx === 0) {
+          cell.classList.add('start-cell');
+          cell.innerHTML = '起點<br>0';
+        } else {
+          cell.innerText = idx;
+        }
+        board.appendChild(cell);
+        cellElements.push(cell);
+      });
+
+      const centerDashboard = document.getElementById('centerDashboard');
+      centerDashboard.style.gridColumn = `2 / ${cols}`;
+      centerDashboard.style.gridRow = `2 / ${rows}`;
+
+      currentPosition = 0;
+      updatePlayerPositionUI();
+    }
+
+    function changeBoardSize(size) {
+      playClickSound();
+      buildBoard(size);
+    }
+
+    function renderFilterUI() {
+      const grid = document.getElementById('filterGrid');
+      grid.innerHTML = '';
+      challengeCategories.forEach((cat) => {
+        const item = document.createElement('label');
+        item.className = 'filter-item';
+        item.innerHTML = `
+          <input type="checkbox" id="filter-${cat.id}" checked>
+          <span>${cat.name}</span>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    function toggleAllFilters(enable) {
+      playClickSound();
+      challengeCategories.forEach((cat) => {
+        const cb = document.getElementById(`filter-${cat.id}`);
+        if (cb) cb.checked = enable;
+      });
+    }
+
+    renderFilterUI();
+    buildBoard(28);
 
     function rollSingleDice(type) {
       if (isRolling || isMoving) return;
@@ -1062,6 +1274,7 @@
           document.getElementById('diceModalTitle').innerText = '💰 金額骰結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
           document.getElementById('diceModalMoney').innerText = `獲得金額：${earned} 元`;
+          checkWinCondition();
         } else {
           document.getElementById('diceModalTitle').innerText = '🎁 抽獎結果';
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
@@ -1092,6 +1305,7 @@
       let amount = parseInt(input.value, 10) || 0;
       totalMoney += amount * currentMoneyDir;
       document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+      checkWinCondition();
       closeModal('moneyModal');
     }
 
@@ -1107,14 +1321,6 @@
       playClickSound();
       timerSetting = Math.max(1, timerSetting + delta);
       document.getElementById('timerSettingDisplay').innerText = timerSetting;
-    }
-
-    function changeTargetLaps(delta) {
-      playClickSound();
-      const input = document.getElementById('targetLapInput');
-      targetLaps = Math.max(1, (parseInt(input.value, 10) || 1) + delta);
-      input.value = targetLaps;
-      document.getElementById('targetLapDisplay').innerText = targetLaps;
     }
 
     function handleManualMove() {
@@ -1136,11 +1342,11 @@
       const totalSteps = Math.abs(steps);
 
       for (let i = 0; i < totalSteps; i++) {
-        currentPosition = (currentPosition + direction + totalCells) % totalCells;
+        currentPosition = (currentPosition + direction + boardCellCount) % boardCellCount;
         totalStepsTaken += (direction > 0 ? 1 : -1);
         totalStepsTaken = Math.max(0, totalStepsTaken);
 
-        completedLaps = Math.floor(totalStepsTaken / totalCells);
+        completedLaps = Math.floor(totalStepsTaken / boardCellCount);
         document.getElementById('completedLapDisplay').innerText = completedLaps;
 
         updatePlayerPositionUI();
@@ -1151,13 +1357,48 @@
       isMoving = false;
       document.getElementById('stepInput').value = 1;
 
-      if (completedLaps >= targetLaps) {
-        playWinSound();
-        speakText("恭喜獲勝！你已經跑滿設定的圈數囉！");
-        openModal('winModal');
-      } else if (currentPosition !== 0) {
+      if (checkWinCondition()) return;
+
+      if (currentPosition !== 0) {
         triggerChallengePrompt();
       }
+    }
+
+    function checkWinCondition() {
+      const winMoneyCb = document.getElementById('winCondMoneyCb').checked;
+      const targetMoney = parseInt(document.getElementById('winCondMoneyInput').value, 10) || 0;
+
+      const winLapsCb = document.getElementById('winCondLapsCb').checked;
+      const targetLaps = parseInt(document.getElementById('winCondLapsInput').value, 10) || 0;
+
+      const winChallengesCb = document.getElementById('winCondChallengesCb').checked;
+      const targetChallenges = parseInt(document.getElementById('winCondChallengesInput').value, 10) || 0;
+
+      let won = false;
+      let reason = [];
+
+      if (winMoneyCb && totalMoney >= targetMoney) {
+        won = true;
+        reason.push(`累積金額達到 $${targetMoney} 元`);
+      }
+      if (winLapsCb && completedLaps >= targetLaps) {
+        won = true;
+        reason.push(`走完指定圈數 ${targetLaps} 圈`);
+      }
+      if (winChallengesCb && successfulChallenges >= targetChallenges) {
+        won = true;
+        reason.push(`成功完成挑戰次數達到 ${targetChallenges} 次`);
+      }
+
+      if (won) {
+        playWinSound();
+        const winText = `達成勝利條件：${reason.join('、')}！`;
+        document.getElementById('winModalText').innerText = winText;
+        openModal('winModal');
+        speakText("恭喜獲勝！你已經達成勝利條件囉！");
+        return true;
+      }
+      return false;
     }
 
     function updatePlayerPositionUI() {
@@ -1166,8 +1407,18 @@
     }
 
     function triggerChallengePrompt() {
-      const randIdx = Math.floor(Math.random() * challengeCategories.length);
-      selectedCategory = challengeCategories[randIdx];
+      const activeCategories = challengeCategories.filter((cat) => {
+        const cb = document.getElementById(`filter-${cat.id}`);
+        return cb ? cb.checked : true;
+      });
+
+      if (activeCategories.length === 0) {
+        alert("請至少在下方勾選一種挑戰項目！");
+        return;
+      }
+
+      const randIdx = Math.floor(Math.random() * activeCategories.length);
+      selectedCategory = activeCategories[randIdx];
       
       playChallengeAlertSound();
       document.getElementById('askChallengeName').innerText = `踩到了挑戰格！【${selectedCategory.name}】\n請選擇是否挑戰！`;
@@ -1241,6 +1492,8 @@
       if (isCorrect) {
         totalMoney += reward;
         document.getElementById('totalMoneyDisplay').innerText = `$${totalMoney}`;
+        successfulChallenges++;
+        document.getElementById('successChallengeDisplay').innerText = successfulChallenges;
       }
 
       const title = document.getElementById('resultModalTitle');
@@ -1265,6 +1518,7 @@
         speakText(`可惜，機台開出 ${actualColor}，沒猜中。`);
       }
 
+      checkWinCondition();
       openModal('resultModal');
     }
 
@@ -1290,11 +1544,12 @@
 
       let correctAnswer = "";
       let options = [];
-      const isQuestionType = level.type !== 'action';
 
-      if (isQuestionType) {
+      let activeLimit = level.timeLimit || (level.type !== 'action' ? timerSetting : 0);
+
+      if (activeLimit > 0) {
         timerContainer.style.display = 'inline-block';
-        let remainingTime = timerSetting;
+        let remainingTime = activeLimit;
         timerBox.innerText = remainingTime;
 
         countdownInterval = setInterval(() => {
@@ -1303,7 +1558,7 @@
 
           if (remainingTime <= 0) {
             clearInterval(countdownInterval);
-            finishChallenge(false, correctAnswer, level.reward, true);
+            finishChallenge(false, correctAnswer || "時間到", level.reward, true);
           }
         }, 1000);
       } else {
@@ -1519,6 +1774,9 @@
 
       if (isSuccess) {
         playWinSound();
+        successfulChallenges++;
+        document.getElementById('successChallengeDisplay').innerText = successfulChallenges;
+
         title.innerText = "🎉 挑戰成功！";
         title.style.color = "#00b894";
         if (reward > 0) {
@@ -1528,7 +1786,7 @@
         } else {
           text.innerText = `挑戰成功！`;
         }
-        ansText.innerText = `正確答案為：${correctAnswer}`;
+        ansText.innerText = correctAnswer ? `正確答案為：${correctAnswer}` : "";
 
         speakText("太棒了！恭喜挑戰成功！");
       } else {
@@ -1545,6 +1803,7 @@
         }
       }
 
+      checkWinCondition();
       openModal('resultModal');
     }
 
@@ -1566,8 +1825,10 @@
       currentPosition = 0;
       totalStepsTaken = 0;
       completedLaps = 0;
+      successfulChallenges = 0;
       
       document.getElementById('completedLapDisplay').innerText = completedLaps;
+      document.getElementById('successChallengeDisplay').innerText = successfulChallenges;
       document.getElementById('stepInput').value = 1;
       document.getElementById('moneyDiceBox').innerText = "1";
       document.getElementById('stepDiceBox').innerText = "1";
