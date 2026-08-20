@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v1.0.8 - Baby</title>
+  <title>可愛大富翁 v1.1.3 - Baby</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -366,7 +366,6 @@
       margin-bottom: 12px;
       font-weight: bold;
       line-height: 1.4;
-      white-space: pre-line;
     }
 
     .modal-btn {
@@ -410,6 +409,15 @@
     }
     .opt-btn.opt-green:active {
       box-shadow: 0 1px 0 #26af5f !important;
+    }
+
+    .opt-btn.opt-yellow {
+      background-color: #f1c40f !important;
+      color: #2d3436 !important;
+      box-shadow: 0 3px 0 #f39c12 !important;
+    }
+    .opt-btn.opt-yellow:active {
+      box-shadow: 0 1px 0 #f39c12 !important;
     }
 
     .opt-btn.color-black {
@@ -492,7 +500,7 @@
   <div class="game-container" id="board">
     <div class="center-dashboard">
       <div class="dashboard-title">
-        🎲 歡樂大富翁 - Baby<span class="version-tag">v1.0.8</span>
+        🎲 歡樂大富翁 - Baby<span class="version-tag">v1.1.3</span>
       </div>
 
       <div class="section-box section-box-large">
@@ -539,16 +547,16 @@
         </div>
       </div>
 
-      <!-- 🏆 勝利條件設定專區 -->
-      <div class="section-box" style="border: 2px solid #fd79a8; background: #fff0f6;">
-        <div class="section-title" style="color:#d63031; font-weight:bold; font-size: 14px;">🏆 勝利條件設定</div>
+      <!-- 勝利條件區區塊 -->
+      <div class="section-box" style="border: 2px solid #fd79a8;">
+        <div class="section-title" style="color:#d63031; font-weight:bold;">🏆 勝利條件設定</div>
         
-        <!-- 目標圈數 -->
+        <!-- 圈數設定 -->
         <div style="margin-bottom: 6px;">
           <div style="font-size: 12px; font-weight: bold; color: #2d3436; margin-bottom: 2px;">目標圈數</div>
           <div class="input-group">
             <button class="btn-adjust btn-minus" onclick="changeTargetLaps(-1)">-</button>
-            <input type="number" id="targetLapInput" value="1" min="1" readonly>
+            <input type="number" id="targetLapInput" value="1" min="1">
             <button class="btn-adjust btn-plus" onclick="changeTargetLaps(1)">+</button>
           </div>
           <div style="font-size: 12px; font-weight: bold; color: #0984e3; margin-top: 2px;">
@@ -556,12 +564,12 @@
           </div>
         </div>
 
-        <!-- 目標挑戰數 -->
+        <!-- 挑戰數設定 -->
         <div>
           <div style="font-size: 12px; font-weight: bold; color: #2d3436; margin-bottom: 2px;">目標挑戰數</div>
           <div class="input-group">
             <button class="btn-adjust btn-minus" onclick="changeTargetChallenges(-1)">-</button>
-            <input type="number" id="targetChallengeInput" value="1" min="0" readonly>
+            <input type="number" id="targetChallengeInput" value="1" min="0">
             <button class="btn-adjust btn-plus" onclick="changeTargetChallenges(1)">+</button>
           </div>
           <div style="font-size: 12px; font-weight: bold; color: #a55eea; margin-top: 2px;">
@@ -684,14 +692,84 @@
       { zh: "檸檬", zhPy: "ㄋㄧㄥˊ ㄇㄥˊ", en: "Lemon" },
       { zh: "柳橘", zhPy: "ㄌㄧㄡˇ ㄐㄩˊ", en: "Orange" },
       { zh: "水蜜桃", zhPy: "ㄕㄨㄟˇ ㄇㄧˋ ㄊㄠˊ", en: "Peach" },
-      { zh: "草莓", zhPy: "ㄘㄠˇ ㄇㄟˊ", en: "Strawberry" },
+      { zh: "草莓", zhPy: " brownies ㄘㄠˇ ㄇㄟˊ", en: "Strawberry" },
       { zh: "西瓜", zhPy: "ㄒㄧ ㄍㄨㄚ", en: "Watermelon" },
       { zh: "冰淇淋", zhPy: "ㄅㄧㄥ ㄑㄧˊ ㄌㄧㄣˊ", en: "Ice cream" },
       { zh: "糖果", zhPy: "ㄊㄤˊ ㄍㄨㄛˇ", en: "Candy" },
       { zh: "餅乾", zhPy: "ㄅㄧㄥˇ ㄍㄢ", en: "Cookie" },
       { zh: "披薩", zhPy: "ㄆㄧ ㄙㄚˋ", en: "Pizza" },
       { zh: "漢堡", zhPy: "ㄏㄢˋ ㄅㄠˇ", en: "Burger" },
-      { zh: "起司", zhPy: "ㄑㄧˇ ㄙ", en: "Cheese" }
+      { zh: "起司", zhPy: "ㄑㄧˇ ㄙ", en: "Cheese" },
+      { zh: "爸爸", zhPy: "ㄅㄚˋ ㄅㄚ˙", en: "Dad" },
+      { zh: "媽媽", zhPy: "ㄇㄚ ㄇㄚ˙", en: "Mom" },
+      { zh: "哥哥", zhPy: "ㄍㄜ ㄍㄜ˙", en: "Brother" },
+      { zh: "姊姊", zhPy: "ㄐㄧㄝˇ ㄐㄧㄝ˙", en: "Sister" },
+      { zh: "爺爺", zhPy: "ㄧㄝˊ ㄧㄝ˙", en: "Grandpa" },
+      { zh: "奶奶", zhPy: "ㄋㄞˇ ㄋㄞ˙", en: "Grandma" },
+      { zh: "嬰兒", zhPy: "ㄧㄥ ㄦˊ", en: "Baby" },
+      { zh: "男孩", zhPy: "ㄋㄢˊ ㄏㄞˊ", en: "Boy" },
+      { zh: "女孩", zhPy: "ㄋㄩˇ ㄏㄞˊ", en: "Girl" },
+      { zh: "老師", zhPy: "ㄌㄠˇ ㄕ", en: "Teacher" },
+      { zh: "學生", zhPy: "ㄒㄩㄝˊ ㄕㄥ", en: "Student" },
+      { zh: "朋友", zhPy: "ㄆㄥˊ ㄧㄡˇ", en: "Friend" },
+      { zh: "眼睛", zhPy: "ㄧㄢˇ ㄐㄧㄥ", en: "Eye" },
+      { zh: "耳朵", zhPy: "ㄦˇ ㄉㄨㄛ", en: "Ear" },
+      { zh: "嘴巴", zhPy: "ㄗㄨㄟˇ ㄅㄚ", en: "Mouth" },
+      { zh: "鼻子", zhPy: "ㄅㄧˊ ㄗˇ", en: "Nose" },
+      { zh: "頭", zhPy: "ㄊㄡˊ", en: "Head" },
+      { zh: "手", zhPy: "ㄕㄡˇ", en: "Hand" },
+      { zh: "腳", zhPy: "ㄐㄧㄠˇ", en: "Foot" },
+      { zh: "腿", zhPy: "ㄊㄨㄟˇ", en: "Leg" },
+      { zh: "手臂", zhPy: "ㄕㄡˇ ㄅㄧˋ", en: "Arm" },
+      { zh: "頭髮", zhPy: "ㄊㄡˊ ㄈㄚˇ", en: "Hair" },
+      { zh: "紅色", zhPy: "ㄏㄨㄥˊ ㄙㄜˋ", en: "Red" },
+      { zh: "藍色", zhPy: "ㄌㄢˊ ㄙㄜˋ", en: "Blue" },
+      { zh: "黃色", zhPy: "ㄏㄨㄤˊ ㄙㄜˋ", en: "Yellow" },
+      { zh: "綠色", zhPy: "ㄌㄩˋ ㄙㄜˋ", en: "Green" },
+      { zh: "黑色", zhPy: "ㄏㄟ ㄙㄜˋ", en: "Black" },
+      { zh: "白色", zhPy: "ㄅㄞˊ ㄙㄜˋ", en: "White" },
+      { zh: "粉紅色", zhPy: "ㄈㄣˇ ㄏㄨㄥˊ ㄙㄜˋ", en: "Pink" },
+      { zh: "紫色", zhPy: "ㄗˇ ㄙㄜˋ", en: "Purple" },
+      { zh: "橘色", zhPy: "ㄐㄩˊ ㄙㄜˋ", en: "Orange" },
+      { zh: "圓形", zhPy: "ㄩㄢˊ ㄒㄧㄥˊ", en: "Circle" },
+      { zh: "正方形", zhPy: "ㄓㄥˋ ㄈㄤ ㄒㄧㄥˊ", en: "Square" },
+      { zh: "星形", zhPy: "ㄒㄧㄥ ㄒㄧㄥˊ", en: "Star" },
+      { zh: "書本", zhPy: "ㄕㄨ ㄅㄣˇ", en: "Book" },
+      { zh: "筆", zhPy: "ㄅㄧˇ", en: "Pen" },
+      { zh: "鉛筆", zhPy: "ㄑㄧㄢ ㄅㄧˇ", en: "Pencil" },
+      { zh: "書包", zhPy: "ㄕㄨ ㄅㄠ", en: "Bag" },
+      { zh: "桌子", zhPy: "ㄓㄨㄛ ㄗˇ", en: "Table" },
+      { zh: "椅子", zhPy: "ㄧˇ ㄗˇ", en: "Chair" },
+      { zh: "床", zhPy: "ㄔㄨㄤˊ", en: "Bed" },
+      { zh: "門", zhPy: "ㄇㄣˊ", en: "Door" },
+      { zh: "窗戶", zhPy: "ㄔㄨㄤ ㄏㄨˋ", en: "Window" },
+      { zh: "鐘", zhPy: "ㄓㄨㄥ", en: "Clock" },
+      { zh: "盒子", zhPy: "ㄏㄜˊ ㄗˇ", en: "Box" },
+      { zh: "球", zhPy: "ㄑㄧㄡˊ", en: "Ball" },
+      { zh: "玩具", zhPy: "ㄨㄢˊ ㄐㄩˋ", en: "Toy" },
+      { zh: "杯子", zhPy: "ㄅㄟ ㄗˇ", en: "Cup" },
+      { zh: "車子", zhPy: "ㄔㄜ ㄗˇ", en: "Car" },
+      { zh: "公車", zhPy: "ㄍㄨㄥ ㄔㄜ", en: "Bus" },
+      { zh: "火車", zhPy: "ㄏㄨㄛˇ ㄔㄜ", en: "Train" },
+      { zh: "飛機", zhPy: "ㄈㄟ ㄐㄧ", en: "Plane" },
+      { zh: "腳踏車", zhPy: "ㄐㄧㄠˇ ㄊㄚˋ ㄔㄜ", en: "Bike" },
+      { zh: "船", zhPy: "ㄔㄨㄢˊ", en: "Boat" },
+      { zh: "太陽", zhPy: "ㄊㄞˋ ㄧㄤˊ", en: "Sun" },
+      { zh: "月亮", zhPy: "ㄩㄝˋ ㄌㄧㄤˋ", en: "Moon" },
+      { zh: "星星", zhPy: "ㄒㄧㄥ ㄒㄧㄥ", en: "Star" },
+      { zh: "天空", zhPy: "ㄊㄧㄢ ㄎㄨㄥ", en: "Sky" },
+      { zh: "雲", zhPy: "ㄩㄣˊ", en: "Cloud" },
+      { zh: "雨", zhPy: "ㄩˇ", en: "Rain" },
+      { zh: "雪", zhPy: "ㄒㄩㄝˇ", en: "Snow" },
+      { zh: "樹", zhPy: "ㄕㄨˋ", en: "Tree" },
+      { zh: "花", zhPy: "ㄏㄨㄚ", en: "Flower" },
+      { zh: "草", zhPy: "ㄘㄠˇ", en: "Grass" },
+      { zh: "房子", zhPy: "ㄈㄤˊ ㄗˇ", en: "House" },
+      { zh: "學校", zhPy: "ㄒㄩㄝˊ ㄒㄧㄠˋ", en: "School" },
+      { zh: "公園", zhPy: "ㄍㄨㄥ ㄩㄢˊ", en: "Park" },
+      { zh: "海邊", zhPy: "ㄏㄞˇ ㄅㄧㄢ", en: "Beach" },
+      { zh: "白天", zhPy: "ㄅㄞˊ ㄊㄧㄢ", en: "Day" },
+      { zh: "夜晚", zhPy: "ㄧㄝˋ ㄨㄢˇ", en: "Night" }
     ];
 
     const oceanAnimals = [
@@ -714,7 +792,37 @@
       { file: "Seashell", name: "貝殼" },
       { file: "Seaurchin", name: "海膽" },
       { file: "Tropicalfish", name: "熱帶魚" },
-      { file: "Coral", name: "珊瑚" }
+      { file: "Coral", name: "珊瑚" },
+      { file: "Crab-2", name: "螃蟹" },
+      { file: "Octopus-2", name: "章魚" },
+      { file: "Shark-2", name: "鯊魚" },
+      { file: "Starfish-2", name: "海星" },
+      { file: "Belugawhale", name: "白鯨" },
+      { file: "Lion-1", name: "獅子" },
+      { file: "Elephant", name: "大象" },
+      { file: "Giraffe", name: "長頸鹿" },
+      { file: "Tiger", name: "老虎" },
+      { file: "Zebra", name: "斑馬" },
+      { file: "Monkey", name: "猴子" },
+      { file: "Panda", name: "熊貓" },
+      { file: "Kangaroo", name: "袋鼠" },
+      { file: "Sloth", name: "樹懶" },
+      { file: "Koala", name: "考拉" },
+      { file: "Fox", name: "狐狸" },
+      { file: "Wolf", name: "狼" },
+      { file: "Squirrel", name: "松鼠" },
+      { file: "Rabbit", name: "兔子" },
+      { file: "Hedgehog", name: "刺蝟" },
+      { file: "Cat", name: "貓咪" },
+      { file: "Dog", name: "狗狗" },
+      { file: "Pig", name: "豬" },
+      { file: "Cow", name: "牛" },
+      { file: "Sheep", name: "羊" },
+      { file: "Donkey", name: "驢子" },
+      { file: "Horse", name: "馬" },
+      { file: "Lion-2", name: "獅子" },
+      { file: "Dromedarycamel", name: "單峰駱駝" },
+      { file: "Bactriancamel", name: "雙峰駱駝" }
     ];
 
     let lastTouchEnd = 0;
@@ -1024,7 +1132,6 @@
       document.getElementById('timerSettingDisplay').innerText = timerSetting;
     }
 
-    // 調整目標圈數
     function changeTargetLaps(delta) {
       playClickSound();
       const input = document.getElementById('targetLapInput');
@@ -1034,7 +1141,6 @@
       checkWinCondition();
     }
 
-    // 調整目標挑戰數
     function changeTargetChallenges(delta) {
       playClickSound();
       const input = document.getElementById('targetChallengeInput');
@@ -1201,14 +1307,14 @@
       let correctAnswer = "";
       let options = [];
 
-      // 旋轉挑戰與擊飛挑戰專用倒數計時機制
+      // 針對動作類 (如 旋轉挑戰) 專用倒數機制
       if (level.type === 'action') {
         let actionSec = level.seconds || parseInt(level.target) || timerSetting;
         timerContainer.style.display = 'inline-block';
         let remainingTime = actionSec;
         timerBox.innerText = remainingTime;
 
-        qText.innerText = `[已扣 $${level.need}]\n任務目標：完成 ${selectedCategory.name} ${level.target}！\n請開始進行，時間到後點擊下方按鈕判定。`;
+        qText.innerText = `[已扣 $${level.need}]\n任務目標：完成 ${selectedCategory.name} ${level.target}！\n請開始進行，時間到後點擊下面按鈕判定。`;
 
         options = ["完成挑戰", "挑戰失敗"];
         correctAnswer = "完成挑戰";
@@ -1227,7 +1333,7 @@
 
         speakText(`任務目標：請完成 ${selectedCategory.name} ${level.target}，倒數開始！`);
       } else {
-        // 普通答題倒數
+        // 問答類等倒數計時
         timerContainer.style.display = 'inline-block';
         let remainingTime = timerSetting;
         timerBox.innerText = remainingTime;
@@ -1251,6 +1357,7 @@
           n2 = Math.floor(Math.random() * 8) + 5;
           ans = n1 + n2;
           qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} = ?`;
+
           speakText(`${n1} 加 ${n2} 等於多少？`);
         }
         else if (level.type === 'math_sub_2') {
@@ -1258,6 +1365,7 @@
           n2 = Math.floor(Math.random() * 8) + 1;
           ans = n1 - n2;
           qText.innerText = `[已扣 $${level.need}]\n題目：${n1} - ${n2} = ?`;
+
           speakText(`${n1} 減 ${n2} 等於多少？`);
         }
         else {
@@ -1266,6 +1374,7 @@
           n3 = Math.floor(Math.random() * 5) + 1;
           ans = n1 + n2 - n3;
           qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} - ${n3} = ?`;
+
           speakText(`${n1} 加 ${n2} 減 ${n3} 等於多少？`);
         }
 
