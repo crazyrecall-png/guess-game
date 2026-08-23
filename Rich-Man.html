@@ -45,8 +45,9 @@
 
     .game-container {
       width: 100%;
-      max-width: 560px;
-      height: 780px;
+      max-width: 700px;
+      height: 860px;
+      box-sizing: border-box;
       background: var(--board-bg);
       border: 4px solid #fab1a0;
       border-radius: 18px;
@@ -55,9 +56,13 @@
       gap: 3px;
       padding: 4px;
       position: relative;
+      overflow: hidden;
     }
 
     .cell {
+      min-width: 0;
+      min-height: 0;
+      box-sizing: border-box;
       background-color: var(--cell-bg);
       border: 2px solid var(--cell-border);
       border-radius: 8px;
@@ -112,6 +117,15 @@
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
       border: 2px dashed #dfe6e9;
       z-index: 1;
+
+      /* ★ 防止中央控制區內容變高後溢出，蓋住外框格子 */
+      min-width: 0;
+      min-height: 0;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
     .dashboard-title {
@@ -794,7 +808,7 @@
   <div class="game-container" id="board">
     <div class="center-dashboard" id="centerDashboard">
       <div class="dashboard-title">
-        🎲 歡樂大富翁 - Baby<span class="version-tag">v2.5.0</span>
+        🎲 歡樂大富翁 - Baby<span class="version-tag">v2.5.1</span>
       </div>
 
       <!-- 當前玩家標籤（含回到上一個玩家按鈕） -->
@@ -2742,6 +2756,11 @@ const choiceQuestions = [
       const centerDashboard = document.getElementById('centerDashboard');
       centerDashboard.style.gridColumn = `2 / ${cols}`;
       centerDashboard.style.gridRow = `2 / ${rows}`;
+      centerDashboard.style.minWidth = '0';
+      centerDashboard.style.minHeight = '0';
+      centerDashboard.style.width = '100%';
+      centerDashboard.style.height = '100%';
+      centerDashboard.style.boxSizing = 'border-box';
 
       updatePlayerPositionUI();
     }
