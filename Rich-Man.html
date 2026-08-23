@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v2.4.1 - 多人對戰版</title>
+  <title>可愛大富翁 v2.5 - 多人對戰版</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -765,7 +765,28 @@
     .lottery-number-btn:disabled { background:#b2bec3 !important; box-shadow:0 3px 0 #636e72 !important; opacity:.65; cursor:not-allowed; }
     .lottery-number-btn.mine { background:#6c5ce7; box-shadow:0 3px 0 #5846c7; }
     .lottery-draw-number { font-size:76px; line-height:1; font-weight:1000; color:#e84393; margin:12px 0; letter-spacing:3px; }
-    .lottery-draw-label { font-size:15px; color:#636e72; }
+
+    .move-dice-count-group {
+      display:flex; justify-content:center; align-items:center; gap:6px; margin:5px 0;
+    }
+    .move-dice-count-btn {
+      border:none; border-radius:8px; padding:5px 12px; font-weight:900;
+      background:#dfe6e9; color:#636e72; cursor:pointer; box-shadow:0 2px 0 #b2bec3;
+    }
+    .move-dice-count-btn.active {
+      background:#74b9ff; color:white; box-shadow:0 3px 0 #0984e3;
+    }
+    .move-dice-row {
+      display:flex; justify-content:center; align-items:center; gap:8px; margin:5px 0 8px;
+    }
+    .move-dice-box {
+      width:46px; height:46px; border-radius:11px; border:3px solid #6c5ce7;
+      background:linear-gradient(135deg,#dfe6e9,#a29bfe); color:#4834d4;
+      display:flex; align-items:center; justify-content:center; font-size:23px;
+      font-weight:900; box-shadow:0 3px 0 #6c5ce7;
+    }
+    .move-dice-box.rolling { animation:diceRoll .15s ease-in-out infinite; }
+        .lottery-draw-label { font-size:15px; color:#636e72; }
   </style>
 </head>
 <body>
@@ -773,7 +794,7 @@
   <div class="game-container" id="board">
     <div class="center-dashboard" id="centerDashboard">
       <div class="dashboard-title">
-        🎲 歡樂大富翁 - Baby<span class="version-tag">v2.2.0</span>
+        🎲 歡樂大富翁 - Baby<span class="version-tag">v2.5.0</span>
       </div>
 
       <!-- 當前玩家標籤（含回到上一個玩家按鈕） -->
@@ -819,6 +840,23 @@
       <div class="section-box section-box-large" style="border-color: #ff7675;">
         <div class="section-title section-title-large">🚶‍♂️ 移動玩家</div>
         <button class="btn btn-big" style="width:100%; background-color: #ff7675; box-shadow: 0 4px 0 #d63031; font-size: 18px !important;" onclick="openMoveModal()">🚶‍♂️ 按此選擇移動步數</button>
+      </div>
+
+      <div class="section-box section-box-large" style="border-color:#6c5ce7;">
+        <div class="section-title section-title-large">🎲 骰子移動</div>
+        <div style="font-size:12px;color:#636e72;">第一顆：1～3　第二、三顆：0～3</div>
+        <div class="move-dice-count-group" id="moveDiceCountGroup">
+          <button class="move-dice-count-btn active" onclick="setMoveDiceCount(1)">1 顆</button>
+          <button class="move-dice-count-btn" onclick="setMoveDiceCount(2)">2 顆</button>
+          <button class="move-dice-count-btn" onclick="setMoveDiceCount(3)">3 顆</button>
+        </div>
+        <div class="move-dice-row">
+          <div class="move-dice-box" id="moveDice1">1</div>
+          <div class="move-dice-box" id="moveDice2" style="display:none;">0</div>
+          <div class="move-dice-box" id="moveDice3" style="display:none;">0</div>
+        </div>
+        <button class="btn btn-big" style="width:100%;background:#6c5ce7;box-shadow:0 4px 0 #5846c7;" onclick="rollMoveDice()">🎲 擲骰並移動</button>
+        <div style="font-size:12px;color:#636e72;margin-top:4px;" id="moveDiceResult">選擇骰子數量後擲骰</div>
       </div>
     </div>
   </div>
@@ -874,6 +912,14 @@
           <button class="btn-adjust btn-minus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondChallengesInput', -1, 1)">-</button>
           <input type="number" id="winCondChallengesInput" value="20" min="1"> 次
           <button class="btn-adjust btn-plus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondChallengesInput', 1, 1)">+</button>
+        </div>
+      </div>
+      <div class="win-cond-item">
+        <label><input type="checkbox" id="winCondLapRewardCb"> 4. 每完成一圈獎勵：</label>
+        <div class="win-cond-control">
+          <button class="btn-adjust btn-minus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondLapRewardInput', -100, 0)">-</button>
+          $<input type="number" id="winCondLapRewardInput" value="1000" min="0" step="100"> 元
+          <button class="btn-adjust btn-plus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondLapRewardInput', 100, 0)">+</button>
         </div>
       </div>
     </div>
@@ -2556,6 +2602,7 @@ const choiceQuestions = [
     // ★ 注音／英文字母逐項朗讀時的停頓時間（毫秒）。
     let PRONUNCIATION_PAUSE = 500;
     let lotteryDrawTimer = null;
+    let moveDiceCount = 1;
 
     let setupTotalPlayers = 1;
     let setupCurrentConfigIdx = 0;
@@ -2905,6 +2952,70 @@ const choiceQuestions = [
       }, 800);
     }
 
+
+    function setMoveDiceCount(count) {
+      if (isMoving || isRolling) return;
+      playClickSound();
+      moveDiceCount = Math.max(1, Math.min(3, count));
+      document.querySelectorAll('#moveDiceCountGroup .move-dice-count-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 1 === moveDiceCount);
+      });
+      document.getElementById('moveDice2').style.display = moveDiceCount >= 2 ? 'flex' : 'none';
+      document.getElementById('moveDice3').style.display = moveDiceCount >= 3 ? 'flex' : 'none';
+      document.getElementById('moveDiceResult').innerText =
+        `本次使用 ${moveDiceCount} 顆骰子`;
+    }
+
+    function randomMoveDieValue(index) {
+      // 第 1 顆：1～3；第 2、3 顆：0～3。
+      return index === 0
+        ? Math.floor(Math.random() * 3) + 1
+        : Math.floor(Math.random() * 4);
+    }
+
+    async function rollMoveDice() {
+      if (isRolling || isMoving || !players.length) return;
+
+      isRolling = true;
+      playClickSound();
+
+      const boxes = [
+        document.getElementById('moveDice1'),
+        document.getElementById('moveDice2'),
+        document.getElementById('moveDice3')
+      ];
+
+      const activeBoxes = boxes.slice(0, moveDiceCount);
+      activeBoxes.forEach(b => b.classList.add('rolling'));
+
+      const rollInterval = setInterval(() => {
+        activeBoxes.forEach((box, idx) => {
+          box.innerText = randomMoveDieValue(idx);
+        });
+        playStepSound();
+      }, 70);
+
+      setTimeout(async () => {
+        clearInterval(rollInterval);
+
+        const values = activeBoxes.map((box, idx) => {
+          const value = randomMoveDieValue(idx);
+          box.innerText = value;
+          box.classList.remove('rolling');
+          return value;
+        });
+
+        const total = values.reduce((sum, v) => sum + v, 0);
+        document.getElementById('moveDiceResult').innerText =
+          `🎯 骰出 ${values.join(' + ')} = 前進 ${total} 格`;
+
+        isRolling = false;
+
+        // 第一顆一定至少 1，所以總步數不會是 0。
+        await movePlayerStepByStep(total);
+      }, 900);
+    }
+
     function customAdjustMoney(direction) {
       playClickSound();
       currentMoneyDir = direction;
@@ -2976,7 +3087,21 @@ const choiceQuestions = [
         p.totalStepsTaken += (direction > 0 ? 1 : -1);
         p.totalStepsTaken = Math.max(0, p.totalStepsTaken);
 
+        const previousLaps = p.completedLaps;
         p.completedLaps = Math.floor(p.totalStepsTaken / boardCellCount);
+
+        // ★ 每完成一圈獎勵：只有勾選後才發放；一次跨過多圈就逐圈計算。
+        const lapRewardCb = document.getElementById('winCondLapRewardCb');
+        if (lapRewardCb && lapRewardCb.checked && p.completedLaps > previousLaps) {
+          const lapReward = Math.max(0, parseInt(document.getElementById('winCondLapRewardInput').value, 10) || 0);
+          const completedNewLaps = p.completedLaps - previousLaps;
+          if (lapReward > 0) {
+            const reward = completedNewLaps * lapReward;
+            p.totalMoney += reward;
+            document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+          }
+        }
+
         updateOverallProgressUI();
 
         updatePlayerPositionUI();
@@ -3164,20 +3289,28 @@ const choiceQuestions = [
           const winningNumber = nums[Math.floor(Math.random()*nums.length)];
           numberEl.innerText = winningNumber;
           const winnerId = lotteryPurchases[winningNumber];
+          let hasWinner = false;
+
           if (winnerId !== undefined) {
             const winner = players.find(x => x.id === winnerId);
             if (winner) {
+              hasWinner = true;
               const prize = lotteryJackpot;
               winner.totalMoney += prize;
               resultEl.innerText = `🎉 ${winner.name} 中獎！獲得 $${prize} 元！`;
               speakText(`恭喜 ${winner.name}！樂透開出 ${winningNumber} 號，獲得 ${prize} 元！`);
             }
-          } else {
-            resultEl.innerText = `本次開出 ${winningNumber} 號，但沒有人購買這個號碼。`;
-            speakText(`本次開出 ${winningNumber} 號，但是沒有人購買這個號碼。`);
           }
-          lotteryJackpot = 0;
-          lotteryPurchases = {};
+
+          if (!hasWinner) {
+            resultEl.innerText = `本次開出 ${winningNumber} 號，但沒有人購買這個號碼。獎金與已購買號碼保留到下一次開獎！`;
+            speakText(`本次開出 ${winningNumber} 號，但是沒有人中獎，獎金與已購買號碼保留到下一次開獎。`);
+          } else {
+            // ★ 只有真正有人中獎，才重置獎金池與所有已購買號碼。
+            lotteryJackpot = 0;
+            lotteryPurchases = {};
+          }
+
           updateLotteryUI();
           updateCurrentPlayerBanner();
         }
