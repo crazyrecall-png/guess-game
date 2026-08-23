@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v2.4.0 - 多人對戰版</title>
+  <title>可愛大富翁 v2.4.1 - 多人對戰版</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -987,6 +987,7 @@
   <div class="modal-overlay" id="lotteryPurchaseModal">
     <div class="modal-content" style="border-color:#e84393; max-width:560px;">
       <div class="modal-title" style="color:#e84393;">🎰 樂透選號</div>
+      <input type="hidden" id="lotterySessionPurchasedCount" value="0">
       <div class="modal-desc" id="lotteryPurchaseText">花 $200 選一個號碼。每個號碼只能被購買一次。</div>
       <div class="modal-desc" style="font-size:14px; color:#636e72;" id="lotteryPlayerMoneyText">目前金額：$0</div>
       <div class="lottery-number-grid" id="lotteryNumberGrid"></div>
@@ -2402,7 +2403,7 @@ const choiceQuestions = [
     let lotteryPurchases = {}; // { "01": playerIndex, ... }
     let lotteryPendingPlayerIdx = null;
     // 每位玩家每輪最多購買的樂透號碼數，預設 1，可隨時調整。
-    let lotteryMaxNumbersPerPlayer = 1;
+    let lotteryMaxNumbersPerPurchase = 1;
     let lotteryDrawTimer = null;
 
     let setupTotalPlayers = 1;
@@ -2611,9 +2612,9 @@ const choiceQuestions = [
 
     function changeLotteryMaxNumbers(delta) {
       playClickSound();
-      lotteryMaxNumbersPerPlayer = Math.max(1, Math.min(18, lotteryMaxNumbersPerPlayer + delta));
+      lotteryMaxNumbersPerPurchase = Math.max(1, Math.min(18, lotteryMaxNumbersPerPurchase + delta));
       const el = document.getElementById('lotteryMaxNumbersDisplay');
-      if (el) el.innerText = `${lotteryMaxNumbersPerPlayer} 個`;
+      if (el) el.innerText = `${lotteryMaxNumbersPerPurchase} 個`;
       if (typeof renderLotteryNumberButtons === 'function' && document.getElementById('lotteryNumberGrid')) {
         renderLotteryNumberButtons();
       }
@@ -2899,6 +2900,8 @@ const choiceQuestions = [
     function openLotteryPurchase() {
       const p = players[currentPlayerIdx];
       lotteryPendingPlayerIdx = currentPlayerIdx;
+      const sessionCounter = document.getElementById("lotterySessionPurchasedCount");
+      if (sessionCounter) sessionCounter.value = "0";
       document.getElementById('lotteryPlayerMoneyText').innerText = `${p.name} 目前金額：$${p.totalMoney}`;
       document.getElementById('lotterySelectedText').innerText = `已購買：${getPlayerLotteryNumbers(p.id)}`;
       renderLotteryNumberButtons();
@@ -2912,9 +2915,11 @@ const choiceQuestions = [
       if (!grid) return;
       grid.innerHTML = '';
       const count = p ? getPlayerLotteryCount(p.id) : 0;
-      const reachedLimit = count >= lotteryMaxNumbersPerPlayer;
+      // 這裡的上限是「這一次踩到樂透時最多買幾個」，不是整輪累計上限。
+      const sessionPurchasedCount = Number(document.getElementById("lotterySessionPurchasedCount")?.value || 0);
+      const reachedLimit = sessionPurchasedCount >= lotteryMaxNumbersPerPurchase;
       const selected = document.getElementById('lotterySelectedText');
-      if (selected && p) selected.innerText = `已購買 ${count} / ${lotteryMaxNumbersPerPlayer} 個：${getPlayerLotteryNumbers(p.id) || '尚未購買'}`;
+      if (selected && p) selected.innerText = `已購買 ${count} / ${lotteryMaxNumbersPerPurchase} 個：${getPlayerLotteryNumbers(p.id) || '尚未購買'}`;
       for (let i=1; i<=18; i++) {
         const num = formatLotteryNumber(i);
         const btn = document.createElement('button');
@@ -2933,8 +2938,8 @@ const choiceQuestions = [
       const p = players[lotteryPendingPlayerIdx];
       if (!p || lotteryPurchases[num] !== undefined || p.totalMoney < 200) return;
       // 程式層再次檢查，避免只靠按鈕 disabled 而被繞過。
-      if (getPlayerLotteryCount(p.id) >= lotteryMaxNumbersPerPlayer) {
-        alert(`本輪每位玩家最多購買 ${lotteryMaxNumbersPerPlayer} 個樂透號碼。`);
+      if (Number(document.getElementById("lotterySessionPurchasedCount")?.value || 0) >= lotteryMaxNumbersPerPurchase) {
+        alert(`這次最多購買 ${lotteryMaxNumbersPerPurchase} 個樂透號碼。`);
         renderLotteryNumberButtons();
         return;
       }
@@ -2942,6 +2947,8 @@ const choiceQuestions = [
       p.totalMoney -= 200;
       lotteryPurchases[num] = p.id;
       lotteryJackpot += 300;
+      const sessionCounter = document.getElementById("lotterySessionPurchasedCount");
+      if (sessionCounter) sessionCounter.value = String(Number(sessionCounter.value || 0) + 1);
       document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
       document.getElementById('lotteryPlayerMoneyText').innerText = `${p.name} 目前金額：$${p.totalMoney}`;
       updateLotteryUI();
