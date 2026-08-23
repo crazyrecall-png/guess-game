@@ -3,25 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#5b67e8">
-  <title>數學冒險王 v2</title>
+  <meta name="theme-color" content="#ff8fa3">
+  <title>數學冒險王 👑</title>
 
   <style>
     :root {
-      --bg: #f5f7ff;
-      --card: #ffffff;
-      --text: #20243a;
-      --muted: #70758b;
-      --main: #5b67e8;
-      --main-dark: #454fd0;
-      --good: #18a66a;
-      --bad: #e05252;
-      --gold: #f4b942;
-      --line: #e7e9f5;
+      --bg-gradient: linear-gradient(135deg, #ffe5ec 0%, #fff0f5 50%, #e8dff5 100%);
+      --card: #ffffffd0;
+      --text: #5a3d5c;
+      --muted: #8e6c8f;
+      --main: #ff7597;
+      --main-dark: #e05275;
+      --good: #43c59e;
+      --bad: #ff6b6b;
+      --gold: #ffc038;
+      --line: #ffe5ec;
+      --shadow: 0 8px 25px rgba(255, 117, 151, 0.2);
     }
 
     * {
       box-sizing: border-box;
+      user-select: none;
     }
 
     html {
@@ -39,8 +41,8 @@
         "Microsoft JhengHei",
         sans-serif;
       color: var(--text);
-      background:
-        linear-gradient(160deg, #eef1ff 0%, #fff8ec 100%);
+      background: var(--bg-gradient);
+      background-attachment: fixed;
     }
 
     button {
@@ -55,7 +57,7 @@
     }
 
     button:focus-visible {
-      outline: 3px solid #8790ff;
+      outline: 3px solid #ff7597;
       outline-offset: 3px;
     }
 
@@ -74,9 +76,11 @@
     }
 
     .logo {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 900;
       white-space: nowrap;
+      color: #d81159;
+      text-shadow: 2px 2px 0px #fff;
     }
 
     .stats {
@@ -85,11 +89,14 @@
     }
 
     .pill {
-      padding: 8px 11px;
+      padding: 8px 14px;
       border-radius: 999px;
-      background: var(--card);
-      box-shadow: 0 4px 16px #0000000d;
-      font-size: 14px;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(216, 17, 89, 0.15);
+      font-size: 15px;
+      font-weight: bold;
+      color: #ff477e;
+      border: 2px solid #ffccd5;
       white-space: nowrap;
     }
 
@@ -99,26 +106,30 @@
 
     .screen.active {
       display: block;
-      animation: fadeIn 0.2s ease;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .hero {
       margin-bottom: 16px;
       padding: 24px;
-      border-radius: 28px;
-      background: var(--card);
-      box-shadow: 0 12px 35px #3c47851a;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow);
+      border: 3px solid #fff;
+      backdrop-filter: blur(5px);
     }
 
     h1 {
       margin: 0 0 8px;
-      font-size: 30px;
+      font-size: 28px;
       line-height: 1.25;
+      color: #ff477e;
     }
 
     h2 {
       margin: 4px 0 14px;
       line-height: 1.3;
+      color: #8338ec;
     }
 
     p {
@@ -139,16 +150,17 @@
     .stage {
       min-height: 155px;
       padding: 16px;
-      border-radius: 22px;
-      background: var(--card);
+      border-radius: 24px;
+      background: #ffffff;
       text-align: left;
-      box-shadow: 0 7px 20px #0000000d;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+      border: 3px solid #ffe5ec;
       transition: transform 0.15s, box-shadow 0.15s;
     }
 
     .stage:not(:disabled):hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 24px #00000015;
+      box-shadow: 0 10px 24px rgba(255, 117, 151, 0.25);
     }
 
     .stage:active {
@@ -157,6 +169,7 @@
 
     .stage.lock {
       opacity: 0.5;
+      filter: grayscale(60%);
     }
 
     .stage:disabled {
@@ -165,7 +178,7 @@
 
     .emoji {
       margin-bottom: 6px;
-      font-size: 32px;
+      font-size: 36px;
     }
 
     .stage-title {
@@ -173,6 +186,7 @@
       margin-bottom: 5px;
       font-size: 18px;
       font-weight: 800;
+      color: #ff477e;
     }
 
     .stage-desc {
@@ -180,31 +194,33 @@
     }
 
     .bar {
-      height: 8px;
+      height: 10px;
       overflow: hidden;
       border-radius: 8px;
-      background: #eceefa;
+      background: #ffe5ec;
     }
 
     .bar i {
       display: block;
       height: 100%;
       border-radius: inherit;
-      background: var(--main);
+      background: linear-gradient(90deg, #ff7597, #ffb3c1);
       transition: width 0.25s ease;
     }
 
     .primary,
     .secondary {
       padding: 13px 18px;
-      border-radius: 14px;
+      border-radius: 18px;
       font-weight: 800;
+      font-size: 16px;
       transition: transform 0.15s, filter 0.15s;
+      box-shadow: 0 4px 0px rgba(0,0,0,0.08);
     }
 
     .primary {
       color: #fff;
-      background: var(--main);
+      background: linear-gradient(180deg, #ff7597 0%, #ff477e 100%);
     }
 
     .primary:hover {
@@ -212,8 +228,9 @@
     }
 
     .secondary {
-      color: var(--main-dark);
-      background: #eef0ff;
+      color: #ff477e;
+      background: #ffe5ec;
+      border: 2px solid #ffb3c1;
     }
 
     .primary:active,
@@ -233,23 +250,43 @@
     }
 
     .back {
-      padding: 4px 0;
-      color: var(--muted);
-      background: transparent;
+      padding: 6px 14px;
+      color: #ff477e;
+      background: #ffe5ec;
+      border-radius: 12px;
       font-weight: 700;
     }
 
     .qbox {
-      padding: 20px 10px;
+      padding: 10px 10px;
       text-align: center;
+    }
+
+    .tts-btn {
+      background: #ffeb3b;
+      border: 2px solid #fbc02d;
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #5d4037;
+      box-shadow: 0 3px 0 #fbc02d;
+      margin-bottom: 12px;
+      transition: transform 0.1s;
+    }
+
+    .tts-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #fbc02d;
     }
 
     .question {
       min-height: 48px;
-      margin: 22px 0;
-      font-size: 36px;
+      margin: 16px 0;
+      font-size: 32px;
       font-weight: 900;
       line-height: 1.3;
+      color: #6c5ce7;
     }
 
     .visual {
@@ -266,36 +303,42 @@
     }
 
     .answer {
-      min-height: 64px;
-      padding: 17px;
-      border-radius: 17px;
+      min-height: 68px;
+      padding: 15px;
+      border-radius: 20px;
       color: var(--text);
-      background: #fff;
-      box-shadow: 0 6px 18px #0000000b;
-      font-size: 22px;
+      background: #ffffff;
+      border: 3px solid #ffccd5;
+      box-shadow: 0 5px 0px #ffccd5;
+      font-size: 26px;
       font-weight: 800;
       transition: transform 0.15s, background 0.15s;
     }
 
     .answer:not(:disabled):hover {
       transform: translateY(-2px);
-      background: #f7f8ff;
+      background: #fff5f7;
     }
 
     .answer.correct {
-      color: #087646;
-      background: #dcfaeb;
+      color: #fff;
+      background: #43c59e;
+      border-color: #25a17d;
+      box-shadow: 0 4px 0px #25a17d;
     }
 
     .answer.wrong {
-      color: #a92727;
-      background: #ffe5e5;
+      color: #fff;
+      background: #ff6b6b;
+      border-color: #e04848;
+      box-shadow: 0 4px 0px #e04848;
     }
 
     .feedback {
-      min-height: 62px;
-      padding: 14px;
+      min-height: 52px;
+      padding: 12px;
       text-align: center;
+      font-size: 18px;
       font-weight: 800;
     }
 
@@ -312,15 +355,15 @@
     }
 
     .big {
-      font-size: 50px;
+      font-size: 55px;
     }
 
     .progress {
-      height: 12px;
+      height: 14px;
       overflow: hidden;
-      margin-top: 18px;
+      margin-top: 14px;
       border-radius: 99px;
-      background: var(--line);
+      background: #ffe5ec;
     }
 
     .progress i {
@@ -328,7 +371,7 @@
       width: 0;
       height: 100%;
       border-radius: inherit;
-      background: var(--gold);
+      background: linear-gradient(90deg, #ffc038, #ff9f1c);
       transition: width 0.25s ease;
     }
 
@@ -349,15 +392,14 @@
       font-weight: 800;
     }
 
-    @keyframes fadeIn {
-      from {
+    @keyframes popIn {
+      0% {
+        transform: scale(0.92);
         opacity: 0;
-        transform: translateY(4px);
       }
-
-      to {
+      100% {
+        transform: scale(1);
         opacity: 1;
-        transform: translateY(0);
       }
     }
 
@@ -374,7 +416,7 @@
       }
 
       .logo {
-        font-size: 22px;
+        font-size: 24px;
       }
 
       .stats {
@@ -391,15 +433,15 @@
       }
 
       h1 {
-        font-size: 26px;
+        font-size: 24px;
       }
 
       .question {
-        font-size: 30px;
+        font-size: 26px;
       }
 
       .visual {
-        font-size: 34px;
+        font-size: 36px;
       }
 
       .primary,
@@ -423,7 +465,7 @@
   <div class="app">
 
     <header>
-      <div class="logo">🧠 數學冒險王</div>
+      <div class="logo">🧠 數學冒險王 👑</div>
 
       <div class="stats" aria-label="遊戲統計">
         <span class="pill">⭐ <span id="xp">0</span></span>
@@ -486,8 +528,8 @@
             ← 階段
           </button>
 
-          <b id="stageName"></b>
-          <span id="qnum">1/5</span>
+          <b id="stageName" style="color: #ff477e;"></b>
+          <span id="qnum" style="font-weight: bold; color: #8338ec;">1/5</span>
         </div>
 
         <div class="progress" aria-label="題目進度">
@@ -495,6 +537,7 @@
         </div>
 
         <div class="qbox">
+          <button id="speakBtn" class="tts-btn" type="button">🔊 唸題目給我聽</button>
           <div id="visual" class="visual" aria-live="polite"></div>
           <div id="question" class="question" aria-live="polite"></div>
           <div id="answers" class="answers"></div>
@@ -512,9 +555,9 @@
 
         <p id="resultText" class="sub"></p>
 
-        <p>
+        <p style="font-size: 18px;">
           本輪 XP：
-          <b id="earned">0</b>
+          <b id="earned" style="color: #ffc038; font-size: 22px;">0</b> ⭐
         </p>
 
         <div class="result-actions">
@@ -533,6 +576,77 @@
 
   <script>
     "use strict";
+
+    /*
+      Web Audio API 動態音效合成器
+    */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        osc.frequency.setValueAtTime(1046.50, now + 0.24); // C6
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(150, now + 0.25);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+    }
+
+    /*
+      SpeechSynthesis 語音朗讀 (TTS)
+    */
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel(); // 停止先前的朗讀
+
+      let speakContent = text
+        .replace(/＋|\+/g, " 加 ")
+        .replace(/－|-/g, " 減 ")
+        .replace(/×/g, " 乘以 ")
+        .replace(/÷/g, " 除以 ")
+        .replace(/=/g, " 等於 ")
+        .replace(/\?/g, " 多少 ")
+        .replace(/▭/g, "長方形")
+        .replace(/%/g, "百分之")
+        .replace(/(\d+)\/(\d+)/g, "$2分之$1"); // 將 1/2 轉為 2分之1
+
+      const utterance = new SpeechSynthesisUtterance(speakContent);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.85; // 放慢語速
+      utterance.pitch = 1.1; // 稍微拉高聲調顯得親切
+
+      window.speechSynthesis.speak(utterance);
+    }
 
     const STORAGE_KEY = "mathAdventureV2";
     const QUESTIONS_PER_ROUND = 5;
@@ -781,6 +895,7 @@
 
         if (unlocked) {
           button.addEventListener("click", () => {
+            playSound('click');
             startStage(index);
           });
         }
@@ -806,7 +921,7 @@
     }
 
     /*
-      題目產生
+      完整保留原本的 6 大題型邏輯
     */
 
     function createQuantityQuestion() {
@@ -1000,6 +1115,18 @@
       renderQuestion();
     }
 
+    function speakCurrentQuestion() {
+      const question = questions[questionIndex];
+      if (!question) return;
+
+      let speechText = `${question.text}。選項有：`;
+      question.options.forEach((opt, idx) => {
+        speechText += `第 ${idx + 1} 個選項，${opt}。`;
+      });
+
+      speakText(speechText);
+    }
+
     function renderQuestion() {
       const question = questions[questionIndex];
 
@@ -1032,11 +1159,15 @@
         button.dataset.value = option;
 
         button.addEventListener("click", () => {
+          speakText(`${option}`);
           handleAnswer(option, button);
         });
 
         answers.appendChild(button);
       });
+
+      // 自動朗讀題目
+      speakCurrentQuestion();
     }
 
     function handleAnswer(selectedAnswer, selectedButton) {
@@ -1059,6 +1190,7 @@
       });
 
       if (isCorrect) {
+        playSound('correct');
         earnedXP += XP_PER_CORRECT;
         state.xp += XP_PER_CORRECT;
 
@@ -1067,6 +1199,7 @@
 
         feedback.classList.add("good");
       } else {
+        playSound('wrong');
         selectedButton.classList.add("wrong");
 
         feedback.textContent =
@@ -1086,7 +1219,7 @@
         } else {
           finishRound();
         }
-      }, 850);
+      }, 1500);
     }
 
     function finishRound() {
@@ -1122,6 +1255,7 @@
         isLastStage ? "再次挑戰" : "下一關";
 
       show("result");
+      speakText(`恭喜完成！獲得了 ${earnedXP} 點經驗值！`);
     }
 
     function nextStage() {
@@ -1141,35 +1275,23 @@
       事件綁定
     */
 
-    $("continueBtn").addEventListener(
-      "click",
-      startRecommended
-    );
+    function bindBtn(id, action) {
+      const el = $(id);
+      if (el) {
+        el.addEventListener("click", () => {
+          playSound('click');
+          action();
+        });
+      }
+    }
 
-    $("chooseStageBtn").addEventListener(
-      "click",
-      () => show("stages")
-    );
-
-    $("backHomeBtn").addEventListener(
-      "click",
-      () => show("home")
-    );
-
-    $("backStagesBtn").addEventListener(
-      "click",
-      () => show("stages")
-    );
-
-    $("nextStageBtn").addEventListener(
-      "click",
-      nextStage
-    );
-
-    $("resultStagesBtn").addEventListener(
-      "click",
-      () => show("stages")
-    );
+    bindBtn("continueBtn", startRecommended);
+    bindBtn("chooseStageBtn", () => show("stages"));
+    bindBtn("backHomeBtn", () => show("home"));
+    bindBtn("backStagesBtn", () => show("stages"));
+    bindBtn("nextStageBtn", nextStage);
+    bindBtn("resultStagesBtn", () => show("stages"));
+    bindBtn("speakBtn", speakCurrentQuestion);
 
     /*
       初始化
