@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>可愛大富翁 v2.2.0 - 多人對戰版</title>
+  <title>可愛大富翁 v2.4.0 - 多人對戰版</title>
   <style>
     :root {
       --bg-color: #fef6e4;
@@ -756,6 +756,16 @@
     .science-explanation { white-space:pre-line; background:#fff9db; border:2px solid #fdcb6e; border-radius:12px; padding:10px 12px; margin-top:8px; color:#2d3436; font-size:15px; line-height:1.6; }
 
       .science-option-3, .science-option-4 { display:none !important; }
+
+    .lottery-jackpot-box { background:#fff0f6; border:2px dashed #e84393; border-radius:10px; padding:6px 10px; margin-top:6px; display:flex; justify-content:space-between; align-items:center; }
+    .lottery-jackpot-title { font-size:14px; font-weight:900; color:#b71540; }
+    .lottery-jackpot-value { font-size:22px; font-weight:900; color:#e84393; }
+    .lottery-number-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:7px; margin:10px 0 14px; }
+    .lottery-number-btn { border:none; border-radius:10px; padding:10px 4px; font-size:18px; font-weight:900; background:#f8a5c2; color:#fff; box-shadow:0 3px 0 #e84393; cursor:pointer; }
+    .lottery-number-btn:disabled { background:#b2bec3 !important; box-shadow:0 3px 0 #636e72 !important; opacity:.65; cursor:not-allowed; }
+    .lottery-number-btn.mine { background:#6c5ce7; box-shadow:0 3px 0 #5846c7; }
+    .lottery-draw-number { font-size:76px; line-height:1; font-weight:1000; color:#e84393; margin:12px 0; letter-spacing:3px; }
+    .lottery-draw-label { font-size:15px; color:#636e72; }
   </style>
 </head>
 <body>
@@ -788,6 +798,11 @@
             <div class="dice-box" id="stepDiceBox" onclick="rollSingleDice('step')">1</div>
             <button class="btn btn-big" style="background-color: #ff9f43; box-shadow: 0 4px 0 #ee5253;" onclick="rollSingleDice('step')">抽獎</button>
           </div>
+        </div>
+
+        <div class="lottery-jackpot-box">
+          <div class="lottery-jackpot-title">🎰 目前樂透累積獎金</div>
+          <div class="lottery-jackpot-value" id="lotteryJackpotDisplay">$0</div>
         </div>
 
         <div class="money-total-box">
@@ -885,6 +900,15 @@
     </div>
 
     <div class="filter-grid" id="filterGrid"></div>
+
+    <div style="background:#fff0f6;border:2px dashed #e84393;border-radius:10px;padding:8px 10px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <span style="font-size:14px;font-weight:bold;color:#b71540;">🎰 每位玩家每輪最多買：</span>
+      <div class="input-group">
+        <button class="btn-adjust btn-minus" style="width:30px;height:30px;" onclick="changeLotteryMaxNumbers(-1)">−</button>
+        <span class="stat-display" id="lotteryMaxNumbersDisplay" style="min-width:48px;text-align:center;font-size:20px;">1 個</span>
+        <button class="btn-adjust btn-plus" style="width:30px;height:30px;" onclick="changeLotteryMaxNumbers(1)">＋</button>
+      </div>
+    </div>
   </div>
 
   <!-- 再開一局按鈕 -->
@@ -960,12 +984,36 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="lotteryPurchaseModal">
+    <div class="modal-content" style="border-color:#e84393; max-width:560px;">
+      <div class="modal-title" style="color:#e84393;">🎰 樂透選號</div>
+      <div class="modal-desc" id="lotteryPurchaseText">花 $200 選一個號碼。每個號碼只能被購買一次。</div>
+      <div class="modal-desc" style="font-size:14px; color:#636e72;" id="lotteryPlayerMoneyText">目前金額：$0</div>
+      <div class="lottery-number-grid" id="lotteryNumberGrid"></div>
+      <div class="modal-desc" style="font-size:14px; color:#e84393;" id="lotterySelectedText">尚未選號</div>
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+        <button class="btn modal-btn" style="background:#2ed573; box-shadow:0 4px 0 #26af5f;" onclick="finishLotteryPurchase()">完成購買</button>
+        <button class="btn modal-btn" style="background:#ff7675; box-shadow:0 4px 0 #d63031;" onclick="cancelLotteryPurchase()">不購買</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="lotteryDrawModal">
+    <div class="modal-content" style="border-color:#e84393;">
+      <div class="modal-title" style="color:#e84393;" id="lotteryDrawTitle">🎰 樂透開獎</div>
+      <div class="lottery-draw-label">本次隨機開出號碼</div>
+      <div class="lottery-draw-number" id="lotteryDrawNumber">01</div>
+      <div class="modal-desc" id="lotteryDrawResult">開獎中……</div>
+      <button class="btn modal-btn" style="background:#e84393; box-shadow:0 4px 0 #b71540;" onclick="finishLotteryDraw()">確定（換下位）</button>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="diceModal">
     <div class="modal-content" style="border-color: #74b9ff;">
       <div class="modal-title" id="diceModalTitle" style="color: #0984e3;">🎲 骰子結果</div>
       <div class="modal-desc" id="diceModalPoint">骰出點數：0 點</div>
       <div class="modal-desc" style="color: #00b894; font-size: 20px;" id="diceModalMoney">獎品號碼：0 號</div>
-      <button class="btn modal-btn" onclick="closeModal('diceModal'); switchNextPlayer();">確定 (換下位)</button>
+      <button class="btn modal-btn" onclick="closeModal('diceModal');">確定</button>
     </div>
   </div>
 
@@ -2084,6 +2132,12 @@ const choiceQuestions = [
         ]
       },
       {
+        id: "lottery",
+        name: "🎰 樂透功能",
+        type: "lottery",
+        levels: []
+      },
+      {
         id: "math_mul_div",
         name: "數學挑戰(乘除)",
         type: "normal",
@@ -2343,6 +2397,13 @@ const choiceQuestions = [
     let currentMoneyDir = 1;
     let selectedCategory = null;
     let currentScienceExplanation = "";
+    // === 新增：樂透狀態 ===
+    let lotteryJackpot = 0;
+    let lotteryPurchases = {}; // { "01": playerIndex, ... }
+    let lotteryPendingPlayerIdx = null;
+    // 每位玩家每輪最多購買的樂透號碼數，預設 1，可隨時調整。
+    let lotteryMaxNumbersPerPlayer = 1;
+    let lotteryDrawTimer = null;
 
     let setupTotalPlayers = 1;
     let setupCurrentConfigIdx = 0;
@@ -2548,6 +2609,20 @@ const choiceQuestions = [
       }
     }
 
+    function changeLotteryMaxNumbers(delta) {
+      playClickSound();
+      lotteryMaxNumbersPerPlayer = Math.max(1, Math.min(18, lotteryMaxNumbersPerPlayer + delta));
+      const el = document.getElementById('lotteryMaxNumbersDisplay');
+      if (el) el.innerText = `${lotteryMaxNumbersPerPlayer} 個`;
+      if (typeof renderLotteryNumberButtons === 'function' && document.getElementById('lotteryNumberGrid')) {
+        renderLotteryNumberButtons();
+      }
+    }
+
+    function getPlayerLotteryCount(playerId) {
+      return Object.values(lotteryPurchases || {}).filter(id => id === playerId).length;
+    }
+
     function toggleAllFilters(enable) {
       playClickSound();
       const p = players[activeFilterTabIdx];
@@ -2588,6 +2663,7 @@ const choiceQuestions = [
           <div>💰 $${p.totalMoney}</div>
           <div>圈數: ${p.completedLaps}</div>
           <div>挑戰: ${p.successfulChallenges}</div>
+          <div>🎰 樂透: ${getPlayerLotteryNumbers(p.id)}</div>
         `;
         row.appendChild(card);
       });
@@ -2644,6 +2720,14 @@ const choiceQuestions = [
           document.getElementById('diceModalTitle').innerText = `🎁 ${p.name} - 抽獎結果`;
           document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
           document.getElementById('diceModalMoney').innerText = `獎品號碼：${finalValue} 號`;
+        }
+        const diceConfirmBtn = document.querySelector('#diceModal .modal-btn');
+        if (type === 'money') {
+          diceConfirmBtn.innerText = '確定 (換下位)';
+          diceConfirmBtn.onclick = () => { closeModal('diceModal'); switchNextPlayer(); };
+        } else {
+          diceConfirmBtn.innerText = '確定';
+          diceConfirmBtn.onclick = () => closeModal('diceModal');
         }
         openModal('diceModal');
       }, 800);
@@ -2799,6 +2883,135 @@ const choiceQuestions = [
       });
     }
 
+    function formatLotteryNumber(n) { return String(n).padStart(2, '0'); }
+
+    function getPlayerLotteryNumbers(playerId) {
+      const nums = Object.keys(lotteryPurchases).filter(n => lotteryPurchases[n] === playerId).sort((a,b)=>Number(a)-Number(b));
+      return nums.length ? nums.join('、') : '無';
+    }
+
+    function updateLotteryUI() {
+      const jackpotEl = document.getElementById('lotteryJackpotDisplay');
+      if (jackpotEl) jackpotEl.innerText = `$${lotteryJackpot}`;
+      updateOverallProgressUI();
+    }
+
+    function openLotteryPurchase() {
+      const p = players[currentPlayerIdx];
+      lotteryPendingPlayerIdx = currentPlayerIdx;
+      document.getElementById('lotteryPlayerMoneyText').innerText = `${p.name} 目前金額：$${p.totalMoney}`;
+      document.getElementById('lotterySelectedText').innerText = `已購買：${getPlayerLotteryNumbers(p.id)}`;
+      renderLotteryNumberButtons();
+      openModal('lotteryPurchaseModal');
+      speakText(`${p.name} 可以花兩百元購買一個樂透號碼。`);
+    }
+
+    function renderLotteryNumberButtons() {
+      const grid = document.getElementById('lotteryNumberGrid');
+      const p = players[lotteryPendingPlayerIdx];
+      if (!grid) return;
+      grid.innerHTML = '';
+      const count = p ? getPlayerLotteryCount(p.id) : 0;
+      const reachedLimit = count >= lotteryMaxNumbersPerPlayer;
+      const selected = document.getElementById('lotterySelectedText');
+      if (selected && p) selected.innerText = `已購買 ${count} / ${lotteryMaxNumbersPerPlayer} 個：${getPlayerLotteryNumbers(p.id) || '尚未購買'}`;
+      for (let i=1; i<=18; i++) {
+        const num = formatLotteryNumber(i);
+        const btn = document.createElement('button');
+        btn.className = 'lottery-number-btn';
+        const sold = lotteryPurchases[num] !== undefined;
+        const affordable = p && p.totalMoney >= 200;
+        if (sold) btn.classList.add('mine');
+        btn.innerText = num;
+        btn.disabled = sold || !affordable || reachedLimit;
+        if (!sold && affordable && !reachedLimit) btn.onclick = () => buyLotteryNumber(num);
+        grid.appendChild(btn);
+      }
+    }
+
+    function buyLotteryNumber(num) {
+      const p = players[lotteryPendingPlayerIdx];
+      if (!p || lotteryPurchases[num] !== undefined || p.totalMoney < 200) return;
+      // 程式層再次檢查，避免只靠按鈕 disabled 而被繞過。
+      if (getPlayerLotteryCount(p.id) >= lotteryMaxNumbersPerPlayer) {
+        alert(`本輪每位玩家最多購買 ${lotteryMaxNumbersPerPlayer} 個樂透號碼。`);
+        renderLotteryNumberButtons();
+        return;
+      }
+      playClickSound();
+      p.totalMoney -= 200;
+      lotteryPurchases[num] = p.id;
+      lotteryJackpot += 300;
+      document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+      document.getElementById('lotteryPlayerMoneyText').innerText = `${p.name} 目前金額：$${p.totalMoney}`;
+      updateLotteryUI();
+      renderLotteryNumberButtons();
+    }
+
+    function finishLotteryPurchase() {
+      playClickSound();
+      const p = players[lotteryPendingPlayerIdx];
+      closeModal('lotteryPurchaseModal');
+      if (p) {
+        updateCurrentPlayerBanner();
+        updateOverallProgressUI();
+      }
+      lotteryPendingPlayerIdx = null;
+      switchNextPlayer();
+    }
+
+    function cancelLotteryPurchase() {
+      closeModal('lotteryPurchaseModal');
+      lotteryPendingPlayerIdx = null;
+      switchNextPlayer();
+    }
+
+    function triggerLotteryDraw() {
+      closeModal('askChallengeModal');
+      if (lotteryDrawTimer) clearInterval(lotteryDrawTimer);
+      const nums = Array.from({length:18}, (_,i)=>formatLotteryNumber(i+1));
+      const numberEl = document.getElementById('lotteryDrawNumber');
+      const resultEl = document.getElementById('lotteryDrawResult');
+      document.getElementById('lotteryDrawTitle').innerText = '🎰 樂透開獎';
+      resultEl.innerText = '號碼抽選中……';
+      openModal('lotteryDrawModal');
+
+      let ticks = 0;
+      lotteryDrawTimer = setInterval(() => {
+        numberEl.innerText = nums[Math.floor(Math.random()*nums.length)];
+        ticks++;
+        if (ticks >= 25) {
+          clearInterval(lotteryDrawTimer);
+          lotteryDrawTimer = null;
+          const winningNumber = nums[Math.floor(Math.random()*nums.length)];
+          numberEl.innerText = winningNumber;
+          const winnerId = lotteryPurchases[winningNumber];
+          if (winnerId !== undefined) {
+            const winner = players.find(x => x.id === winnerId);
+            if (winner) {
+              const prize = lotteryJackpot;
+              winner.totalMoney += prize;
+              resultEl.innerText = `🎉 ${winner.name} 中獎！獲得 $${prize} 元！`;
+              speakText(`恭喜 ${winner.name}！樂透開出 ${winningNumber} 號，獲得 ${prize} 元！`);
+            }
+          } else {
+            resultEl.innerText = `本次開出 ${winningNumber} 號，但沒有人購買這個號碼。`;
+            speakText(`本次開出 ${winningNumber} 號，但是沒有人購買這個號碼。`);
+          }
+          lotteryJackpot = 0;
+          lotteryPurchases = {};
+          updateLotteryUI();
+          updateCurrentPlayerBanner();
+        }
+      }, 70);
+    }
+
+    function finishLotteryDraw() {
+      if (lotteryDrawTimer) { clearInterval(lotteryDrawTimer); lotteryDrawTimer = null; }
+      closeModal('lotteryDrawModal');
+      switchNextPlayer();
+    }
+
     function triggerChallengePrompt() {
       const p = players[currentPlayerIdx];
       const activeCategories = challengeCategories.filter(cat => p.challenges.includes(cat.id));
@@ -2811,6 +3024,17 @@ const choiceQuestions = [
 
       const randIdx = Math.floor(Math.random() * activeCategories.length);
       selectedCategory = activeCategories[randIdx];
+
+      // 樂透是獨立事件：踩到後 80% 進入購買，20% 直接開獎。
+      if (selectedCategory.id === 'lottery') {
+        playChallengeAlertSound();
+        if (Math.random() < 0.8) {
+          openLotteryPurchase();
+        } else {
+          triggerLotteryDraw();
+        }
+        return;
+      }
       
       playChallengeAlertSound();
       document.getElementById('askChallengeName').innerText = `${p.name} 踩到了挑戰格！【${selectedCategory.name}】\n請選擇是否挑戰！`;
@@ -3506,6 +3730,9 @@ const choiceQuestions = [
 
     function resetGame() {
       playClickSound();
+      lotteryJackpot = 0;
+      lotteryPurchases = {};
+      lotteryPendingPlayerIdx = null;
       if (countdownInterval) clearInterval(countdownInterval);
       closeModal('winModal');
       initGameSetup();
