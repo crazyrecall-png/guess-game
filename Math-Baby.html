@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ff8fa3">
+  <title>夢幻數學城堡 👑</title>
+
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #ffe5ec 0%, #fff0f5 50%, #e8dff5 100%);
+      --card: #ffffffd0;
+      --text: #5a3d5c;
+      --muted: #8e6c8f;
+      --main: #ff7597;
+      --main-dark: #e05275;
+      --good: #43c59e;
+      --bad: #ff6b6b;
+      --gold: #ffc038;
+      --accent: #b5838d;
+      --shadow: 0 8px 25px rgba(255, 117, 151, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Comic Sans MS", "Chalkboard SE", "YuGothic", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .app {
+      width: min(100%, 720px);
+      margin: 0 auto;
+      padding: 18px 14px 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 900;
+      color: #d81159;
+      text-shadow: 2px 2px 0px #fff;
+    }
+
+    .stats {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(216, 17, 89, 0.15);
+      font-size: 16px;
+      font-weight: bold;
+      color: #ff477e;
+      border: 2px solid #ffccd5;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .hero {
+      margin-bottom: 18px;
+      padding: 24px;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow);
+      border: 3px solid #fff;
+      backdrop-filter: blur(5px);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      color: #ff477e;
+      text-align: center;
+    }
+
+    h2 {
+      margin: 4px 0 14px;
+      color: #8338ec;
+    }
+
+    .sub {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .stage {
+      min-height: 150px;
+      padding: 16px;
+      border-radius: 24px;
+      background: #ffffff;
+      text-align: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+      border: 3px solid #ffe5ec;
+      transition: all 0.2s;
+    }
+
+    .stage:not(:disabled):active {
+      transform: scale(0.95);
+    }
+
+    .stage.lock {
+      opacity: 0.5;
+      filter: grayscale(60%);
+    }
+
+    .emoji {
+      margin-bottom: 4px;
+      font-size: 38px;
+    }
+
+    .stage-title {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #ff477e;
+    }
+
+    .bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #ffe5ec;
+      margin-top: 8px;
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ff7597, #ffb3c1);
+      transition: width 0.3s ease;
+    }
+
+    .primary, .secondary {
+      padding: 14px 22px;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: 800;
+      box-shadow: 0 5px 0px rgba(0,0,0,0.1);
+      transition: transform 0.1s;
+    }
+
+    .primary {
+      color: #fff;
+      background: linear-gradient(180deg, #ff7597 0%, #ff477e 100%);
+    }
+
+    .secondary {
+      color: #ff477e;
+      background: #ffe5ec;
+      border: 2px solid #ffb3c1;
+    }
+
+    .primary:active, .secondary:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0px rgba(0,0,0,0.1);
+    }
+
+    .toprow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back {
+      padding: 6px 14px;
+      color: #ff477e;
+      background: #ffe5ec;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    .qbox {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .question {
+      min-height: 48px;
+      margin: 16px 0;
+      font-size: 32px;
+      font-weight: 900;
+      color: #6c5ce7;
+    }
+
+    .visual {
+      min-height: 70px;
+      font-size: 48px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .answer {
+      min-height: 75px;
+      padding: 12px;
+      border-radius: 24px;
+      color: #5a3d5c;
+      background: #ffffff;
+      border: 3px solid #ffccd5;
+      box-shadow: 0 6px 0px #ffccd5;
+      font-size: 28px;
+      font-weight: 800;
+      transition: all 0.1s;
+    }
+
+    .answer:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0px #ffccd5;
+    }
+
+    .answer.correct {
+      color: #fff;
+      background: #43c59e;
+      border-color: #25a17d;
+      box-shadow: 0 4px 0px #25a17d;
+    }
+
+    .answer.wrong {
+      color: #fff;
+      background: #ff6b6b;
+      border-color: #e04848;
+      box-shadow: 0 4px 0px #e04848;
+    }
+
+    .tts-btn {
+      background: #ffeb3b;
+      border: 2px solid #fbc02d;
+      border-radius: 50px;
+      padding: 8px 16px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #5d4037;
+      box-shadow: 0 3px 0 #fbc02d;
+      margin-bottom: 10px;
+    }
+
+    .tts-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #fbc02d;
+    }
+
+    .feedback {
+      min-height: 50px;
+      padding: 10px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .feedback.good { color: var(--good); }
+    .feedback.bad { color: var(--bad); }
+
+    .center { text-align: center; }
+    .big { font-size: 60px; }
+
+    .progress {
+      height: 16px;
+      overflow: hidden;
+      margin-top: 10px;
+      border-radius: 99px;
+      background: #ffe5ec;
+    }
+
+    .progress i {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffc038, #ff9f1c);
+      transition: width 0.3s ease;
+    }
+
+    .modeBtns, .result-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .question { font-size: 26px; }
+      .visual { font-size: 38px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <header>
+      <div class="logo">👑 夢幻城堡</div>
+
+      <div class="stats">
+        <span class="pill">⭐ <span id="xp">0</span></span>
+        <span class="pill">👑 Lv.<span id="level">1</span></span>
+      </div>
+    </header>
+
+    <!-- 首頁 -->
+    <section id="home" class="screen active">
+      <div class="hero center">
+        <div style="font-size: 60px;">🏰</div>
+        <h1>小公主數學大冒險</h1>
+        <p class="sub">專為小朋友設計的快樂數學闖關遊戲！</p>
+
+        <div class="modeBtns">
+          <button id="continueBtn" class="primary" type="button">▶ 開始玩耍</button>
+          <button id="chooseStageBtn" class="secondary" type="button">🗺️ 選擇地圖</button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <h2>🌟 今日小任務</h2>
+        <p id="daily" class="sub"></p>
+      </div>
+    </section>
+
+    <!-- 階段地圖 -->
+    <section id="stages" class="screen">
+      <div class="hero">
+        <div class="toprow">
+          <h2>🗺️ 魔法世界</h2>
+          <button id="backHomeBtn" class="back" type="button">← 返回</button>
+        </div>
+      </div>
+
+      <div id="stageGrid" class="grid"></div>
+    </section>
+
+    <!-- 答題畫面 -->
+    <section id="quiz" class="screen">
+      <div class="hero">
+        <div class="toprow">
+          <button id="backStagesBtn" class="back" type="button">← 選關</button>
+          <b id="stageName" style="color:#ff477e;"></b>
+          <span id="qnum" style="font-weight:bold; color:#8338ec;">1/5</span>
+        </div>
+
+        <div class="progress"><i id="qprog"></i></div>
+
+        <div class="qbox">
+          <button id="speakBtn" class="tts-btn" type="button">🔊 唸題目給我聽</button>
+          <div id="visual" class="visual"></div>
+          <div id="question" class="question"></div>
+          <div id="answers" class="answers"></div>
+          <div id="feedback" class="feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 結果畫面 -->
+    <section id="result" class="screen">
+      <div class="hero center">
+        <div id="resultEmoji" class="big">🎉</div>
+        <h1 id="resultTitle">太棒了！</h1>
+        <p id="resultText" class="sub"></p>
+        <p style="font-size: 20px;">獲得星星：<b id="earned" style="color:#ffc038;">0</b> ⭐</p>
+
+        <div class="result-actions">
+          <button id="nextStageBtn" class="primary" type="button">下一關 🚀</button>
+          <button id="resultStagesBtn" class="secondary" type="button">回地圖 🗺️</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    "use strict";
+
+    /* --- 可愛 Web Audio 音效產生器 --- */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        osc.frequency.setValueAtTime(1046.50, now + 0.24); // C6
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(150, now + 0.25);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+    }
+
+    /* --- 語音朗讀 (TTS) 功能 --- */
+    function speakText(text, onEnd) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel(); // 停止先前的朗讀
+
+      // 簡化適合小朋友聽的文字轉換
+      let speakContent = text
+        .replace(/＋|\+/g, "加")
+        .replace(/－|-/g, "減")
+        .replace(/×/g, "乘以")
+        .replace(/÷/g, "除以")
+        .replace(/=/g, "等於")
+        .replace(/\?/g, "多少")
+        .replace(/▭/g, "長方形");
+
+      const utterance = new SpeechSynthesisUtterance(speakContent);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.85; // 語速稍微放慢適合幼兒
+      utterance.pitch = 1.2; // 音調稍微提高，聽起來較親切
+
+      if (onEnd) utterance.onend = onEnd;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    /* --- 遊戲數據與邏輯 --- */
+    const STORAGE_KEY = "mathPrincessV1";
+    const QUESTIONS_PER_ROUND = 5;
+    const XP_PER_CORRECT = 20;
+
+    const stages = [
+      { id: 1, emoji: "🍓", name: "草莓森林", desc: "數一數、比大小" },
+      { id: 2, emoji: "🦄", name: "獨角獸村", desc: "認識數字 0~100" },
+      { id: 3, emoji: "糖果屋", name: "糖果小鎮", desc: "基礎加法與減法" },
+      { id: 4, emoji: "🎀", name: "蝴蝶結園", desc: "簡單乘法與分配" },
+      { id: 5, emoji: "👑", name: "公主城堡", desc: "認識形狀與邊長" },
+      { id: 6, emoji: "💎", name: "寶石王國", desc: "平分與簡單分數" }
+    ];
+
+    const defaultState = { xp: 0, progress: [0, 0, 0, 0, 0, 0], best: 0, dailyDone: "" };
+    let state = loadState();
+    let currentStage = 0;
+    let questionIndex = 0;
+    let questions = [];
+    let earnedXP = 0;
+    let isAnswering = false;
+
+    const $ = id => document.getElementById(id);
+
+    function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function shuffle(array) { return [...array].sort(() => Math.random() - 0.5); }
+    function getTodayKey() { return new Date().toISOString().split('T')[0]; }
+
+    function createOptions(answer, min = 0, max = 10) {
+      const options = new Set([answer]);
+      while (options.size < 4) {
+        let val = randomInt(min, max);
+        if (val !== answer) options.add(val);
+      }
+      return shuffle([...options]);
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return saved ? { ...defaultState, ...saved } : { ...defaultState };
+      } catch {
+        return { ...defaultState };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateHeader();
+      renderStages();
+    }
+
+    function show(screenId) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      const target = $(screenId);
+      if (target) {
+        target.classList.add("active");
+        updateHeader();
+        if (screenId === "stages") renderStages();
+      }
+    }
+
+    function updateHeader() {
+      $("xp").textContent = state.xp;
+      $("level").textContent = 1 + Math.floor(state.xp / 100);
+      const dailyCompleted = state.dailyDone === getTodayKey();
+      $("daily").textContent = dailyCompleted ? "🎉 今日任務完成！好棒喔！" : "完成任一關卡 1 次就可以獲得好禮！";
+    }
+
+    function isStageUnlocked(index) {
+      return index === 0 || state.progress[index - 1] >= 1;
+    }
+
+    function renderStages() {
+      const grid = $("stageGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      stages.forEach((stage, index) => {
+        const unlocked = isStageUnlocked(index);
+        const completed = state.progress[index];
+        const percent = Math.min(100, completed * 20);
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `stage ${unlocked ? "" : "lock"}`;
+        button.disabled = !unlocked;
+
+        button.innerHTML = `
+          <div class="emoji">${stage.emoji}</div>
+          <span class="stage-title">${stage.name}</span>
+          <div class="small" style="color:#8e6c8f">${stage.desc}</div>
+          <div class="bar"><i style="width: ${percent}%"></i></div>
+        `;
+
+        if (unlocked) {
+          button.addEventListener("click", () => {
+            playSound('click');
+            startStage(index);
+          });
+        }
+        grid.appendChild(button);
+      });
+    }
+
+    /* --- 題目生成器 (適齡6歲) --- */
+    function createQuestion(stageIndex) {
+      if (stageIndex === 0) {
+        // 1. 數一數/比大小
+        let a = randomInt(1, 5), b = randomInt(1, 5);
+        while (a === b) b = randomInt(1, 5);
+        const askMore = Math.random() < 0.5;
+        const answer = askMore ? Math.max(a, b) : Math.min(a, b);
+        return {
+          visual: `${"🍓".repeat(a)} <br> ${"🍎".repeat(b)}`,
+          text: askMore ? "哪一種水果比較多？" : "哪一種水果比較少？",
+          answer,
+          options: createOptions(answer, 1, 6)
+        };
+      } else if (stageIndex === 1) {
+        // 2. 認識數字
+        let a = randomInt(1, 20), b = randomInt(1, 20);
+        while (a === b) b = randomInt(1, 20);
+        const answer = Math.max(a, b);
+        return {
+          visual: "🔢",
+          text: `${a} 和 ${b}，哪一個數字比較大？`,
+          answer,
+          options: createOptions(answer, 1, 20)
+        };
+      } else if (stageIndex === 2) {
+        // 3. 加減法 (10以內)
+        let isAdd = Math.random() < 0.6;
+        if (isAdd) {
+          let a = randomInt(1, 5), b = randomInt(1, 5);
+          return { visual: "➕", text: `${a} 加 ${b} 等於多少？`, answer: a + b, options: createOptions(a + b, 1, 10) };
+        } else {
+          let a = randomInt(2, 8), b = randomInt(1, a);
+          return { visual: "➖", text: `${a} 減 ${b} 等於多少？`, answer: a - b, options: createOptions(a - b, 0, 8) };
+        }
+      } else {
+        // 4~6. 簡化版的普遍題目
+        let a = randomInt(1, 5), b = randomInt(1, 5);
+        return { visual: "⭐", text: `${a} 加 ${b} 等於多少？`, answer: a + b, options: createOptions(a + b, 1, 10) };
+      }
+    }
+
+    function startStage(index) {
+      currentStage = index;
+      questionIndex = 0;
+      earnedXP = 0;
+      isAnswering = false;
+      questions = Array.from({ length: QUESTIONS_PER_ROUND }, () => createQuestion(index));
+
+      $("stageName").textContent = `${stages[index].emoji} ${stages[index].name}`;
+      show("quiz");
+      renderQuestion();
+    }
+
+    function speakCurrentQuestion() {
+      const q = questions[questionIndex];
+      if (!q) return;
+      
+      // 組合題目與選項語音
+      let fullText = `${q.text}。選項有：`;
+      q.options.forEach((opt, idx) => {
+        fullText += ` 第${idx + 1}個：${opt}。`;
+      });
+      speakText(fullText);
+    }
+
+    function renderQuestion() {
+      const q = questions[questionIndex];
+      if (!q) return;
+
+      $("qnum").textContent = `${questionIndex + 1}/${QUESTIONS_PER_ROUND}`;
+      $("qprog").style.width = `${(questionIndex / QUESTIONS_PER_ROUND) * 100}%`;
+      $("visual").innerHTML = q.visual;
+      $("question").textContent = q.text;
+
+      const feedback = $("feedback");
+      feedback.textContent = "";
+      feedback.className = "feedback";
+
+      const answers = $("answers");
+      answers.innerHTML = "";
+
+      q.options.forEach(option => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "answer";
+        button.textContent = option;
+
+        button.addEventListener("click", () => {
+          speakText(`${option}`); // 點擊選項時唸出該數字
+          handleAnswer(option, button);
+        });
+
+        answers.appendChild(button);
+      });
+
+      // 自動朗讀題目
+      speakCurrentQuestion();
+    }
+
+    function handleAnswer(selected, buttonEl) {
+      if (isAnswering) return;
+      isAnswering = true;
+
+      const q = questions[questionIndex];
+      const isCorrect = selected === q.answer;
+      const feedback = $("feedback");
+
+      document.querySelectorAll("#answers .answer").forEach(btn => btn.disabled = true);
+
+      if (isCorrect) {
+        playSound('correct');
+        earnedXP += XP_PER_CORRECT;
+        state.xp += XP_PER_CORRECT;
+        buttonEl.classList.add("correct");
+        feedback.textContent = "🎉 太棒了！答對囉！";
+        feedback.classList.add("good");
+        speakText("答對了！你真聰明！");
+      } else {
+        playSound('wrong');
+        buttonEl.classList.add("wrong");
+        feedback.textContent = `💡 正確答案是 ${q.answer} 喔！`;
+        feedback.classList.add("bad");
+        speakText(`沒關係，正確答案是${q.answer}`);
+      }
+
+      saveState();
+
+      setTimeout(() => {
+        questionIndex++;
+        isAnswering = false;
+        if (questionIndex < QUESTIONS_PER_ROUND) {
+          renderQuestion();
+        } else {
+          finishRound();
+        }
+      }, 2000);
+    }
+
+    function finishRound() {
+      state.progress[currentStage] = Math.min(5, state.progress[currentStage] + 1);
+      if (state.dailyDone !== getTodayKey()) state.dailyDone = getTodayKey();
+      saveState();
+
+      $("resultEmoji").textContent = earnedXP >= 60 ? "👑" : "🌟";
+      $("resultTitle").textContent = earnedXP >= 60 ? "太厲害了！公主！" : "挑戰完成！";
+      $("resultText").textContent = "你今天又變聰明囉！";
+      $("earned").textContent = earnedXP;
+
+      show("result");
+      speakText(`恭喜你完成挑戰！獲得了${earnedXP}顆星星！`);
+    }
+
+    /* --- 按鈕事件綁定與音效觸加 --- */
+    function bindBtn(id, action) {
+      const el = $(id);
+      if (el) {
+        el.addEventListener("click", () => {
+          playSound('click');
+          action();
+        });
+      }
+    }
+
+    bindBtn("continueBtn", () => startStage(0));
+    bindBtn("chooseStageBtn", () => show("stages"));
+    bindBtn("backHomeBtn", () => show("home"));
+    bindBtn("backStagesBtn", () => show("stages"));
+    bindBtn("nextStageBtn", () => startStage((currentStage + 1) % stages.length));
+    bindBtn("resultStagesBtn", () => show("stages"));
+    bindBtn("speakBtn", () => speakCurrentQuestion());
+
+    updateHeader();
+  </script>
+</body>
+</html>
