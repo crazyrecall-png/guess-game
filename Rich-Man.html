@@ -2370,7 +2370,7 @@ const choiceQuestions = [
     }
 
     // ★ 注音／英文字母專用朗讀：每個項目念完後停頓，速度獨立可調。
-    function speakPronunciationSequence(items, lang = 'zh-TW') {
+    function speakPronunciationSequence(items, lang = 'zh-TW', mode = 'whole') {
       if (!('speechSynthesis' in window)) return;
 
       window.speechSynthesis.cancel();
@@ -2378,26 +2378,37 @@ const choiceQuestions = [
       const isEnglish = lang.toLowerCase().startsWith('en');
       const rate = isEnglish ? SPEECH_RATE_ENGLISH : SPEECH_RATE_BOPOMOFO;
 
-      // 英文字母題：ABC / AB / aBc 一律拆成 A → B → C。
-      // 英文單字題：apple / cat 等維持完整單字，不拆。
+      // 英文字母不能直接把「大寫 I」交給 TTS，
+      // 否則部分系統會念成 "capital I"。
+      // 改用標準字母名稱的可朗讀文字，但畫面仍顯示原本的 A/B/C。
+      const letterNames = {
+        A: 'ay', B: 'bee', C: 'see', D: 'dee', E: 'ee',
+        F: 'ef', G: 'gee', H: 'aitch', I: 'eye', J: 'jay',
+        K: 'kay', L: 'el', M: 'em', N: 'en', O: 'oh',
+        P: 'pee', Q: 'cue', R: 'ar', S: 'ess', T: 'tee',
+        U: 'you', V: 'vee', W: 'double you', X: 'ex',
+        Y: 'why', Z: 'zee'
+      };
+
       let queue = [];
 
-      if (isEnglish) {
+      if (isEnglish && mode === 'letters') {
         items.forEach(item => {
-          const text = String(item || '').trim();
-
-          // 只有純英文字母串才拆開；含數字、空白或其他字元則維持原樣。
-          if (/^[A-Za-z]+$/.test(text) && text.length > 1) {
-            queue.push(...text.toUpperCase().split(''));
-          } else {
-            queue.push(text);
+          const text = String(item || '').trim().toUpperCase();
+          for (const ch of text) {
+            if (letterNames[ch]) {
+              queue.push({ display: ch, audio: letterNames[ch] });
+            }
           }
         });
       } else {
-        queue = items.map(x => String(x || '').trim());
+        queue = items
+          .map(x => {
+            const text = String(x || '').trim();
+            return { display: text, audio: text };
+          })
+          .filter(x => x.audio);
       }
-
-      queue = queue.filter(Boolean);
 
       let index = 0;
 
@@ -2405,23 +2416,19 @@ const choiceQuestions = [
         const voices = window.speechSynthesis.getVoices();
 
         if (isEnglish) {
-          // 優先使用英文 voice，避免 iOS 把內容交給中文 voice 猜讀。
-          const preferred =
-            voices.find(v => /^en-US$/i.test(v.lang)) ||
-            voices.find(v => /^en-GB$/i.test(v.lang)) ||
-            voices.find(v => /^en/i.test(v.lang));
-          return preferred || null;
+          return voices.find(v => /^en-US$/i.test(v.lang)) ||
+                 voices.find(v => /^en-GB$/i.test(v.lang)) ||
+                 voices.find(v => /^en/i.test(v.lang)) || null;
         }
 
-        const voice = preferredTeacherVoice || selectTeacherVoice(lang);
-        return voice || null;
+        return preferredTeacherVoice || selectTeacherVoice(lang) || null;
       }
 
       function playNext() {
         if (index >= queue.length) return;
 
-        const text = queue[index++];
-        const utterance = new SpeechSynthesisUtterance(text);
+        const item = queue[index++];
+        const utterance = new SpeechSynthesisUtterance(item.audio);
 
         utterance.lang = isEnglish ? 'en-US' : lang;
         utterance.rate = rate;
@@ -2434,8 +2441,6 @@ const choiceQuestions = [
         utterance.onend = () => {
           setTimeout(playNext, PRONUNCIATION_PAUSE);
         };
-
-        // 某些 iOS voice 在取消後可能卡住，發生錯誤時仍繼續下一項。
         utterance.onerror = () => {
           setTimeout(playNext, PRONUNCIATION_PAUSE);
         };
@@ -2446,7 +2451,7 @@ const choiceQuestions = [
       playNext();
     }
 
-    function speakPromptThenPronunciation(prompt, items, lang) {
+    function speakPromptThenPronunciation(prompt, items, lang, mode = 'whole') {
       if (!('speechSynthesis' in window)) return;
 
       window.speechSynthesis.cancel();
@@ -2462,13 +2467,13 @@ const choiceQuestions = [
 
       promptUtterance.onend = () => {
         setTimeout(() => {
-          speakPronunciationSequence(items, lang);
+          speakPronunciationSequence(items, lang, mode);
         }, PRONUNCIATION_PAUSE);
       };
 
       promptUtterance.onerror = () => {
         setTimeout(() => {
-          speakPronunciationSequence(items, lang);
+          speakPronunciationSequence(items, lang, mode);
         }, PRONUNCIATION_PAUSE);
       };
 
@@ -3684,10 +3689,10 @@ const choiceQuestions = [
         const sBtn = document.createElement('button');
         sBtn.className = 'sound-btn';
         sBtn.innerText = '🔊 點擊重播發音';
-        sBtn.onclick = () => speakPronunciationSequence([targetStr], 'en-US');
+        sBtn.onclick = () => speakPronunciationSequence([targetStr], 'en-US', 'letters');
         soundContainer.appendChild(sBtn);
 
-        speakPromptThenPronunciation("請聽英文發音。", [targetStr], 'en-US');
+        speakPromptThenPronunciation("請聽英文發音。", [targetStr], 'en-US', 'letters');
       }
       else if (level.type === 'phonics_zh') {
         const zhList = [
