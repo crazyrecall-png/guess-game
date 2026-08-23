@@ -3077,7 +3077,7 @@ const choiceQuestions = [
       document.getElementById('lotterySelectedText').innerText = `已購買：${getPlayerLotteryNumbers(p.id)}`;
       renderLotteryNumberButtons();
       openModal('lotteryPurchaseModal');
-      speakText(`${p.name} 可以花兩百元購買一個樂透號碼。`);
+      speakText(`${p.name} 可以花三百元購買樂透號碼。`);
     }
 
     function renderLotteryNumberButtons() {
@@ -3115,9 +3115,9 @@ const choiceQuestions = [
         return;
       }
       playClickSound();
-      p.totalMoney -= 200;
+      p.totalMoney -= 300;
       lotteryPurchases[num] = p.id;
-      lotteryJackpot += 300;
+      lotteryJackpot += 450;
       const sessionCounter = document.getElementById("lotterySessionPurchasedCount");
       if (sessionCounter) sessionCounter.value = String(Number(sessionCounter.value || 0) + 1);
       document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
