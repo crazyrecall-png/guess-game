@@ -1,0 +1,4287 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>可愛大富翁 v2.6 - 多人對戰版</title>
+  <style>
+    :root {
+      --bg-color: #fef6e4;
+      --board-bg: #ffffff;
+      --cell-bg: #ffeaa7;
+      --cell-border: #fdcb6e;
+      --cell-text: #d63031;
+      
+      --active-bg: #ff7675;
+      --active-text: #ffffff;
+      --active-shadow: 0 0 15px #ff7675;
+
+      --primary: #ff7675;
+      --secondary: #74b9ff;
+      --accent: #fd79a8;
+      --text: #2d3436;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Fredoka', 'Comic Sans MS', "Chalkboard SE", "Yu Gothic", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 700px;
+      height: 860px;
+      box-sizing: border-box;
+      background: var(--board-bg);
+      border: 4px solid #fab1a0;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      display: grid;
+      gap: 3px;
+      padding: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cell {
+      min-width: 0;
+      min-height: 0;
+      box-sizing: border-box;
+      background-color: var(--cell-bg);
+      border: 2px solid var(--cell-border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--cell-text);
+      text-align: center;
+      position: relative;
+      transition: all 0.15s ease-in-out;
+      padding: 2px;
+    }
+
+    .cell.start-cell {
+      background-color: #ffabe7;
+      border-color: #fd79a8;
+      color: #000;
+      font-size: 13px;
+    }
+
+    .cell-tokens {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 2px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .player-token {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      object-fit: cover;
+      background: #fff;
+    }
+
+    .center-dashboard {
+      background: #f1f2f6;
+      border-radius: 12px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+      border: 2px dashed #dfe6e9;
+      z-index: 1;
+
+      /* ★ 防止中央控制區內容變高後溢出，蓋住外框格子 */
+      min-width: 0;
+      min-height: 0;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .dashboard-title {
+      font-size: 18px;
+      color: #d63031;
+      font-weight: bold;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .version-tag {
+      font-size: 12px;
+      color: #636e72;
+      font-weight: normal;
+    }
+
+    .current-player-banner {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    .player-info-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-box {
+      width: 100%;
+      background: #ffffff;
+      padding: 6px 6px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .section-box-large {
+      padding: 8px 8px !important;
+      border: 2px solid #74b9ff;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #636e72;
+      margin-bottom: 4px;
+    }
+
+    .section-title-large {
+      font-size: 15px !important;
+      font-weight: 900 !important;
+      color: #2d3436 !important;
+      margin-bottom: 6px !important;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="number"] {
+      width: 52px;
+      height: 36px;
+      text-align: center;
+      font-size: 17px;
+      font-weight: bold;
+      border: 2px solid #74b9ff;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .input-large {
+      width: 75px !important;
+      height: 42px !important;
+      font-size: 22px !important;
+      border-width: 3px !important;
+    }
+
+    .btn {
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: bold;
+      color: white;
+      background-color: var(--secondary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #0984e3;
+    }
+
+    .btn:active {
+      box-shadow: 0 1px 0 #0984e3;
+      transform: translateY(2px);
+    }
+
+    .btn-big {
+      font-size: 16px !important;
+      padding: 8px 14px !important;
+      border-radius: 12px !important;
+      font-weight: 900 !important;
+      min-height: 42px;
+    }
+
+    .btn-adjust {
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      font-weight: 900;
+      border-radius: 8px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 0;
+    }
+
+    .btn-adjust-large {
+      width: 42px !important;
+      height: 42px !important;
+      font-size: 24px !important;
+      border-radius: 12px !important;
+    }
+
+    .btn-minus {
+      background-color: #ff7675;
+      box-shadow: 0 3px 0 #d63031;
+    }
+    .btn-minus:active {
+      box-shadow: 0 1px 0 #d63031;
+      transform: translateY(2px);
+    }
+
+    .btn-plus {
+      background-color: #2ed573;
+      box-shadow: 0 3px 0 #26af5f;
+    }
+    .btn-plus:active {
+      box-shadow: 0 1px 0 #26af5f;
+      transform: translateY(2px);
+    }
+
+    .dual-dice-group {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .dice-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dice-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #2d3436;
+    }
+
+    .dice-box {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+      border: 3px solid #e17055;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 900;
+      color: #d63031;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #d63031;
+    }
+
+    .dice-box.rolling {
+      animation: diceRoll 0.8s ease-in-out infinite;
+    }
+
+    @keyframes diceRoll {
+      0% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-25deg) scale(1.15); }
+      50% { transform: rotate(25deg) scale(0.9); }
+      75% { transform: rotate(-15deg) scale(1.1); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    .money-total-box {
+      background: #f8efba;
+      border: 2px dashed #e1b12c;
+      border-radius: 10px;
+      padding: 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .money-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #222f3e;
+    }
+
+    .money-val {
+      font-size: 20px;
+      font-weight: 900;
+      color: #10ac84;
+    }
+
+    .stat-display {
+      font-size: 18px;
+      font-weight: bold;
+      color: #2d3436;
+      min-width: 32px;
+    }
+
+    /* 遊戲進度總覽專區 */
+    .overall-progress-section {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border: 3px solid #6c5ce7;
+      border-radius: 16px;
+      padding: 10px;
+      margin-top: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .progress-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .progress-card {
+      flex: 1;
+      min-width: 110px;
+      border-radius: 10px;
+      padding: 6px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .progress-card img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+      margin-bottom: 2px;
+      background: white;
+    }
+
+    /* 外部控制區面板 */
+    .filter-section {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border: 3px solid #74b9ff;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .filter-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #0984e3;
+    }
+
+    .player-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .player-tab-btn {
+      flex: 1;
+      padding: 6px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #dfe6e9;
+      color: #636e72;
+    }
+
+    .player-tab-btn.active {
+      color: white;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+    }
+
+    .radio-group-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #f1f2f6;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .win-cond-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .win-cond-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f1f2f6;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .win-cond-item label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .win-cond-item input[type="number"] {
+      width: 60px;
+      height: 32px;
+      font-size: 15px;
+    }
+
+    .win-cond-control {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f1f2f6;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .filter-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    /* 快捷按鈕區塊 */
+    .quick-step-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .quick-step-btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #74b9ff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #0984e3;
+    }
+
+    .quick-step-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #0984e3;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 18px;
+      border-radius: 18px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      border: 5px solid var(--accent);
+      transform: scale(0.8);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: 22px;
+      color: #ff7675;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .modal-desc {
+      font-size: 16px;
+      color: #2d3436;
+      margin-bottom: 12px;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 8px;
+      background: #f1f2f6;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .avatar-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: white;
+      padding: 6px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .avatar-card.selected {
+      border-color: #ff7675;
+      background: #ffeaa7;
+    }
+
+    .avatar-card img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    .avatar-card span {
+      font-size: 11px;
+      font-weight: bold;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    .modal-btn {
+      font-size: 16px;
+      padding: 8px 18px;
+      margin: 4px;
+    }
+
+    .diff-btn-group, .option-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .opt-btn {
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 10px;
+      border: none;
+      background: #74b9ff;
+      color: white;
+      box-shadow: 0 3px 0 #0984e3;
+      cursor: pointer;
+    }
+
+    .opt-btn.opt-red {
+      background-color: #ff7675 !important;
+      color: white !important;
+      box-shadow: 0 3px 0 #d63031 !important;
+    }
+
+    .opt-btn.opt-green {
+      background-color: #2ed573 !important;
+      color: white !important;
+      box-shadow: 0 3px 0 #26af5f !important;
+    }
+
+    .opt-btn.opt-yellow {
+      background-color: #f1c40f !important;
+      color: #2d3436 !important;
+      box-shadow: 0 3px 0 #f39c12 !important;
+    }
+
+    .opt-btn.color-black {
+      background-color: #222222;
+      color: white;
+      box-shadow: 0 3px 0 #000000;
+    }
+
+    .opt-btn.color-white {
+      background-color: #ffffff;
+      color: #2d3436;
+      border: 2px solid #b2bec3;
+      box-shadow: 0 3px 0 #636e72;
+    }
+
+    .opt-btn.color-red {
+      background-color: #e74c3c;
+      color: white;
+      box-shadow: 0 3px 0 #c0392b;
+    }
+
+    .opt-btn:active {
+      transform: translateY(2px);
+    }
+
+    .opt-btn.disabled {
+      background: #b2bec3 !important;
+      box-shadow: 0 3px 0 #636e72 !important;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .sound-btn {
+      background: #fdcb6e;
+      color: #2d3436;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 8px 0;
+      cursor: pointer;
+      display: inline-block;
+      box-shadow: 0 3px 0 #e17055;
+    }
+
+    .timer-display {
+      font-size: 22px;
+      font-weight: 900;
+      color: #d63031;
+      background: #ffeaa7;
+      border: 2px dashed #e17055;
+      border-radius: 10px;
+      padding: 4px 8px;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .ocean-question-image {
+      max-width: 120px;
+      max-height: 120px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    .ocean-question-label {
+      font-size: 14px;
+      color: #636e72;
+      margin-bottom: 4px;
+    }
+  
+    /* === 新增：科學小常識挑戰樣式（只新增，不影響原有樣式） === */
+    .science-replay-btn { background:#0984e3; box-shadow:0 3px 0 #0652dd; color:white; border:none; border-radius:10px; padding:9px 14px; font-weight:800; cursor:pointer; margin:6px auto 10px; display:block; }
+    .science-option-1 { background:#0984e3 !important; box-shadow:0 4px 0 #0652dd !important; color:#fff !important; }
+    .science-option-2 { background:#00b894 !important; box-shadow:0 4px 0 #008f68 !important; color:#fff !important; }
+    .science-option-3 { background:#e17055 !important; box-shadow:0 4px 0 #c44536 !important; color:#fff !important; }
+    .science-option-4 { background:#6c5ce7 !important; box-shadow:0 4px 0 #5846c7 !important; color:#fff !important; }
+    .science-yes { background:#00b894 !important; box-shadow:0 4px 0 #008f68 !important; color:#fff !important; }
+    .science-no { background:#d63031 !important; box-shadow:0 4px 0 #b02324 !important; color:#fff !important; }
+    .science-explanation { white-space:pre-line; background:#fff9db; border:2px solid #fdcb6e; border-radius:12px; padding:10px 12px; margin-top:8px; color:#2d3436; font-size:15px; line-height:1.6; }
+
+      .science-option-3, .science-option-4 { display:none !important; }
+
+    .lottery-jackpot-box { background:#fff0f6; border:2px dashed #e84393; border-radius:10px; padding:6px 10px; margin-top:6px; display:flex; justify-content:space-between; align-items:center; }
+    .lottery-jackpot-title { font-size:14px; font-weight:900; color:#b71540; }
+    .lottery-jackpot-value { font-size:22px; font-weight:900; color:#e84393; }
+    .lottery-number-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:7px; margin:10px 0 14px; }
+    .lottery-number-btn { border:none; border-radius:10px; padding:10px 4px; font-size:18px; font-weight:900; background:#f8a5c2; color:#fff; box-shadow:0 3px 0 #e84393; cursor:pointer; }
+    .lottery-number-btn:disabled { background:#b2bec3 !important; box-shadow:0 3px 0 #636e72 !important; opacity:.65; cursor:not-allowed; }
+    .lottery-number-btn.mine { background:#6c5ce7; box-shadow:0 3px 0 #5846c7; }
+    .lottery-draw-number { font-size:76px; line-height:1; font-weight:1000; color:#e84393; margin:12px 0; letter-spacing:3px; }
+
+    .move-dice-count-group {
+      display:flex; justify-content:center; align-items:center; gap:6px; margin:5px 0;
+    }
+    .move-dice-count-btn {
+      border:none; border-radius:8px; padding:5px 12px; font-weight:900;
+      background:#dfe6e9; color:#636e72; cursor:pointer; box-shadow:0 2px 0 #b2bec3;
+    }
+    .move-dice-count-btn.active {
+      background:#74b9ff; color:white; box-shadow:0 3px 0 #0984e3;
+    }
+    .move-dice-row {
+      display:flex; justify-content:center; align-items:center; gap:8px; margin:5px 0 8px;
+    }
+    .move-dice-box {
+      width:46px; height:46px; border-radius:11px; border:3px solid #6c5ce7;
+      background:linear-gradient(135deg,#dfe6e9,#a29bfe); color:#4834d4;
+      display:flex; align-items:center; justify-content:center; font-size:23px;
+      font-weight:900; box-shadow:0 3px 0 #6c5ce7;
+    }
+    .move-dice-box.rolling { animation:diceRoll .15s ease-in-out infinite; }
+        .lottery-draw-label { font-size:15px; color:#636e72; }
+  </style>
+</head>
+<body>
+
+  <div class="game-container" id="board">
+    <div class="center-dashboard" id="centerDashboard">
+      <div class="dashboard-title">
+        🎲 歡樂大富翁 - Baby<span class="version-tag">v2.6</span>
+      </div>
+
+      <!-- 當前玩家標籤（含回到上一個玩家按鈕） -->
+      <div class="current-player-banner" id="playerBanner" style="background-color: #ff7675;">
+        <div class="player-info-group">
+          <img id="bannerAvatar" src="" style="width:28px; height:28px; border-radius:50%; background:white; display:none;">
+          <span id="bannerText">玩家 1 的回合</span>
+        </div>
+        <button class="btn" style="background-color: rgba(255,255,255,0.3); box-shadow: none; padding: 3px 8px; font-size: 12px; border: 1px solid white;" onclick="switchPrevPlayer()">⏮️ 上一位</button>
+      </div>
+
+      <div class="section-box section-box-large">
+        <div class="section-title section-title-large">🎲 骰點區 (金額1-5 / 點數1-18)</div>
+        <div class="dual-dice-group">
+          <div class="dice-item">
+            <span class="dice-label">💰 金額骰(1-5)</span>
+            <div class="dice-box" id="moneyDiceBox" onclick="rollSingleDice('money')">1</div>
+            <button class="btn btn-big" style="background-color: #10ac84; box-shadow: 0 4px 0 #0abde3;" onclick="rollSingleDice('money')">擲金額</button>
+          </div>
+          <div class="dice-item">
+            <span class="dice-label">🎯 點數骰(1-18)</span>
+            <div class="dice-box" id="stepDiceBox" onclick="rollSingleDice('step')">1</div>
+            <button class="btn btn-big" style="background-color: #ff9f43; box-shadow: 0 4px 0 #ee5253;" onclick="rollSingleDice('step')">抽獎</button>
+          </div>
+        </div>
+
+        <div class="lottery-jackpot-box">
+          <div class="lottery-jackpot-title">🎰 目前樂透累積獎金</div>
+          <div class="lottery-jackpot-value" id="lotteryJackpotDisplay">$0</div>
+        </div>
+
+        <div class="money-total-box">
+          <div class="money-title">目前金錢：</div>
+          <div class="money-val" id="totalMoneyDisplay">$0</div>
+          <div class="input-group">
+            <button class="btn-adjust btn-minus" style="width:32px; height:32px; font-size:18px;" onclick="customAdjustMoney(-1)">-</button>
+            <button class="btn-adjust btn-plus" style="width:32px; height:32px; font-size:18px;" onclick="customAdjustMoney(1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 修改：移動步數改為按下跳出彈窗 -->
+      <div class="section-box section-box-large" style="border-color: #ff7675;">
+        <div class="section-title section-title-large">🚶‍♂️ 移動玩家</div>
+        <button class="btn btn-big" style="width:100%; background-color: #ff7675; box-shadow: 0 4px 0 #d63031; font-size: 18px !important;" onclick="openMoveModal()">🚶‍♂️ 按此選擇移動步數</button>
+      </div>
+
+      <div class="section-box section-box-large" style="border-color:#6c5ce7;">
+        <div class="section-title section-title-large">🎲 骰子移動</div>
+        <div style="font-size:12px;color:#636e72;">第一顆：1～3　第二、三顆：0～3</div>
+        <div class="move-dice-count-group" id="moveDiceCountGroup">
+          <button class="move-dice-count-btn active" onclick="setMoveDiceCount(1)">1 顆</button>
+          <button class="move-dice-count-btn" onclick="setMoveDiceCount(2)">2 顆</button>
+          <button class="move-dice-count-btn" onclick="setMoveDiceCount(3)">3 顆</button>
+        </div>
+        <div class="move-dice-row">
+          <div class="move-dice-box" id="moveDice1">1</div>
+          <div class="move-dice-box" id="moveDice2" style="display:none;">0</div>
+          <div class="move-dice-box" id="moveDice3" style="display:none;">0</div>
+        </div>
+        <button class="btn btn-big" style="width:100%;background:#6c5ce7;box-shadow:0 4px 0 #5846c7;" onclick="rollMoveDice()">🎲 擲骰並移動</button>
+        <div style="font-size:12px;color:#636e72;margin-top:4px;" id="moveDiceResult">選擇骰子數量後擲骰</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全體玩家遊戲進度 -->
+  <div class="overall-progress-section">
+    <div style="font-size: 15px; font-weight: bold; color: #6c5ce7; margin-bottom: 6px;">📊 全體玩家遊戲進度</div>
+    <div class="progress-row" id="overallProgressRow"></div>
+  </div>
+
+  <!-- 外框外圍：一圈格數選擇 -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <div class="filter-title">📐 設定一圈格數</div>
+    </div>
+    <div class="radio-group-container">
+      <label class="radio-item"><input type="radio" name="boardSize" value="20" onchange="changeBoardSize(20)"> 20 格 (5x7)</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="28" checked onchange="changeBoardSize(28)"> 28 格 (6x10)</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="36" onchange="changeBoardSize(36)"> 36 格 (8x12)</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="42" onchange="changeBoardSize(42)"> 42 格</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="54" onchange="changeBoardSize(54)"> 54 格</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="66" onchange="changeBoardSize(66)"> 66 格</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="72" onchange="changeBoardSize(72)"> 72 格</label>
+      <label class="radio-item"><input type="radio" name="boardSize" value="84" onchange="changeBoardSize(84)"> 84 格</label>
+    </div>
+  </div>
+
+  <!-- 外框外圍：勝利條件設定 -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <div class="filter-title">🏆 設定勝利條件（可多選）</div>
+    </div>
+    <div class="win-cond-grid">
+      <div class="win-cond-item">
+        <label><input type="checkbox" id="winCondMoneyCb"> 1. 累積多少錢：</label>
+        <div class="win-cond-control">
+          <button class="btn-adjust btn-minus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondMoneyInput', -100, 100)">-</button>
+          $<input type="number" id="winCondMoneyInput" value="6000" min="100" step="100"> 元
+          <button class="btn-adjust btn-plus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondMoneyInput', 100, 100)">+</button>
+        </div>
+      </div>
+      <div class="win-cond-item">
+        <label><input type="checkbox" id="winCondLapsCb" checked> 2. 走完指定圈數：</label>
+        <div class="win-cond-control">
+          <button class="btn-adjust btn-minus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondLapsInput', -1, 1)">-</button>
+          <input type="number" id="winCondLapsInput" value="1" min="1"> 圈
+          <button class="btn-adjust btn-plus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondLapsInput', 1, 1)">+</button>
+        </div>
+      </div>
+      <div class="win-cond-item">
+        <label><input type="checkbox" id="winCondChallengesCb"> 3. 成功完成挑戰數：</label>
+        <div class="win-cond-control">
+          <button class="btn-adjust btn-minus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondChallengesInput', -1, 1)">-</button>
+          <input type="number" id="winCondChallengesInput" value="20" min="1"> 次
+          <button class="btn-adjust btn-plus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondChallengesInput', 1, 1)">+</button>
+        </div>
+      </div>
+      <div class="win-cond-item">
+        <label><input type="checkbox" id="winCondLapRewardCb"> 4. 每完成一圈獎勵：</label>
+        <div class="win-cond-control">
+          <button class="btn-adjust btn-minus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondLapRewardInput', -100, 0)">-</button>
+          $<input type="number" id="winCondLapRewardInput" value="1000" min="0" step="100"> 元
+          <button class="btn-adjust btn-plus" style="width:26px; height:26px; font-size:14px;" onclick="changeWinCondValue('winCondLapRewardInput', 100, 0)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 外框外圍：開放挑戰類型勾選選單 (含玩家個別頁籤與各別答題時間) -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <div class="filter-title">⚙️ 各別玩家挑戰設定</div>
+      <div class="filter-actions">
+        <button class="btn" style="background-color: #00b894; box-shadow: 0 2px 0 #008f68; padding: 4px 8px; font-size: 12px;" onclick="toggleAllFilters(true)">全選</button>
+        <button class="btn" style="background-color: #ff7675; box-shadow: 0 2px 0 #d63031; padding: 4px 8px; font-size: 12px;" onclick="toggleAllFilters(false)">全不選</button>
+      </div>
+    </div>
+    
+    <!-- 玩家切換頁籤 -->
+    <div class="player-tabs" id="filterPlayerTabs"></div>
+
+    <!-- 答題秒數設定 (個別玩家) -->
+    <div style="background: #eccc68; padding: 8px 12px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 14px; font-weight: bold; color: #2d3436;">⏱️ 該玩家答題時間限制：</span>
+      <div class="input-group">
+        <button class="btn-adjust btn-minus" style="width:30px; height:30px;" onclick="changePlayerTimerSetting(-5)">-</button>
+        <span class="stat-display" id="playerTimerSettingDisplay" style="min-width: 40px; font-size: 20px;">10秒</span>
+        <button class="btn-adjust btn-plus" style="width:30px; height:30px;" onclick="changePlayerTimerSetting(5)">+</button>
+      </div>
+    </div>
+
+    <div class="filter-grid" id="filterGrid"></div>
+
+    <div style="background:#eef7ff;border:2px dashed #0984e3;border-radius:10px;padding:10px;margin-top:10px;">
+      <div style="font-size:14px;font-weight:bold;color:#0984e3;margin-bottom:7px;">🔊 語音速度設定</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:5px 0;">
+        <span>ㄅㄆㄇ 注音速度</span>
+        <div class="input-group">
+          <button class="btn-adjust btn-minus" style="width:30px;height:30px;" onclick="changeSpeechRate('bopomofo',-0.05)">−</button>
+          <span class="stat-display" id="speechRateBopomofoDisplay" style="min-width:48px;text-align:center;">0.65</span>
+          <button class="btn-adjust btn-plus" style="width:30px;height:30px;" onclick="changeSpeechRate('bopomofo',0.05)">＋</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:5px 0;">
+        <span>🔤 英文字母速度</span>
+        <div class="input-group">
+          <button class="btn-adjust btn-minus" style="width:30px;height:30px;" onclick="changeSpeechRate('english',-0.05)">−</button>
+          <span class="stat-display" id="speechRateEnglishDisplay" style="min-width:48px;text-align:center;">0.65</span>
+          <button class="btn-adjust btn-plus" style="width:30px;height:30px;" onclick="changeSpeechRate('english',0.05)">＋</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:5px 0;">
+        <span>⏸️ 字母／注音間隔</span>
+        <div class="input-group">
+          <button class="btn-adjust btn-minus" style="width:30px;height:30px;" onclick="changePronunciationPause(-100)">−</button>
+          <span class="stat-display" id="pronunciationPauseDisplay" style="min-width:60px;text-align:center;">500ms</span>
+          <button class="btn-adjust btn-plus" style="width:30px;height:30px;" onclick="changePronunciationPause(100)">＋</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff0f6;border:2px dashed #e84393;border-radius:10px;padding:8px 10px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <span style="font-size:14px;font-weight:bold;color:#b71540;">🎰 每次踩到樂透最多買：</span>
+      <div class="input-group">
+        <button class="btn-adjust btn-minus" style="width:30px;height:30px;" onclick="changeLotteryMaxNumbers(-1)">−</button>
+        <span class="stat-display" id="lotteryMaxNumbersDisplay" style="min-width:48px;text-align:center;font-size:20px;">1 個</span>
+        <button class="btn-adjust btn-plus" style="width:30px;height:30px;" onclick="changeLotteryMaxNumbers(1)">＋</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 再開一局按鈕 -->
+  <div style="width: 100%; max-width: 560px; margin-top: 12px;">
+    <button class="btn btn-big" style="background-color: #a55eea; box-shadow: 0 4px 0 #8854d0; width: 100%; font-size: 18px !important;" onclick="resetGame()">🔄 重新開始遊戲</button>
+  </div>
+
+  <!-- 彈窗區塊 -->
+
+  <!-- 新增：選擇移動步數彈窗 -->
+  <div class="modal-overlay" id="moveModal">
+    <div class="modal-content" style="border-color: #ff7675;">
+      <div class="modal-title" style="color: #d63031;">🚶‍♂️ 選擇移動步數</div>
+      <div style="font-size: 14px; color: #636e72; margin-bottom: 10px;">請選擇或調整欲前進的步數 (不可為0)：</div>
+      
+      <!-- 快捷按鈕 -->
+      <div class="quick-step-group">
+        <button class="quick-step-btn" onclick="setStepInputValue(2)">2 步</button>
+        <button class="quick-step-btn" onclick="setStepInputValue(3)">3 步</button>
+        <button class="quick-step-btn" onclick="setStepInputValue(4)">4 步</button>
+      </div>
+
+      <!-- +-微調區 -->
+      <div class="input-group" style="margin-bottom: 16px;">
+        <button class="btn-adjust btn-adjust-large btn-minus" onclick="changeStep(-1)">-</button>
+        <input type="number" id="stepInput" class="input-large" value="1">
+        <button class="btn-adjust btn-adjust-large btn-plus" onclick="changeStep(1)">+</button>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="confirmModalMove()">確定移動</button>
+        <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('moveModal')">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 初始設定彈窗 -->
+  <div class="modal-overlay" id="setupModal">
+    <div class="modal-content" style="border-color: #74b9ff;">
+      <div class="modal-title">🎮 遊戲設定</div>
+      <div class="modal-desc">請選擇遊玩人數 (最多4人)</div>
+      
+      <div class="input-group" style="margin-bottom: 15px;">
+        <button class="btn-adjust btn-minus" onclick="changeSetupPlayerCount(-1)">-</button>
+        <span class="stat-display" id="setupPlayerCountDisplay" style="font-size:24px;">1</span>
+        <button class="btn-adjust btn-plus" onclick="changeSetupPlayerCount(1)">+</button>
+      </div>
+
+      <div class="modal-title" style="font-size: 18px; color:#2d3436;" id="setupPlayerTitle">玩家 1：選擇貼圖棋子</div>
+      <div class="avatar-grid" id="avatarGrid"></div>
+
+      <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="confirmPlayerAvatar()">確認選擇</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="moneyModal">
+    <div class="modal-content" style="border-color: #fdcb6e;">
+      <div class="modal-title" id="moneyModalTitle" style="color: #e17055;">💰 調整金額</div>
+      <div style="font-size: 14px; color: #636e72; margin-bottom: 10px;">請點擊按鈕或手動輸入金額：</div>
+      <div class="input-group" style="margin-bottom: 12px;">
+        <button class="btn-adjust btn-minus" style="width:42px; height:42px; font-size:22px;" onclick="changeModalMoneyInput(-100)">-</button>
+        <input type="number" id="moneyModalInput" value="500" style="width: 100px; height: 42px; font-size: 20px;">
+        <button class="btn-adjust btn-plus" style="width:42px; height:42px; font-size:22px;" onclick="changeModalMoneyInput(100)">+</button>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 16px;">
+        <button class="btn" style="background-color: #ff7675; box-shadow: 0 3px 0 #d63031; padding: 6px 12px;" onclick="changeModalMoneyInput(-500)">-500</button>
+        <button class="btn" style="background-color: #2ed573; box-shadow: 0 3px 0 #26af5f; padding: 6px 12px;" onclick="changeModalMoneyInput(500)">+500</button>
+      </div>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="confirmCustomMoney()">確定</button>
+        <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('moneyModal')">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="lotteryPurchaseModal">
+    <div class="modal-content" style="border-color:#e84393; max-width:560px;">
+      <div class="modal-title" style="color:#e84393;">🎰 樂透選號</div>
+      <input type="hidden" id="lotterySessionPurchasedCount" value="0">
+      <div class="modal-desc" id="lotteryPurchaseText">花 $200 選一個號碼。每個號碼只能被購買一次。</div>
+      <div class="modal-desc" style="font-size:14px; color:#636e72;" id="lotteryPlayerMoneyText">目前金額：$0</div>
+      <div class="lottery-number-grid" id="lotteryNumberGrid"></div>
+      <div class="modal-desc" style="font-size:14px; color:#e84393;" id="lotterySelectedText">尚未選號</div>
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+        <button class="btn modal-btn" style="background:#2ed573; box-shadow:0 4px 0 #26af5f;" onclick="finishLotteryPurchase()">完成購買</button>
+        <button class="btn modal-btn" style="background:#ff7675; box-shadow:0 4px 0 #d63031;" onclick="cancelLotteryPurchase()">不購買</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="lotteryDrawModal">
+    <div class="modal-content" style="border-color:#e84393;">
+      <div class="modal-title" style="color:#e84393;" id="lotteryDrawTitle">🎰 樂透開獎</div>
+      <div class="lottery-draw-label">本次隨機開出號碼</div>
+      <div class="lottery-draw-number" id="lotteryDrawNumber">01</div>
+      <div class="modal-desc" id="lotteryDrawResult">開獎中……</div>
+      <button class="btn modal-btn" style="background:#e84393; box-shadow:0 4px 0 #b71540;" onclick="finishLotteryDraw()">確定（換下位）</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="diceModal">
+    <div class="modal-content" style="border-color: #74b9ff;">
+      <div class="modal-title" id="diceModalTitle" style="color: #0984e3;">🎲 骰子結果</div>
+      <div class="modal-desc" id="diceModalPoint">骰出點數：0 點</div>
+      <div class="modal-desc" style="color: #00b894; font-size: 20px;" id="diceModalMoney">獎品號碼：0 號</div>
+      <button class="btn modal-btn" onclick="closeModal('diceModal');">確定</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="winModal">
+    <div class="modal-content" style="border-color: #ff7675;">
+      <div class="modal-title">🏆 恭喜獲勝！</div>
+      <div class="modal-desc" id="winModalText">你已經達成勝利條件囉！</div>
+      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="resetGame()">再玩一次</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="askChallengeModal">
+    <div class="modal-content" style="border-color: #ff7675;">
+      <div class="modal-title">⚔️ 觸發挑戰任務！</div>
+      <div class="modal-desc" id="askChallengeName">發現挑戰題！要接受挑戰嗎？</div>
+      <div style="display:flex; justify-content:center; gap: 10px;">
+        <button class="btn modal-btn" style="background-color: #2ed573; box-shadow: 0 4px 0 #26af5f;" onclick="acceptChallenge()">開始挑戰 (可以)</button>
+        <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('askChallengeModal'); switchNextPlayer();">不挑戰 (換下位)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="selectDiffModal">
+    <div class="modal-content" style="border-color: #74b9ff;">
+      <div class="modal-title" id="selectDiffTitle">選擇難度 / 選項</div>
+      <div class="modal-desc" style="font-size:14px; color:#e17055;" id="userMoneyHint">目前持有金額：$0</div>
+      <div class="diff-btn-group" id="diffBtnContainer"></div>
+      <button class="btn modal-btn" style="background-color: #ff7675; box-shadow: 0 4px 0 #d63031;" onclick="closeModal('selectDiffModal'); switchNextPlayer();">不挑戰 (換下位)</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="playGameModal">
+    <div class="modal-content" style="border-color: #a55eea;">
+      <div class="modal-title" id="gameModalTitle">挑戰進行中</div>
+      <div id="timerContainer" class="timer-display" style="display: none;">⏳ 剩餘時間：<span id="timerBox">10</span> 秒</div>
+      <div class="modal-desc" id="gameModalQuestion">題目載入中...</div>
+      <div id="gameSoundContainer"></div>
+      <div class="option-btn-group" id="gameOptionsContainer"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="resultModal">
+    <div class="modal-content" id="resultContent">
+      <div class="modal-title" id="resultModalTitle">挑戰結果</div>
+      <div class="modal-desc" id="resultModalText">...</div>
+      <div class="modal-desc" style="color: #d63031; white-space: pre-line;" id="resultModalAnswer"></div>
+      <button class="btn modal-btn" id="scienceExplanationReplayBtn" style="display:none; background-color:#74b9ff; box-shadow:0 4px 0 #0984e3; margin-bottom:10px;" type="button">🔊 再念一次解釋</button>
+      <button class="btn modal-btn" style="background-color: #00b894; box-shadow: 0 4px 0 #008f68;" onclick="closeModal('resultModal'); switchNextPlayer();">確定 (換下位)</button>
+    </div>
+  </div>
+
+  <script>
+    const IMAGE_EXT = "png";
+    const IMAGE_FOLDER = "ALLAO";
+
+    const oceanAnimals = [
+      { file: "BlueWhale", name: "藍鯨" },
+      { file: "Dolphin", name: "海豚" },
+      { file: "Seaturtle", name: "海龜" },
+      { file: "Shark-1", name: "鯊魚" },
+      { file: "Clownfish", name: "小丑魚" },
+      { file: "Jellyfish", name: "水母" },
+      { file: "Octopus-1", name: "章魚" },
+      { file: "Crab-1", name: "螃蟹" },
+      { file: "Seahorse", name: "海馬" },
+      { file: "Lobster", name: "龍蝦" },
+      { file: "Stingray", name: "魟魚" },
+      { file: "Penguin", name: "企鵝" },
+      { file: "Walrus", name: "海象" },
+      { file: "Seal", name: "海豹" },
+      { file: "Manatee", name: "海牛" },
+      { file: "Starfish-1", name: "海星" },
+      { file: "Seashell", name: "貝殼" },
+      { file: "Seaurchin", name: "海膽" },
+      { file: "Tropicalfish", name: "熱帶魚" },
+      { file: "Coral", name: "珊瑚" },
+      { file: "Crab-2", name: "螃蟹" },
+      { file: "Octopus-2", name: "章魚" },
+      { file: "Shark-2", name: "鯊魚" },
+      { file: "Starfish-2", name: "海星" },
+      { file: "Belugawhale", name: "白鯨" },
+      { file: "Lion-1", name: "獅子" },
+      { file: "Elephant", name: "大象" },
+      { file: "Giraffe", name: "長頸鹿" },
+      { file: "Tiger", name: "老虎" },
+      { file: "Zebra", name: "斑馬" },
+      { file: "Monkey", name: "猴子" },
+      { file: "Panda", name: "熊貓" },
+      { file: "Kangaroo", name: "袋鼠" },
+      { file: "Sloth", name: "樹懶" },
+      { file: "Koala", name: "考拉" },
+      { file: "Fox", name: "狐狸" },
+      { file: "Wolf", name: "狼" },
+      { file: "Squirrel", name: "松鼠" },
+      { file: "Rabbit", name: "兔子" },
+      { file: "Hedgehog", name: "刺蝟" },
+      { file: "Cat", name: "貓咪" },
+      { file: "Dog", name: "狗狗" },
+      { file: "Pig", name: "豬" },
+      { file: "Cow", name: "牛" },
+      { file: "Sheep", name: "羊" },
+      { file: "Donkey", name: "驢子" },
+      { file: "Horse", name: "馬" },
+      { file: "Lion-2", name: "獅子" },
+      { file: "Dromedarycamel", name: "單峰駱駝" },
+      { file: "Bactriancamel", name: "雙峰駱駝" }
+    ];
+
+    const playerColors = ["#ff7675", "#74b9ff", "#55efc4", "#a55eea"];
+
+    const wordBank = [
+      { zh: "蘋果", zhPy: "ㄆㄧㄥˊ ㄍㄨㄛˇ", en: "Apple" },
+      { zh: "香蕉", zhPy: "ㄒㄧㄤ ㄐㄧㄠ", en: "Banana" },
+      { zh: "貓咪", zhPy: "ㄇㄠ ㄇㄧ", en: "Cat" },
+      { zh: "小狗", zhPy: "ㄒㄧㄠˇ ㄍㄡˇ", en: "Dog" },
+      { zh: "大象", zhPy: "ㄉㄚˋ ㄒㄧㄤˋ", en: "Elephant" },
+      { zh: "青蛙", zhPy: "ㄑㄧㄥ ㄨㄚ", en: "Frog" },
+      { zh: "長頸鹿", zhPy: "ㄔㄤˊ ㄐㄧㄥˇ ㄌㄨˋ", en: "Giraffe" },
+      { zh: "馬", zhPy: "ㄇㄚˇ", en: "Horse" },
+      { zh: "獅子", zhPy: "ㄕ ㄗˇ", en: "Lion" },
+      { zh: "猴子", zhPy: "ㄏㄡˊ ㄗˇ", en: "Monkey" },
+      { zh: "兔子", zhPy: "ㄊㄨˋ ㄗˇ", en: "Rabbit" },
+      { zh: "老虎", zhPy: "ㄌㄠˇ ㄏㄨˇ", en: "Tiger" },
+      { zh: "熊", zhPy: "ㄒㄧㄨㄥ", en: "Bear" },
+      { zh: "鳥", zhPy: "ㄋㄧㄠˇ", en: "Bird" },
+      { zh: "鴨子", zhPy: "ㄧㄚ ㄗˇ", en: "Duck" },
+      { zh: "魚", zhPy: "ㄩˊ", en: "Fish" },
+      { zh: "豬", zhPy: "ㄓㄨ", en: "Pig" },
+      { zh: "綿羊", zhPy: "ㄇㄧㄢˊ ㄧㄤˊ", en: "Sheep" },
+      { zh: "烏龜", zhPy: "ㄨ ㄍㄨㄟ", en: "Turtle" },
+      { zh: "斑馬", zhPy: "ㄅㄢ ㄇㄚˇ", en: "Zebra" }
+    ];
+
+const choiceQuestions = [
+      {
+        question: "地球大約是什麼形狀？",
+        options: ["正方形", "球形", "三角形", "長方形"],
+        answer: 1
+      },
+      {
+        question: "地球上的白天和黑夜，主要是因為什麼？",
+        options: ["地球自轉", "月亮自轉", "太陽熄滅", "雲朵移動"],
+        answer: 0
+      },
+      {
+        question: "雨水主要是從哪裡來的？",
+        options: ["雲中的水滴", "樹葉裡的果汁", "星星", "山上的石頭"],
+        answer: 0
+      },
+      {
+        question: "彩虹通常被分成幾種顏色？",
+        options: ["3種", "5種", "7種", "10種"],
+        answer: 2
+      },
+      {
+        question: "彩虹通常在什麼情況下比較容易看到？",
+        options: ["下雨後有陽光時", "完全沒有陽光時", "晚上睡覺時", "在房間裡"],
+        answer: 0
+      },
+      {
+        question: "雲主要是由什麼組成的？",
+        options: ["小水滴或小冰晶", "棉花糖", "沙子", "火焰"],
+        answer: 0
+      },
+      {
+        question: "打雷的聲音是怎麼來的？",
+        options: ["閃電讓空氣快速膨脹", "月亮唱歌", "樹木搖晃", "雨滴在唱歌"],
+        answer: 0
+      },
+      {
+        question: "閃電是什麼？",
+        options: ["一種快速的電光", "一條彩色的繩子", "太陽掉下來", "雲變成石頭"],
+        answer: 0
+      },
+      {
+        question: "風是什麼？",
+        options: ["移動的空氣", "移動的水", "天空中的石頭", "太陽光"],
+        answer: 0
+      },
+      {
+        question: "下雪時，從天空落下來的通常是什麼？",
+        options: ["冰凍的小水晶", "熱沙子", "火花", "樹葉"],
+        answer: 0
+      },
+      {
+        question: "冰雹是什麼？",
+        options: ["從天空落下的冰球", "一種花", "一種雲", "一種星星"],
+        answer: 0
+      },
+      {
+        question: "沙漠最常見的天氣特色是什麼？",
+        options: ["雨很多", "很少下雨", "每天都下雪", "永遠有彩虹"],
+        answer: 1
+      },
+      {
+        question: "海水嚐起來通常是什麼味道？",
+        options: ["甜的", "鹹的", "酸的", "沒有味道"],
+        answer: 1
+      },
+      {
+        question: "地球上的大部分水在哪裡？",
+        options: ["海洋", "果汁裡", "雲朵裡", "水壺裡"],
+        answer: 0
+      },
+      {
+        question: "植物生長通常需要什麼？",
+        options: ["陽光、水和空氣", "糖果和玩具", "月亮和星星", "雪人和沙子"],
+        answer: 0
+      },
+      {
+        question: "火山噴出來的熱熱岩石液體叫什麼？",
+        options: ["岩漿或熔岩", "雨水", "海水", "露水"],
+        answer: 0
+      },
+      {
+        question: "地震時，地面可能會怎麼樣？",
+        options: ["搖晃", "變成水", "飛到天空", "變成彩虹"],
+        answer: 0
+      },
+      {
+        question: "海嘯通常可能由什麼引起？",
+        options: ["海底地震", "小鳥唱歌", "下小雨", "月亮變圓"],
+        answer: 0
+      },
+      {
+        question: "化石通常是什麼的痕跡或遺留物？",
+        options: ["很久以前的生物", "剛煮好的食物", "新玩具", "雲朵"],
+        answer: 0
+      },
+      {
+        question: "太陽是什麼？",
+        options: ["一顆恆星", "一顆行星", "一顆衛星", "一片雲"],
+        answer: 0
+      },
+      {
+        question: "太陽系的中心是哪一個天體？",
+        options: ["地球", "月亮", "太陽", "火星"],
+        answer: 2
+      },
+      {
+        question: "地球的天然衛星是哪一個？",
+        options: ["太陽", "月亮", "木星", "金星"],
+        answer: 1
+      },
+      {
+        question: "月亮發出的光主要來自哪裡？",
+        options: ["反射太陽光", "自己燃燒", "星星借給它", "地球燈光"],
+        answer: 0
+      },
+      {
+        question: "哪一顆行星常被稱為紅色星球？",
+        options: ["金星", "火星", "木星", "海王星"],
+        answer: 1
+      },
+      {
+        question: "太陽系中最大的行星是哪一顆？",
+        options: ["地球", "火星", "木星", "水星"],
+        answer: 2
+      },
+      {
+        question: "哪一顆行星有很明顯的環？",
+        options: ["土星", "地球", "水星", "金星"],
+        answer: 0
+      },
+      {
+        question: "離太陽最近的行星是哪一顆？",
+        options: ["水星", "地球", "火星", "木星"],
+        answer: 0
+      },
+      {
+        question: "哪一顆行星常被稱為藍色星球？",
+        options: ["地球", "火星", "金星", "土星"],
+        answer: 0
+      },
+      {
+        question: "繞著太陽運行的天體叫什麼？",
+        options: ["行星", "雲朵", "雨滴", "閃電"],
+        answer: 0
+      },
+      {
+        question: "在太空中工作的人通常叫什麼？",
+        options: ["太空人", "潛水員", "農夫", "消防員"],
+        answer: 0
+      },
+      {
+        question: "太空人穿太空衣的主要原因是什麼？",
+        options: ["保護身體並提供空氣", "讓衣服變漂亮", "防止變成石頭", "讓月亮看見"],
+        answer: 0
+      },
+      {
+        question: "在太空中，物品常常會飄起來，這是因為什麼？",
+        options: ["微重力環境", "物品有翅膀", "太陽在吹風", "星星拉它"],
+        answer: 0
+      },
+      {
+        question: "用來觀察遙遠星星和行星的工具是什麼？",
+        options: ["望遠鏡", "溫度計", "雨傘", "放大鏡"],
+        answer: 0
+      },
+      {
+        question: "夜空中快速劃過、看起來像星星掉下來的光線，通常叫什麼？",
+        options: ["流星", "彩虹", "雲朵", "月光"],
+        answer: 0
+      },
+      {
+        question: "彗星靠近太陽時，常常會出現什麼？",
+        options: ["長長的尾巴", "四隻腳", "彩色翅膀", "雨水"],
+        answer: 0
+      },
+      {
+        question: "我們所在的星系叫什麼？",
+        options: ["銀河系", "太陽系", "地球村", "彩虹系"],
+        answer: 0
+      },
+      {
+        question: "月亮繞著什麼運行？",
+        options: ["地球", "火星", "木星", "一朵雲"],
+        answer: 0
+      },
+      {
+        question: "地球繞著什麼運行？",
+        options: ["月亮", "太陽", "彩虹", "雲朵"],
+        answer: 1
+      },
+      {
+        question: "海水每天有規律地上升和下降，稱為什麼？",
+        options: ["潮汐", "彩虹", "地震", "季風"],
+        answer: 0
+      },
+      {
+        question: "日食發生時，通常是誰擋住了太陽的一部分？",
+        options: ["月亮", "地球上的山", "彩虹", "火星"],
+        answer: 0
+      },
+      {
+        question: "月食發生時，通常是誰的影子遮住了月亮？",
+        options: ["地球", "太陽", "雲朵", "木星"],
+        answer: 0
+      },
+      {
+        question: "一年中天氣變化，例如春夏秋冬，主要和什麼有關？",
+        options: ["地球傾斜著繞太陽運行", "月亮每天變色", "海水停止流動", "星星變大"],
+        answer: 0
+      },
+      {
+        question: "哪一種工具可以測量溫度？",
+        options: ["溫度計", "望遠鏡", "指南針", "尺"],
+        answer: 0
+      },
+      {
+        question: "指南針通常會指向哪個方向？",
+        options: ["北方", "南方", "天空", "海底"],
+        answer: 0
+      },
+      {
+        question: "地球外面包圍著我們的空氣，叫做什麼？",
+        options: ["大氣層", "岩石層", "海洋層", "彩虹層"],
+        answer: 0
+      },
+      {
+        question: "山的高度通常比什麼高？",
+        options: ["小丘", "雲朵", "海水", "雨滴"],
+        answer: 0
+      },
+      {
+        question: "地面上的泥土和岩石，屬於地球的哪一部分？",
+        options: ["地表", "太空", "星系", "月光"],
+        answer: 0
+      },
+      {
+        question: "岩石經過很長時間可能會變成什麼？",
+        options: ["沙子和泥土", "糖果", "雲朵", "星星"],
+        answer: 0
+      },
+      {
+        question: "水變成水蒸氣的過程叫什麼？",
+        options: ["蒸發", "結冰", "下雨", "打雷"],
+        answer: 0
+      },
+      {
+        question: "水蒸氣變成小水滴，可能形成什麼？",
+        options: ["雲", "火山", "岩石", "流星"],
+        answer: 0
+      },
+      {
+        question: "水滴在雲中變得太多、太重時，可能會發生什麼？",
+        options: ["下雨", "太陽消失", "月亮變熱", "地球停止轉動"],
+        answer: 0
+      },
+  {
+    question: "我們用哪個器官看東西？",
+    options: ["眼睛", "耳朵", "鼻子", "嘴巴"],
+    answer: 0
+  },
+  {
+    question: "我們用哪個器官聽聲音？",
+    options: ["手", "耳朵", "腳", "眼睛"],
+    answer: 1
+  },
+  {
+    question: "我們用哪個器官聞味道？",
+    options: ["鼻子", "耳朵", "牙齒", "頭髮"],
+    answer: 0
+  },
+  {
+    question: "我們用哪個器官品嚐食物？",
+    options: ["舌頭", "膝蓋", "眼睛", "手肘"],
+    answer: 0
+  },
+  {
+    question: "心臟主要負責做什麼？",
+    options: ["幫血液流遍全身", "幫助看東西", "幫助聽聲音", "幫助走路"],
+    answer: 0
+  },
+  {
+    question: "人呼吸時需要哪一種氣體？",
+    options: ["氧氣", "煙霧", "沙子", "果汁"],
+    answer: 0
+  },
+  {
+    question: "下列哪一項是健康的食物？",
+    options: ["水果", "糖果", "汽水", "洋芋片"],
+    answer: 0
+  },
+  {
+    question: "吃東西前應該先做什麼？",
+    options: ["洗手", "躺下", "跑到馬路上", "看很久的電視"],
+    answer: 0
+  },
+  {
+    question: "每天刷牙可以幫助我們做什麼？",
+    options: ["保護牙齒", "讓頭髮變長", "讓耳朵變大", "讓鞋子變乾淨"],
+    answer: 0
+  },
+  {
+    question: "口渴時最適合喝什麼？",
+    options: ["白開水", "汽油", "洗衣水", "墨水"],
+    answer: 0
+  },
+  {
+    question: "睡覺可以幫助身體做什麼？",
+    options: ["休息", "變成石頭", "停止長大", "變透明"],
+    answer: 0
+  },
+  {
+    question: "運動時，我們的心跳通常會怎麼樣？",
+    options: ["變快", "完全停止", "消失", "變成聲音"],
+    answer: 0
+  },
+  {
+    question: "哪一項可以保護我們的頭部？",
+    options: ["安全帽", "雨鞋", "手套", "圍巾"],
+    answer: 0
+  },
+  {
+    question: "過馬路時，應該走哪裡？",
+    options: ["斑馬線", "馬路中間", "車子旁邊", "草叢裡"],
+    answer: 0
+  },
+  {
+    question: "看到紅燈時，行人應該怎麼做？",
+    options: ["停下來等候", "趕快跑過去", "閉著眼睛走", "坐在馬路上"],
+    answer: 0
+  },
+  {
+    question: "搭乘汽車時，應該繫什麼？",
+    options: ["安全帶", "鞋帶", "圍巾", "耳機線"],
+    answer: 0
+  },
+  {
+    question: "下雨天出門可以帶什麼？",
+    options: ["雨傘", "望遠鏡", "枕頭", "鍋子"],
+    answer: 0
+  },
+  {
+    question: "天氣很冷時，可以穿什麼保暖？",
+    options: ["外套", "泳衣", "短袖和短褲", "拖鞋"],
+    answer: 0
+  },
+  {
+    question: "冰塊放在溫暖的地方會怎麼樣？",
+    options: ["融化成水", "變成石頭", "長出花朵", "變成火"],
+    answer: 0
+  },
+  {
+    question: "水放進冰箱冷凍庫會變成什麼？",
+    options: ["冰", "沙子", "空氣", "糖果"],
+    answer: 0
+  },
+  {
+    question: "水煮開後會產生什麼？",
+    options: ["水蒸氣", "泥土", "雪花", "木頭"],
+    answer: 0
+  },
+  {
+    question: "風是什麼？",
+    options: ["流動的空氣", "流動的石頭", "太陽掉下來", "天空中的魚"],
+    answer: 0
+  },
+  {
+    question: "雲裡通常有什麼？",
+    options: ["小水滴", "糖果", "鉛筆", "玩具車"],
+    answer: 0
+  },
+  {
+    question: "雨是從哪裡落下來的？",
+    options: ["雲", "地板", "樹根", "月亮裡面"],
+    answer: 0
+  },
+  {
+    question: "閃電通常出現在哪種天氣？",
+    options: ["雷雨天", "完全晴朗的室內", "下雪的冰箱裡", "沒有天空的地方"],
+    answer: 0
+  },
+  {
+    question: "打雷的聲音通常和什麼有關？",
+    options: ["閃電", "花朵", "鉛筆", "月餅"],
+    answer: 0
+  },
+  {
+    question: "彩虹通常在什麼時候比較容易出現？",
+    options: ["下雨後有陽光時", "完全沒有光時", "房間關燈時", "睡覺時"],
+    answer: 0
+  },
+  {
+    question: "太陽可以帶給地球什麼？",
+    options: ["光和熱", "冰淇淋", "雨鞋", "玩具"],
+    answer: 0
+  },
+  {
+    question: "月亮通常在夜晚看起來像什麼？",
+    options: ["天空中的圓球", "一棵樹", "一條魚", "一間房子"],
+    answer: 0
+  },
+  {
+    question: "地球繞著什麼轉？",
+    options: ["太陽", "鉛筆", "雲朵", "雨傘"],
+    answer: 0
+  },
+  {
+    question: "月亮繞著什麼轉？",
+    options: ["地球", "火山", "海洋", "彩虹"],
+    answer: 0
+  },
+  {
+    question: "白天和黑夜的變化，主要是因為地球怎麼樣？",
+    options: ["自轉", "停止不動", "變成方形", "飛離太陽"],
+    answer: 0
+  },
+  {
+    question: "太陽是什麼？",
+    options: ["一顆恆星", "一顆糖果", "一朵雲", "一顆冰塊"],
+    answer: 0
+  },
+  {
+    question: "地球大約是什麼形狀？",
+    options: ["球形", "正方形", "三角形", "星星形"],
+    answer: 0
+  },
+  {
+    question: "哪一個是生活在水裡的動物？",
+    options: ["魚", "貓", "兔子", "雞"],
+    answer: 0
+  },
+  {
+    question: "魚用什麼在水中呼吸？",
+    options: ["鰓", "翅膀", "耳朵", "尾巴"],
+    answer: 0
+  },
+  {
+    question: "鳥類通常有什麼？",
+    options: ["羽毛", "魚鰓", "四個輪子", "樹根"],
+    answer: 0
+  },
+  {
+    question: "蝴蝶小時候通常是什麼？",
+    options: ["毛毛蟲", "小魚", "小鳥", "小石頭"],
+    answer: 0
+  },
+  {
+    question: "蜜蜂通常會採集什麼？",
+    options: ["花蜜", "沙子", "汽油", "冰塊"],
+    answer: 0
+  },
+  {
+    question: "植物的根通常長在哪裡？",
+    options: ["土裡", "天空中", "雲裡", "屋頂上"],
+    answer: 0
+  },
+  {
+    question: "植物生長需要什麼？",
+    options: ["陽光和水", "玩具和糖果", "電視和手機", "鞋子和帽子"],
+    answer: 0
+  },
+  {
+    question: "植物的葉子通常是什麼顏色？",
+    options: ["綠色", "黑色", "銀色", "透明色"],
+    answer: 0
+  },
+  {
+    question: "下列哪一個可以發出光？",
+    options: ["手電筒", "枕頭", "橡皮擦", "書包"],
+    answer: 0
+  },
+  {
+    question: "影子通常在什麼情況下出現？",
+    options: ["光被物體擋住時", "完全沒有光時", "水變甜時", "聲音變大時"],
+    answer: 0
+  },
+  {
+    question: "磁鐵比較容易吸住哪一個？",
+    options: ["鐵釘", "紙張", "木棒", "橡皮擦"],
+    answer: 0
+  },
+  {
+    question: "尺可以用來測量什麼？",
+    options: ["長度", "味道", "聲音", "顏色"],
+    answer: 0
+  },
+  {
+    question: "溫度計可以測量什麼？",
+    options: ["溫度", "重量", "長度", "方向"],
+    answer: 0
+  },
+  {
+    question: "指南針可以幫助我們知道什麼？",
+    options: ["方向", "食物味道", "身高", "體重"],
+    answer: 0
+  },
+  {
+    question: "垃圾應該丟在哪裡？",
+    options: ["垃圾桶", "河流裡", "馬路上", "別人家門口"],
+    answer: 0
+  },
+  {
+    question: "不使用電燈時，應該怎麼做？",
+    options: ["關掉電燈", "一直開著", "用水沖電燈", "把電燈丟掉"],
+    answer: 0
+  },
+  {
+    question: "洗手時通常要使用什麼？",
+    options: ["清水和肥皂", "沙子和石頭", "果汁和糖", "油漆和膠水"],
+    answer: 0
+  },
+  {
+    question: "人體哪一部分可以幫助我們彎曲手臂？",
+    options: ["手肘", "鼻子", "耳朵", "腳趾"],
+    answer: 0
+  },
+  {
+    question: "我們用手指可以做什麼？",
+    options: ["聽聲音", "拿東西", "聞味道", "看遠方"],
+    answer: 1
+  },
+  {
+    question: "流汗可以幫助身體做什麼？",
+    options: ["降溫", "變高", "變輕", "發光"],
+    answer: 0
+  },
+  {
+    question: "打噴嚏時，用什麼遮住口鼻比較衛生？",
+    options: ["手帕或手肘內側", "書本", "鞋子", "帽子"],
+    answer: 0
+  },
+  {
+    question: "受傷流血時，應該先怎麼做？",
+    options: ["告訴大人並用乾淨的東西按住傷口", "一直跑步", "用泥土塗傷口", "不告訴任何人"],
+    answer: 0
+  },
+  {
+    question: "哪一種食物通常需要放進冰箱保存？",
+    options: ["新鮮牛奶", "乾鉛筆", "橡皮擦", "書本"],
+    answer: 0
+  },
+  {
+    question: "吃太多甜食可能會造成什麼問題？",
+    options: ["蛀牙", "眼睛變成藍色", "耳朵變長", "鞋子變大"],
+    answer: 0
+  },
+  {
+    question: "蔬菜通常可以提供身體什麼？",
+    options: ["多種營養", "汽油", "電力", "塑膠"],
+    answer: 0
+  },
+  {
+    question: "食物變壞時，可能會出現什麼情況？",
+    options: ["發霉或有怪味", "變得更安全", "自動變成冰", "發出彩虹"],
+    answer: 0
+  },
+  {
+    question: "吃東西時慢慢咀嚼有什麼好處？",
+    options: ["幫助吞嚥和消化", "讓食物變多", "讓人不需要喝水", "讓牙齒消失"],
+    answer: 0
+  },
+  {
+    question: "下列哪一種物品可以擦掉鉛筆字？",
+    options: ["橡皮擦", "湯匙", "雨傘", "襪子"],
+    answer: 0
+  },
+  {
+    question: "剪紙時應該使用什麼工具？",
+    options: ["剪刀", "湯鍋", "牙刷", "枕頭"],
+    answer: 0
+  },
+  {
+    question: "剪刀不用時，刀口應該怎麼放？",
+    options: ["收好並避免朝向別人", "拿在手上奔跑", "放在地上讓人踩", "對著同學揮舞"],
+    answer: 0
+  },
+  {
+    question: "哪一種物品可以幫助我們寫字？",
+    options: ["鉛筆", "雨鞋", "毛巾", "水杯"],
+    answer: 0
+  },
+  {
+    question: "書本破掉時，可以用什麼簡單修理？",
+    options: ["膠帶", "食鹽", "冰塊", "果汁"],
+    answer: 0
+  },
+  {
+    question: "時鐘上的短針通常表示什麼？",
+    options: ["小時", "月份", "天氣", "顏色"],
+    answer: 0
+  },
+  {
+    question: "一星期通常有幾天？",
+    options: ["5天", "7天", "10天", "12天"],
+    answer: 1
+  },
+  {
+    question: "一年通常有幾個月？",
+    options: ["6個月", "10個月", "12個月", "20個月"],
+    answer: 2
+  },
+  {
+    question: "早上起床後，哪一件事通常適合先做？",
+    options: ["整理床鋪", "把垃圾丟到地上", "一直不穿衣服", "跑到馬路中央"],
+    answer: 0
+  },
+  {
+    question: "晚上睡覺前，哪一件事是好習慣？",
+    options: ["刷牙", "喝很多汽水", "一直玩到天亮", "吃很多糖果"],
+    answer: 0
+  },
+  {
+    question: "下列哪一種材料是透明的？",
+    options: ["透明玻璃", "木板", "石頭", "厚紙箱"],
+    answer: 0
+  },
+  {
+    question: "下列哪一種東西通常會浮在水面上？",
+    options: ["木頭", "鐵球", "石頭", "硬幣"],
+    answer: 0
+  },
+  {
+    question: "下列哪一種東西通常會沉到水底？",
+    options: ["羽毛", "小石頭", "乒乓球", "木片"],
+    answer: 1
+  },
+  {
+    question: "磁鐵的兩端通常叫作什麼？",
+    options: ["南極和北極", "左邊和右邊", "上面和下面", "大邊和小邊"],
+    answer: 0
+  },
+  {
+    question: "兩個磁鐵相同的磁極靠近時，通常會怎樣？",
+    options: ["互相排斥", "變成水", "立刻燃燒", "變得透明"],
+    answer: 0
+  },
+  {
+    question: "用力推球，球通常會怎麼樣？",
+    options: ["向前滾動", "變成雲", "停止存在", "變成液體"],
+    answer: 0
+  },
+  {
+    question: "斜坡可以幫助我們做什麼？",
+    options: ["比較容易搬動物品", "製造雨水", "讓東西變甜", "讓太陽變小"],
+    answer: 0
+  },
+  {
+    question: "溜滑梯時，主要是什麼力量讓人往下滑？",
+    options: ["地球的引力", "月亮的聲音", "風的顏色", "水的味道"],
+    answer: 0
+  },
+  {
+    question: "輪子可以讓物品怎麼移動？",
+    options: ["比較容易滾動", "變得不能動", "飛到太空", "變成水"],
+    answer: 0
+  },
+  {
+    question: "打開手電筒需要什麼？",
+    options: ["電池或電力", "泥土", "樹葉", "冰淇淋"],
+    answer: 0
+  },
+  {
+    question: "電風扇轉動時，可以讓空氣怎麼樣？",
+    options: ["流動起來", "變成石頭", "變成糖果", "停止呼吸"],
+    answer: 0
+  },
+  {
+    question: "冬天有時會看到窗戶上出現什麼？",
+    options: ["水氣或小水珠", "魚", "沙漠", "樹根"],
+    answer: 0
+  },
+  {
+    question: "早晨葉子上常見的小水珠叫作什麼？",
+    options: ["露水", "岩漿", "冰雹", "海嘯"],
+    answer: 0
+  },
+  {
+    question: "天氣預報可以告訴我們什麼？",
+    options: ["可能的天氣", "明天的考試答案", "誰會得獎", "玩具的位置"],
+    answer: 0
+  },
+  {
+    question: "下雨時，路面可能會變得怎樣？",
+    options: ["濕滑", "變成沙漠", "長出翅膀", "發出音樂"],
+    answer: 0
+  },
+  {
+    question: "夏天在太陽下待太久，可能會怎樣？",
+    options: ["覺得很熱", "身體結冰", "變成石頭", "完全不需要水"],
+    answer: 0
+  },
+  {
+    question: "夏天外出時，哪一樣物品可以遮擋陽光？",
+    options: ["帽子", "枕頭套", "鍋鏟", "書包拉鍊"],
+    answer: 0
+  },
+  {
+    question: "植物的花通常可以幫助植物做什麼？",
+    options: ["繁殖和結果實", "移動到別的地方", "製造電池", "發出雷聲"],
+    answer: 0
+  },
+  {
+    question: "種子在適合的環境中可能會長成什麼？",
+    options: ["植物", "鐵釘", "玻璃", "雨傘"],
+    answer: 0
+  },
+  {
+    question: "仙人掌通常適合生長在哪種地方？",
+    options: ["乾燥的地方", "深海裡", "冰箱裡", "水池底下"],
+    answer: 0
+  },
+  {
+    question: "樹木的樹幹主要可以幫助什麼？",
+    options: ["支撐樹枝和葉子", "製造聲音", "吸收月光", "變成雨水"],
+    answer: 0
+  },
+  {
+    question: "螞蟻通常是用哪幾隻腳走路？",
+    options: ["六隻腳", "兩隻腳", "四隻腳", "八隻腳"],
+    answer: 0
+  },
+  {
+    question: "蜘蛛通常有幾隻腳？",
+    options: ["四隻", "六隻", "八隻", "十隻"],
+    answer: 2
+  },
+  {
+    question: "青蛙通常在哪裡產卵？",
+    options: ["水中或水邊", "樹頂上", "沙漠深處", "屋頂煙囪裡"],
+    answer: 0
+  },
+  {
+    question: "狗通常用什麼方式表達開心或興奮？",
+    options: ["搖尾巴", "長出翅膀", "變成藍色", "停止呼吸"],
+    answer: 0
+  },
+  {
+    question: "冬眠是動物在寒冷季節做什麼？",
+    options: ["長時間休息或睡覺", "每天游泳", "變成植物", "製造雪花"],
+    answer: 0
+  },
+  {
+    question: "下列哪一種動物會吐絲結網？",
+    options: ["蜘蛛", "兔子", "大象", "海豚"],
+    answer: 0
+  },
+  {
+    question: "海豚主要生活在哪裡？",
+    options: ["海洋", "沙漠", "高山洞穴", "樹枝上"],
+    answer: 0
+  },
+  {
+    question: "在圖書館裡通常應該怎麼做？",
+    options: ["輕聲說話", "大聲尖叫", "奔跑推人", "亂丟書本"],
+    answer: 0
+  },
+  {
+    question: "借用別人的物品前，應該先做什麼？",
+    options: ["先詢問對方", "直接拿走", "藏起來", "弄壞它"],
+    answer: 0
+  },
+  {
+    question: "看到地上有水時，應該怎麼走？",
+    options: ["慢慢走，小心滑倒", "快速奔跑", "閉著眼睛跳", "推別人過去"],
+    answer: 0
+  }
+    ];
+
+      const trueFalseQuestions = [
+      ["地球是一顆行星。", true],
+      ["太陽是一顆行星。", false],
+      ["月亮是一顆自己會發光的恆星。", false],
+      ["地球自轉會造成白天和黑夜。", true],
+      ["月亮的光主要是反射太陽光。", true],
+      ["雨水和雲中的小水滴有關。", true],
+      ["彩虹通常可以看到七種顏色。", true],
+      ["沒有光線時，也很容易看到彩虹。", false],
+      ["我們通常先看到閃電，後聽到雷聲。", true],
+      ["閃電和電有關係。", true],
+      ["雪是冰凍的水。", true],
+      ["冰雹是一種從天空落下的冰。", true],
+      ["風就是移動的空氣。", true],
+      ["所有的雲都一定會下雨。", false],
+      ["沙漠通常是一個很少下雨的地方。", true],
+      ["海水通常是鹹的。", true],
+      ["地球上的海洋水大多是淡水。", false],
+      ["冰通常會浮在水面上。", true],
+      ["火山可能會噴出熔岩。", true],
+      ["地震會讓地面搖晃。", true],
+      ["海嘯只會由普通的小風引起。", false],
+      ["化石可能是很久以前生物留下的痕跡。", true],
+      ["植物通常需要陽光、水和空氣才能生長。", true],
+      ["山一定比所有的雲都高。", false],
+      ["木星是太陽系中最大的行星。", true],
+      ["地球是太陽系中最大的行星。", false],
+      ["土星有很明顯的環。", true],
+      ["太陽是離地球最近的恆星。", true],
+      ["月亮繞著地球運行。", true],
+      ["地球繞著太陽運行。", true],
+      ["四季變化完全是因為地球離太陽忽遠忽近。", false],
+      ["月亮的引力會影響海水潮汐。", true],
+      ["日食時，月亮可能會擋住太陽。", true],
+      ["月食時，地球的影子可能會落在月亮上。", true],
+      ["火星常被稱為紅色星球。", true],
+      ["火星是一顆完全藍色的行星。", false],
+      ["銀河系是一個星系。", true],
+      ["太空人通常需要穿太空衣來保護自己。", true],
+      ["太空衣可以幫助太空人取得需要的空氣。", true],
+      ["望遠鏡可以幫助我們觀察遙遠的天體。", true],
+      ["彗星通常含有冰和岩石。", true],
+      ["流星通常是夜空中發亮的光線。", true],
+      ["太陽每天真的繞著地球跑一圈。", false],
+      ["南北極地區通常比赤道附近寒冷。", true],
+      ["地球有空氣和大氣層。", true],
+      ["外太空幾乎沒有可以傳播聲音的空氣。", true],
+      ["聲音可以直接穿過空無一物的太空。", false],
+      ["地球是平平的一片。", false],
+      ["月亮總是大約同一面朝向地球。", true],
+      ["地球每天剛好有12小時白天和12小時黑夜。", false],
+  ["我們用眼睛看東西。", true],
+  ["我們用耳朵聽聲音。", true],
+  ["我們用鼻子聞味道。", true],
+  ["舌頭可以幫助我們分辨味道。", true],
+  ["心臟可以幫助血液流遍全身。", true],
+  ["人呼吸時需要氧氣。", true],
+  ["糖果可以代替所有健康食物。", false],
+  ["吃東西前洗手是好習慣。", true],
+  ["刷牙可以幫助保護牙齒。", true],
+  ["口渴時喝白開水通常是很好的選擇。", true],
+  ["睡覺可以讓身體休息。", true],
+  ["運動時心跳通常會變快。", true],
+  ["安全帽主要是保護腳部的。", false],
+  ["過馬路時走斑馬線比較安全。", true],
+  ["看到紅燈時可以直接衝過馬路。", false],
+  ["坐車時繫安全帶有助於保護自己。", true],
+  ["雨傘可以用來遮雨。", true],
+  ["天氣冷時穿外套可以保暖。", true],
+  ["冰塊遇到熱會融化。", true],
+  ["水放進冷凍庫會變成冰。", true],
+  ["水煮開後可能會變成水蒸氣。", true],
+  ["風就是流動的空氣。", true],
+  ["雲裡通常有小水滴。", true],
+  ["雨通常會從雲裡落下來。", true],
+  ["閃電和雷雨天氣有關。", true],
+  ["打雷的聲音和閃電有關。", true],
+  ["彩虹通常需要光線才看得見。", true],
+  ["太陽可以帶給地球光和熱。", true],
+  ["月亮是一顆會自己發光的太陽。", false],
+  ["地球大約是球形的。", true],
+  ["地球繞著太陽運行。", true],
+  ["月亮繞著地球運行。", true],
+  ["地球自轉和白天、黑夜有關。", true],
+  ["魚通常生活在水裡。", true],
+  ["魚主要用鰓在水中呼吸。", true],
+  ["鳥類通常有羽毛。", true],
+  ["蝴蝶小時候通常是毛毛蟲。", true],
+  ["蜜蜂會採集花蜜。", true],
+  ["植物的根通常長在土裡。", true],
+  ["植物生長完全不需要水。", false],
+  ["綠色植物的葉子可以接觸陽光。", true],
+  ["影子通常和光被物體擋住有關。", true],
+  ["磁鐵可以吸住所有東西。", false],
+  ["尺可以測量長度。", true],
+  ["溫度計可以測量溫度。", true],
+  ["指南針可以幫助辨認方向。", true],
+  ["垃圾應該丟進垃圾桶。", true],
+  ["不使用電燈時把它關掉可以節省電力。", true],
+  ["洗手時使用肥皂可以幫助清潔雙手。", true],
+  ["把垃圾丟進河裡是保護環境的好方法。", false],
+  ["流汗可以幫助身體散熱。", true],
+  ["打噴嚏時遮住口鼻是比較衛生的做法。", true],
+  ["受傷流血時，可以先告訴大人。", true],
+  ["吃很多甜食可以讓牙齒永遠健康。", false],
+  ["新鮮牛奶通常需要冷藏保存。", true],
+  ["食物發霉後仍然一定可以安全食用。", false],
+  ["慢慢咀嚼食物有助於吞嚥。", true],
+  ["橡皮擦可以擦掉鉛筆字。", true],
+  ["剪刀不用時應該收好。", true],
+  ["拿著剪刀奔跑是安全的行為。", false],
+  ["鉛筆可以用來寫字。", true],
+  ["膠帶可以用來黏貼一些破掉的紙張。", true],
+  ["時鐘的短針通常表示小時。", true],
+  ["一星期通常有七天。", true],
+  ["一年通常有十二個月。", true],
+  ["晚上睡覺前刷牙是好習慣。", true],
+  ["透明玻璃通常可以讓光線穿過。", true],
+  ["木頭通常會沉到水底。", false],
+  ["小石頭放入水中通常會沉下去。", true],
+  ["相同磁極靠近時通常會互相排斥。", true],
+  ["磁鐵可以吸住所有種類的物品。", false],
+  ["用力推球，球可能會向前滾動。", true],
+  ["斜坡有時可以幫助搬運物品。", true],
+  ["輪子可以讓物品更容易移動。", true],
+  ["手電筒通常需要電池才能發光。", true],
+  ["電風扇可以讓空氣流動。", true],
+  ["露水常常是早晨葉子上的小水珠。", true],
+  ["天氣預報可以預測每個人的心情。", false],
+  ["下雨後的路面可能會變得濕滑。", true],
+  ["夏天在太陽下待太久可能會覺得很熱。", true],
+  ["帽子可以在夏天幫助遮擋陽光。", true],
+  ["花朵可能和植物結果實有關。", true],
+  ["種子在適合的環境中可能長成植物。", true],
+  ["仙人掌通常喜歡非常潮濕的水中環境。", false],
+  ["樹幹可以支撐樹枝和葉子。", true],
+  ["螞蟻通常有六隻腳。", true],
+  ["蜘蛛通常有八隻腳。", true],
+  ["青蛙的卵通常會在水中或水邊出現。", true],
+  ["蜘蛛會吐絲結網。", true],
+  ["海豚主要生活在沙漠裡。", false],
+  ["有些動物會在寒冷季節冬眠。", true],
+  ["狗有時會用搖尾巴表示開心。", true],
+  ["圖書館裡大聲尖叫是合適的行為。", false],
+  ["借用別人的東西前先詢問是有禮貌的做法。", true],
+  ["看到地上有水時，慢慢走比較安全。", true],
+  ["拿走別人的東西而不詢問是好習慣。", false],
+  ["保持物品整齊可以讓我們更容易找到東西。", true],
+  ["用完玩具後把它放回原位是好習慣。", true],
+  ["排隊時應該遵守先來後到的規則。", true],
+  ["看到別人跌倒時，可以在安全的情況下請大人幫忙。", true],
+  ["在室內奔跑通常比慢慢走更安全。", false]
+    ];
+
+    const challengeCategories = [
+      {
+        id: "spin",
+        name: "旋轉挑戰",
+        type: "spin_manual",
+        levels: [
+          { diffName: "30秒 (簡單)", reward: 200, need: 100, target: "30秒", timeLimit: 30 },
+          { diffName: "40秒 (中等)", reward: 500, need: 200, target: "40秒", timeLimit: 40 },
+          { diffName: "50秒 (困難)", reward: 1000, need: 300, target: "50秒", timeLimit: 50 }
+        ]
+      },
+      {
+        id: "knock",
+        name: "擊飛挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "1顆 (簡單)", reward: 200, need: 100, type: "action", target: "1顆" },
+          { diffName: "2顆 (中等)", reward: 500, need: 200, type: "action", target: "2顆" },
+          { diffName: "3顆 (困難)", reward: 1000, need: 300, type: "action", target: "3顆" }
+        ]
+      },
+      {
+        id: "color",
+        name: "抽獎機台猜顏色",
+        type: "color_guess",
+        need: 200,
+        options: [
+          { colorName: "黑色", reward: 500 },
+          { colorName: "白色", reward: 500 },
+          { colorName: "紅色", reward: 500 }
+        ]
+      },
+      {
+        id: "math_add_sub",
+        name: "數學挑戰(加減)",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (兩數相加)", reward: 200, need: 100, type: "math_add_2" },
+          { diffName: "中等 (兩數相減)", reward: 500, need: 200, type: "math_sub_2" },
+          { diffName: "困難 (三數加減)", reward: 1000, need: 300, type: "math_mix_3" }
+        ]
+      },
+      {
+        id: "math_compare",
+        name: "數學挑戰(大小)",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (1-99 比大小)", reward: 200, need: 100, type: "math_cmp_easy" },
+          { diffName: "中等 (100-999 比大小)", reward: 500, need: 200, type: "math_cmp_med" },
+          { diffName: "困難 (1000-9999 比大小)", reward: 1000, need: 300, type: "math_cmp_hard" }
+        ]
+      },
+      {
+        id: "math_geometry",
+        name: "數學挑戰(幾何)",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (認識形狀)", reward: 200, need: 100, type: "geometry_easy" },
+          { diffName: "中等 (周長與面積)", reward: 500, need: 200, type: "geometry_medium" },
+          { diffName: "困難 (角度與幾何)", reward: 1000, need: 300, type: "geometry_hard" }
+        ]
+      },
+      {
+        id: "money",
+        name: "💰 金錢挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (買一樣東西)", reward: 200, need: 100, type: "kid_money_easy" },
+          { diffName: "中等 (買兩樣東西)", reward: 500, need: 200, type: "kid_money_medium" },
+          { diffName: "困難 (連續買東西)", reward: 1000, need: 300, type: "kid_money_hard" }
+        ]
+      },
+      {
+        id: "logic",
+        name: "🧩 邏輯挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (找規律)", reward: 200, need: 100, type: "kid_logic_easy" },
+          { diffName: "中等 (找規律)", reward: 500, need: 200, type: "kid_logic_medium" },
+          { diffName: "困難 (推理)", reward: 1000, need: 300, type: "kid_logic_hard" }
+        ]
+      },
+      {
+        id: "observation",
+        name: "👀 觀察力挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (找不同)", reward: 200, need: 100, type: "kid_observation_easy" },
+          { diffName: "中等 (找不同)", reward: 500, need: 200, type: "kid_observation_medium" },
+          { diffName: "困難 (快速找不同)", reward: 1000, need: 300, type: "kid_observation_hard" }
+        ]
+      },
+      {
+        id: "memory",
+        name: "🧠 記憶挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (記3個)", reward: 200, need: 100, type: "kid_memory_easy" },
+          { diffName: "中等 (記4個)", reward: 500, need: 200, type: "kid_memory_medium" },
+          { diffName: "困難 (記5個)", reward: 1000, need: 300, type: "kid_memory_hard" }
+        ]
+      },
+      {
+        id: "direction",
+        name: "🗺️ 方向挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (上下左右)", reward: 200, need: 100, type: "kid_direction_easy" },
+          { diffName: "中等 (兩步方向)", reward: 500, need: 200, type: "kid_direction_medium" },
+          { diffName: "困難 (多步方向)", reward: 1000, need: 300, type: "kid_direction_hard" }
+        ]
+      },
+      {
+        id: "shape_color",
+        name: "🎨 顏色形狀挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (認顏色)", reward: 200, need: 100, type: "kid_shape_color_easy" },
+          { diffName: "中等 (顏色＋形狀)", reward: 500, need: 200, type: "kid_shape_color_medium" },
+          { diffName: "困難 (快速辨識)", reward: 1000, need: 300, type: "kid_shape_color_hard" }
+        ]
+      },
+      {
+        id: "reaction",
+        name: "⚡ 快速反應挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (快速選擇)", reward: 200, need: 100, type: "kid_reaction_easy", timeLimit: 5 },
+          { diffName: "中等 (更快)", reward: 500, need: 200, type: "kid_reaction_medium", timeLimit: 4 },
+          { diffName: "困難 (超快)", reward: 1000, need: 300, type: "kid_reaction_hard", timeLimit: 3 }
+        ]
+      },
+      {
+        id: "lottery",
+        name: "🎰 樂透功能",
+        type: "lottery",
+        levels: []
+      },
+      {
+        id: "math_mul_div",
+        name: "數學挑戰(乘除)",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (兩數相乘)", reward: 200, need: 100, type: "math_mul_2" },
+          { diffName: "中等 (兩數相除)", reward: 500, need: 200, type: "math_div_2" },
+          { diffName: "困難 (三數相乘除)", reward: 1000, need: 300, type: "math_mix_mul_div_3" }
+        ]
+      },
+      {
+        id: "phonics_en",
+        name: "英文字母發音挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (1個字母)", reward: 200, need: 100, type: "phonics_en", count: 1 },
+          { diffName: "中等 (2個字母)", reward: 500, need: 200, type: "phonics_en", count: 2 },
+          { diffName: "困難 (3個字母)", reward: 1000, need: 300, type: "phonics_en", count: 3 }
+        ]
+      },
+      {
+        id: "phonics_zh",
+        name: "中文注音發音挑戰",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (1個注音)", reward: 200, need: 100, type: "phonics_zh", count: 1 },
+          { diffName: "中等 (2個注音)", reward: 500, need: 200, type: "phonics_zh", count: 2 },
+          { diffName: "困難 (3個注音)", reward: 1000, need: 300, type: "phonics_zh", count: 3 }
+        ]
+      },
+      {
+        id: "word_en",
+        name: "英文單字猜猜看",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_en" },
+          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_en" },
+          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_en" }
+        ]
+      },
+      {
+        id: "word_zh",
+        name: "中文單字猜猜看",
+        type: "normal",
+        levels: [
+          { diffName: "簡單 (扣$100 / 賺$200)", reward: 200, need: 100, type: "word_zh" },
+          { diffName: "中等 (扣$200 / 賺$500)", reward: 500, need: 200, type: "word_zh" },
+          { diffName: "困難 (扣$300 / 賺$1000)", reward: 1000, need: 300, type: "word_zh" }
+        ]
+      },
+      {
+        id: "animal",
+        name: "動物猜猜看問答",
+        type: "normal",
+        levels: [
+          { diffName: "題目1（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" },
+          { diffName: "題目2（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" },
+          { diffName: "題目3（扣$100／賺$200）", reward: 200, need: 100, type: "ocean_yes_no" }
+        ]
+      },
+      {
+        id: "science_tf",
+        name: "科學小常識（是非）",
+        type: "normal",
+        levels: [
+          { diffName: "是非題（扣$100／賺$200）", reward: 200, need: 100, type: "science_tf" }
+        ]
+      },
+      {
+        id: "science_choice",
+        name: "科學小常識（選擇題）",
+        type: "normal",
+        levels: [
+          { diffName: "選擇題（扣$100／賺$200）", reward: 200, need: 100, type: "science_choice" }
+        ]
+      }
+    ];
+
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playClickSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    function playStepSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    function playWinSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const startTime = audioCtx.currentTime + idx * 0.12;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+        gain.gain.setValueAtTime(0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(startTime); osc.stop(startTime + 0.3);
+      });
+    }
+
+    function playChallengeAlertSound() {
+      initAudio();
+      if (!audioCtx) return;
+      [0, 0.12].forEach((timeOffset, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const startTime = audioCtx.currentTime + timeOffset;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(idx === 0 ? 587.33 : 880, startTime);
+        gain.gain.setValueAtTime(0.25, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(startTime); osc.stop(startTime + 0.1);
+      });
+    }
+
+    function playFailSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    // 語音設定：偏向「沉穩、清楚、像老師」的男聲。
+    // 實際可用的聲音由使用者的瀏覽器 / Windows 語音引擎提供，因此會自動挑選最接近的男聲；
+    // 如果裝置沒有男聲，就使用最合適的中文語音作為備援。
+    let preferredTeacherVoice = null;
+
+    function selectTeacherVoice(lang = 'zh-TW') {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return null;
+
+      const zhVoices = voices.filter(v =>
+        v.lang && (v.lang.toLowerCase().startsWith('zh-tw') || v.lang.toLowerCase().startsWith('zh-hk') || v.lang.toLowerCase().startsWith('zh-cn'))
+      );
+      const pool = zhVoices.length ? zhVoices : voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('zh'));
+
+      // 常見男聲名稱關鍵字（不同瀏覽器 / 作業系統命名不同）。
+      const maleKeywords = ['yun', 'male', '男', '男聲', '雲', '雲希', '雲健', '雲揚', 'kevin', 'david', 'james', 'daniel'];
+      preferredTeacherVoice = pool.find(v => maleKeywords.some(k => v.name.toLowerCase().includes(k.toLowerCase()))) || pool[0] || null;
+      return preferredTeacherVoice;
+    }
+
+    if ('speechSynthesis' in window) {
+      // Chrome / Edge 常在頁面載入後才把語音清單送進來。
+      window.speechSynthesis.addEventListener('voiceschanged', () => selectTeacherVoice('zh-TW'));
+      selectTeacherVoice('zh-TW');
+    }
+
+    function normalizeSpeechText(text, lang = 'zh-TW') {
+      let t = String(text)
+        .replace(/\[已扣 \$\d+\]/g, '')
+        .replace(/\$([\d,]+)/g, '$1 元')
+        .replace(/×/g, ' 乘以 ')
+        .replace(/÷/g, ' 除以 ')
+        .replace(/=/g, ' 等於 ')
+        .replace(/\?/g, '？')
+        .replace(/!/g, '！')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return t;
+    }
+
+    // ★ 注音／英文字母專用朗讀：每個項目念完後停頓，速度獨立可調。
+    function speakPronunciationSequence(items, lang = 'zh-TW', mode = 'whole') {
+      if (!('speechSynthesis' in window)) return;
+
+      window.speechSynthesis.cancel();
+
+      const isEnglish = lang.toLowerCase().startsWith('en');
+      const rate = isEnglish ? SPEECH_RATE_ENGLISH : SPEECH_RATE_BOPOMOFO;
+
+      // 英文字母不能直接把「大寫 I」交給 TTS，
+      // 否則部分系統會念成 "capital I"。
+      // 改用標準字母名稱的可朗讀文字，但畫面仍顯示原本的 A/B/C。
+      const letterNames = {
+        A: 'eh', B: 'bee', C: 'see', D: 'dee', E: 'ee',
+        F: 'ef', G: 'gee', H: 'aitch', I: 'eye', J: 'jay',
+        K: 'kay', L: 'el', M: 'em', N: 'en', O: 'oh',
+        P: 'pee', Q: 'cue', R: 'ar', S: 'ess', T: 'tee',
+        U: 'you', V: 'vee', W: 'double you', X: 'ex',
+        Y: 'why', Z: 'zee'
+      };
+
+      let queue = [];
+
+      if (isEnglish && mode === 'letters') {
+        items.forEach(item => {
+          const text = String(item || '').trim().toUpperCase();
+          for (const ch of text) {
+            if (letterNames[ch]) {
+              queue.push({ display: ch, audio: letterNames[ch] });
+            }
+          }
+        });
+      } else {
+        queue = items
+          .map(x => {
+            const text = String(x || '').trim();
+            return { display: text, audio: text };
+          })
+          .filter(x => x.audio);
+      }
+
+      let index = 0;
+
+      function getVoice() {
+        const voices = window.speechSynthesis.getVoices();
+
+        if (isEnglish) {
+          return voices.find(v => /^en-US$/i.test(v.lang)) ||
+                 voices.find(v => /^en-GB$/i.test(v.lang)) ||
+                 voices.find(v => /^en/i.test(v.lang)) || null;
+        }
+
+        return preferredTeacherVoice || selectTeacherVoice(lang) || null;
+      }
+
+      function playNext() {
+        if (index >= queue.length) return;
+
+        const item = queue[index++];
+        const utterance = new SpeechSynthesisUtterance(item.audio);
+
+        utterance.lang = isEnglish ? 'en-US' : lang;
+        utterance.rate = rate;
+        utterance.pitch = 0.88;
+        utterance.volume = 1.0;
+
+        const voice = getVoice();
+        if (voice) utterance.voice = voice;
+
+        utterance.onend = () => {
+          setTimeout(playNext, PRONUNCIATION_PAUSE);
+        };
+        utterance.onerror = () => {
+          setTimeout(playNext, PRONUNCIATION_PAUSE);
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
+
+      playNext();
+    }
+
+    function speakPromptThenPronunciation(prompt, items, lang, mode = 'whole') {
+      if (!('speechSynthesis' in window)) return;
+
+      window.speechSynthesis.cancel();
+
+      const promptUtterance = new SpeechSynthesisUtterance(normalizeSpeechText(prompt, 'zh-TW'));
+      promptUtterance.lang = 'zh-TW';
+      promptUtterance.rate = SPEECH_RATE_ZH;
+      promptUtterance.pitch = 0.88;
+      promptUtterance.volume = 1.0;
+
+      const voice = preferredTeacherVoice || selectTeacherVoice('zh-TW');
+      if (voice) promptUtterance.voice = voice;
+
+      promptUtterance.onend = () => {
+        setTimeout(() => {
+          speakPronunciationSequence(items, lang, mode);
+        }, PRONUNCIATION_PAUSE);
+      };
+
+      promptUtterance.onerror = () => {
+        setTimeout(() => {
+          speakPronunciationSequence(items, lang, mode);
+        }, PRONUNCIATION_PAUSE);
+      };
+
+      window.speechSynthesis.speak(promptUtterance);
+    }
+
+    function speakText(text, lang = 'zh-TW') {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(normalizeSpeechText(text, lang));
+      utterance.lang = lang;
+      utterance.rate = lang.toLowerCase().startsWith('zh') ? 0.84 : 0.82;
+      utterance.pitch = 0.88;
+      utterance.volume = 1.0;
+      if (lang.toLowerCase().startsWith('zh')) {
+        const voice = preferredTeacherVoice || selectTeacherVoice(lang);
+        if (voice) utterance.voice = voice;
+      } else {
+        const voices = window.speechSynthesis.getVoices();
+        const sameLang = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));
+        if (sameLang.length) utterance.voice = sameLang[0];
+      }
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakSequence(parts, lang = 'zh-TW', delay = 120) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const queue = parts.filter(Boolean).map(x => normalizeSpeechText(x, lang));
+      let i = 0;
+      function next() {
+        if (i >= queue.length) return;
+        const u = new SpeechSynthesisUtterance(queue[i++]);
+        u.lang = lang; u.rate = lang.toLowerCase().startsWith('zh') ? SPEECH_RATE_ZH : SPEECH_RATE_ENGLISH; u.pitch = 0.88; u.volume = 1;
+        if (lang.toLowerCase().startsWith('zh')) {
+          const v = preferredTeacherVoice || selectTeacherVoice(lang); if (v) u.voice = v;
+        }
+        u.onend = () => setTimeout(next, delay);
+        window.speechSynthesis.speak(u);
+      }
+      next();
+    }
+
+    const boardConfigs = {
+      20: { cols: 5, rows: 7 },
+      28: { cols: 6, rows: 10 },
+      36: { cols: 8, rows: 12 },
+      42: { cols: 9, rows: 14 },
+      54: { cols: 13, rows: 16 },
+      66: { cols: 16, rows: 19 },
+      72: { cols: 18, rows: 20 },
+      84: { cols: 21, rows: 23 }
+    };
+
+    let boardCellCount = 28;
+    let pathCoords = [];
+    let cellElements = [];
+
+    let totalPlayersCount = 1;
+    let currentPlayerIdx = 0;
+    let players = [];
+    let activeFilterTabIdx = 0;
+
+    let countdownInterval = null;
+    let isMoving = false;
+    let isRolling = false;
+    let currentMoneyDir = 1;
+    let selectedCategory = null;
+    let currentScienceExplanation = "";
+    // === 新增：樂透狀態 ===
+    let lotteryJackpot = 0;
+    let lotteryPurchases = {}; // { "01": playerIndex, ... }
+    let lotteryPendingPlayerIdx = null;
+    // 每位玩家每輪最多購買的樂透號碼數，預設 1，可隨時調整。
+    let lotteryMaxNumbersPerPurchase = 1;
+    // ★ 注音與英文字母獨立語速；一般中文維持原設定。
+    let SPEECH_RATE_ZH = 0.84;
+    let SPEECH_RATE_BOPOMOFO = 0.65;
+    let SPEECH_RATE_ENGLISH = 0.65;
+    // ★ 注音／英文字母逐項朗讀時的停頓時間（毫秒）。
+    let PRONUNCIATION_PAUSE = 500;
+    let lotteryDrawTimer = null;
+    let moveDiceCount = 1;
+
+    let setupTotalPlayers = 1;
+    let setupCurrentConfigIdx = 0;
+    let setupSelectedAvatar = oceanAnimals[0];
+
+    function initGameSetup() {
+      setupTotalPlayers = 1;
+      setupCurrentConfigIdx = 0;
+      document.getElementById('setupPlayerCountDisplay').innerText = setupTotalPlayers;
+      renderAvatarGrid();
+      updateSetupModalUI();
+      openModal('setupModal');
+    }
+
+    function changeSetupPlayerCount(delta) {
+      playClickSound();
+      setupTotalPlayers = Math.max(1, Math.min(4, setupTotalPlayers + delta));
+      document.getElementById('setupPlayerCountDisplay').innerText = setupTotalPlayers;
+    }
+
+    function renderAvatarGrid() {
+      const grid = document.getElementById('avatarGrid');
+      grid.innerHTML = '';
+      oceanAnimals.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = `avatar-card ${idx === 0 ? 'selected' : ''}`;
+        const imgPath = `${IMAGE_FOLDER}/${encodeURIComponent(item.file)}.${IMAGE_EXT}`;
+        card.innerHTML = `
+          <img src="${imgPath}" alt="${item.name}">
+          <span>${item.name}</span>
+        `;
+        card.onclick = () => {
+          playClickSound();
+          document.querySelectorAll('.avatar-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          setupSelectedAvatar = item;
+        };
+        grid.appendChild(card);
+      });
+      setupSelectedAvatar = oceanAnimals[0];
+    }
+
+    function updateSetupModalUI() {
+      document.getElementById('setupPlayerTitle').innerText = `玩家 ${setupCurrentConfigIdx + 1}：選擇貼圖棋子`;
+    }
+
+    function confirmPlayerAvatar() {
+      playClickSound();
+      if (setupCurrentConfigIdx === 0) {
+        players = [];
+        totalPlayersCount = setupTotalPlayers;
+      }
+
+      players.push({
+        id: setupCurrentConfigIdx,
+        name: `玩家 ${setupCurrentConfigIdx + 1}`,
+        color: playerColors[setupCurrentConfigIdx],
+        avatar: setupSelectedAvatar,
+        position: 0,
+        totalStepsTaken: 0,
+        completedLaps: 0,
+        successfulChallenges: 0,
+        totalMoney: 0,
+        timerLimit: 40, // 各別玩家的時間限制，預設10秒
+        challenges: challengeCategories.map(c => c.id)
+      });
+
+      setupCurrentConfigIdx++;
+
+      if (setupCurrentConfigIdx < totalPlayersCount) {
+        renderAvatarGrid();
+        updateSetupModalUI();
+      } else {
+        closeModal('setupModal');
+        currentPlayerIdx = 0;
+        activeFilterTabIdx = 0;
+        buildBoard(boardCellCount);
+        renderFilterPlayerTabs();
+        renderFilterUI();
+        updateOverallProgressUI();
+        updateCurrentPlayerBanner();
+      }
+    }
+
+    function changeWinCondValue(inputId, delta, minVal) {
+      playClickSound();
+      const input = document.getElementById(inputId);
+      let val = (parseInt(input.value, 10) || minVal) + delta;
+      if (val < minVal) val = minVal;
+      input.value = val;
+    }
+
+    function buildBoard(cellCount) {
+      boardCellCount = cellCount;
+      const config = boardConfigs[cellCount] || boardConfigs[28];
+      const cols = config.cols;
+      const rows = config.rows;
+
+      const board = document.getElementById('board');
+      const oldCells = board.querySelectorAll('.cell');
+      oldCells.forEach(cell => cell.remove());
+
+      board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+      pathCoords = [];
+      for (let c = 1; c <= cols; c++) pathCoords.push({ r: 1, c: c });
+      for (let r = 2; r <= rows; r++) pathCoords.push({ r: r, c: cols });
+      for (let c = cols - 1; c >= 1; c--) pathCoords.push({ r: rows, c: c });
+      for (let r = rows - 1; r >= 2; r--) pathCoords.push({ r: r, c: 1 });
+
+      cellElements = [];
+      pathCoords.forEach((coord, idx) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.id = `cell-${idx}`;
+        cell.style.gridRow = coord.r;
+        cell.style.gridColumn = coord.c;
+
+        const label = document.createElement('div');
+        if (idx === 0) {
+          cell.classList.add('start-cell');
+          label.innerHTML = '起點';
+        } else {
+          label.innerText = idx;
+        }
+        cell.appendChild(label);
+
+        const tokensContainer = document.createElement('div');
+        tokensContainer.className = 'cell-tokens';
+        cell.appendChild(tokensContainer);
+
+        board.appendChild(cell);
+        cellElements.push(cell);
+      });
+
+      const centerDashboard = document.getElementById('centerDashboard');
+      centerDashboard.style.gridColumn = `2 / ${cols}`;
+      centerDashboard.style.gridRow = `2 / ${rows}`;
+      centerDashboard.style.minWidth = '0';
+      centerDashboard.style.minHeight = '0';
+      centerDashboard.style.width = '100%';
+      centerDashboard.style.height = '100%';
+      centerDashboard.style.boxSizing = 'border-box';
+
+      updatePlayerPositionUI();
+    }
+
+    function changeBoardSize(size) {
+      playClickSound();
+      buildBoard(size);
+    }
+
+    function renderFilterPlayerTabs() {
+      const tabs = document.getElementById('filterPlayerTabs');
+      tabs.innerHTML = '';
+      players.forEach((p, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `player-tab-btn ${idx === activeFilterTabIdx ? 'active' : ''}`;
+        btn.style.backgroundColor = idx === activeFilterTabIdx ? p.color : '#dfe6e9';
+        btn.innerText = p.name;
+        btn.onclick = () => {
+          playClickSound();
+          activeFilterTabIdx = idx;
+          renderFilterPlayerTabs();
+          renderFilterUI();
+        };
+        tabs.appendChild(btn);
+      });
+    }
+
+    function renderFilterUI() {
+      const grid = document.getElementById('filterGrid');
+      grid.innerHTML = '';
+      const p = players[activeFilterTabIdx] || players[0];
+      if (!p) return;
+
+      document.getElementById('playerTimerSettingDisplay').innerText = `${p.timerLimit}秒`;
+
+      challengeCategories.forEach((cat) => {
+        const isChecked = p.challenges.includes(cat.id);
+        const item = document.createElement('label');
+        item.className = 'filter-item';
+        item.innerHTML = `
+          <input type="checkbox" id="filter-${cat.id}" ${isChecked ? 'checked' : ''} onchange="togglePlayerChallenge('${cat.id}', this.checked)">
+          <span>${cat.name}</span>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    /* 調整各別玩家秒數限制 */
+    function changePlayerTimerSetting(delta) {
+      playClickSound();
+      const p = players[activeFilterTabIdx];
+      if (!p) return;
+      p.timerLimit = Math.max(1, p.timerLimit + delta);
+      document.getElementById('playerTimerSettingDisplay').innerText = `${p.timerLimit}秒`;
+    }
+
+    function togglePlayerChallenge(catId, checked) {
+      const p = players[activeFilterTabIdx];
+      if (!p) return;
+      if (checked) {
+        if (!p.challenges.includes(catId)) p.challenges.push(catId);
+      } else {
+        p.challenges = p.challenges.filter(id => id !== catId);
+      }
+    }
+
+    function changeLotteryMaxNumbers(delta) {
+      playClickSound();
+      lotteryMaxNumbersPerPurchase = Math.max(1, Math.min(18, lotteryMaxNumbersPerPurchase + delta));
+      const el = document.getElementById('lotteryMaxNumbersDisplay');
+      if (el) el.innerText = `${lotteryMaxNumbersPerPurchase} 個`;
+      if (typeof renderLotteryNumberButtons === 'function' && document.getElementById('lotteryNumberGrid')) {
+        renderLotteryNumberButtons();
+      }
+    }
+
+    function getPlayerLotteryCount(playerId) {
+      return Object.values(lotteryPurchases || {}).filter(id => id === playerId).length;
+    }
+
+    function changeSpeechRate(type, delta) {
+      playClickSound();
+      if (type === 'bopomofo') {
+        SPEECH_RATE_BOPOMOFO = Math.max(0.35, Math.min(1.2, +(SPEECH_RATE_BOPOMOFO + delta).toFixed(2)));
+        const el = document.getElementById('speechRateBopomofoDisplay');
+        if (el) el.innerText = SPEECH_RATE_BOPOMOFO.toFixed(2);
+      } else if (type === 'english') {
+        SPEECH_RATE_ENGLISH = Math.max(0.35, Math.min(1.2, +(SPEECH_RATE_ENGLISH + delta).toFixed(2)));
+        const el = document.getElementById('speechRateEnglishDisplay');
+        if (el) el.innerText = SPEECH_RATE_ENGLISH.toFixed(2);
+      }
+    }
+
+    function changePronunciationPause(delta) {
+      playClickSound();
+      PRONUNCIATION_PAUSE = Math.max(100, Math.min(2000, PRONUNCIATION_PAUSE + delta));
+      const el = document.getElementById('pronunciationPauseDisplay');
+      if (el) el.innerText = `${PRONUNCIATION_PAUSE}ms`;
+    }
+
+    function toggleAllFilters(enable) {
+      playClickSound();
+      const p = players[activeFilterTabIdx];
+      if (!p) return;
+      if (enable) {
+        p.challenges = challengeCategories.map(c => c.id);
+      } else {
+        p.challenges = [];
+      }
+      renderFilterUI();
+    }
+
+    function updateCurrentPlayerBanner() {
+      const p = players[currentPlayerIdx];
+      if (!p) return;
+      const banner = document.getElementById('playerBanner');
+      banner.style.backgroundColor = p.color;
+      
+      const avatarImg = document.getElementById('bannerAvatar');
+      avatarImg.src = `${IMAGE_FOLDER}/${encodeURIComponent(p.avatar.file)}.${IMAGE_EXT}`;
+      avatarImg.style.display = 'inline-block';
+
+      document.getElementById('bannerText').innerText = `${p.name} 的回合 (${p.avatar.name})`;
+      document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+    }
+
+    function updateOverallProgressUI() {
+      const row = document.getElementById('overallProgressRow');
+      row.innerHTML = '';
+      players.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'progress-card';
+        card.style.backgroundColor = p.color;
+        const imgPath = `${IMAGE_FOLDER}/${encodeURIComponent(p.avatar.file)}.${IMAGE_EXT}`;
+        card.innerHTML = `
+          <img src="${imgPath}" alt="${p.avatar.name}">
+          <div>${p.name}</div>
+          <div>💰 $${p.totalMoney}</div>
+          <div>圈數: ${p.completedLaps}</div>
+          <div>挑戰: ${p.successfulChallenges}</div>
+          <div>🎰 樂透: ${getPlayerLotteryNumbers(p.id)}</div>
+        `;
+        row.appendChild(card);
+      });
+    }
+
+    function switchNextPlayer() {
+      currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+      updateCurrentPlayerBanner();
+      updateOverallProgressUI();
+    }
+
+    /* 新增：切換回上一個玩家 */
+    function switchPrevPlayer() {
+      playClickSound();
+      if (isMoving || isRolling) return;
+      currentPlayerIdx = (currentPlayerIdx - 1 + players.length) % players.length;
+      updateCurrentPlayerBanner();
+      updateOverallProgressUI();
+    }
+
+    function rollSingleDice(type) {
+      if (isRolling || isMoving) return;
+      isRolling = true;
+      playClickSound();
+
+      const p = players[currentPlayerIdx];
+      const maxVal = (type === 'money') ? 5 : 18;
+      const targetBox = document.getElementById(type === 'money' ? 'moneyDiceBox' : 'stepDiceBox');
+      targetBox.classList.add('rolling');
+
+      const rollInterval = setInterval(() => {
+        targetBox.innerText = Math.floor(Math.random() * maxVal) + 1;
+        playStepSound();
+      }, 60);
+
+      setTimeout(() => {
+        clearInterval(rollInterval);
+        const finalValue = Math.floor(Math.random() * maxVal) + 1;
+        targetBox.innerText = finalValue;
+        targetBox.classList.remove('rolling');
+        isRolling = false;
+
+        if (type === 'money') {
+          const earned = finalValue * 100;
+          p.totalMoney += earned;
+          document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+          updateOverallProgressUI();
+          
+          document.getElementById('diceModalTitle').innerText = `💰 ${p.name} - 金額骰結果`;
+          document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
+          document.getElementById('diceModalMoney').innerText = `獲得金額：${earned} 元`;
+          if (checkWinCondition()) return;
+        } else {
+          document.getElementById('diceModalTitle').innerText = `🎁 ${p.name} - 抽獎結果`;
+          document.getElementById('diceModalPoint').innerText = `骰出點數：${finalValue} 點`;
+          document.getElementById('diceModalMoney').innerText = `獎品號碼：${finalValue} 號`;
+        }
+        const diceConfirmBtn = document.querySelector('#diceModal .modal-btn');
+        if (type === 'money') {
+          diceConfirmBtn.innerText = '確定 (換下位)';
+          diceConfirmBtn.onclick = () => { closeModal('diceModal'); switchNextPlayer(); };
+        } else {
+          diceConfirmBtn.innerText = '確定';
+          diceConfirmBtn.onclick = () => closeModal('diceModal');
+        }
+        openModal('diceModal');
+      }, 800);
+    }
+
+
+    function setMoveDiceCount(count) {
+      if (isMoving || isRolling) return;
+      playClickSound();
+      moveDiceCount = Math.max(1, Math.min(3, count));
+      document.querySelectorAll('#moveDiceCountGroup .move-dice-count-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 1 === moveDiceCount);
+      });
+      document.getElementById('moveDice2').style.display = moveDiceCount >= 2 ? 'flex' : 'none';
+      document.getElementById('moveDice3').style.display = moveDiceCount >= 3 ? 'flex' : 'none';
+      document.getElementById('moveDiceResult').innerText =
+        `本次使用 ${moveDiceCount} 顆骰子`;
+    }
+
+    function randomMoveDieValue(index) {
+      // 第 1 顆：1～3；第 2、3 顆：0～3。
+      return index === 0
+        ? Math.floor(Math.random() * 3) + 1
+        : Math.floor(Math.random() * 4);
+    }
+
+    async function rollMoveDice() {
+      if (isRolling || isMoving || !players.length) return;
+
+      isRolling = true;
+      playClickSound();
+
+      const boxes = [
+        document.getElementById('moveDice1'),
+        document.getElementById('moveDice2'),
+        document.getElementById('moveDice3')
+      ];
+
+      const activeBoxes = boxes.slice(0, moveDiceCount);
+      activeBoxes.forEach(b => b.classList.add('rolling'));
+
+      const rollInterval = setInterval(() => {
+        activeBoxes.forEach((box, idx) => {
+          box.innerText = randomMoveDieValue(idx);
+        });
+        playStepSound();
+      }, 70);
+
+      setTimeout(async () => {
+        clearInterval(rollInterval);
+
+        const values = activeBoxes.map((box, idx) => {
+          const value = randomMoveDieValue(idx);
+          box.innerText = value;
+          box.classList.remove('rolling');
+          return value;
+        });
+
+        const total = values.reduce((sum, v) => sum + v, 0);
+        document.getElementById('moveDiceResult').innerText =
+          `🎯 骰出 ${values.join(' + ')} = 前進 ${total} 格`;
+
+        isRolling = false;
+
+        // 第一顆一定至少 1，所以總步數不會是 0。
+        await movePlayerStepByStep(total);
+      }, 900);
+    }
+
+    function customAdjustMoney(direction) {
+      playClickSound();
+      currentMoneyDir = direction;
+      document.getElementById('moneyModalTitle').innerText = direction > 0 ? "💰 增加金額 (+)" : "💰 扣除金額 (-)";
+      document.getElementById('moneyModalInput').value = 0;
+      openModal('moneyModal');
+    }
+
+    function changeModalMoneyInput(delta) {
+      playClickSound();
+      const input = document.getElementById('moneyModalInput');
+      let val = parseInt(input.value, 10) || 0;
+      input.value = Math.max(0, val + delta);
+    }
+
+    function confirmCustomMoney() {
+      playClickSound();
+      const p = players[currentPlayerIdx];
+      const input = document.getElementById('moneyModalInput');
+      let amount = parseInt(input.value, 10) || 0;
+      p.totalMoney += amount * currentMoneyDir;
+      document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+      updateOverallProgressUI();
+      checkWinCondition();
+      closeModal('moneyModal');
+    }
+
+    /* 移動彈窗控制 */
+    function openMoveModal() {
+      if (isMoving || isRolling) return;
+      playClickSound();
+      document.getElementById('stepInput').value = 1; // 預設步數為 1
+      openModal('moveModal');
+    }
+
+    function setStepInputValue(val) {
+      playClickSound();
+      document.getElementById('stepInput').value = val;
+    }
+
+    function changeStep(delta) {
+      playClickSound();
+      const input = document.getElementById('stepInput');
+      let val = (parseInt(input.value, 10) || 0) + delta;
+      if (val === 0) val = delta > 0 ? 1 : -1;
+      input.value = val;
+    }
+
+    function confirmModalMove() {
+      const input = document.getElementById('stepInput');
+      let steps = parseInt(input.value, 10);
+      if (isNaN(steps) || steps === 0) {
+        alert("輸入步數不可為 0 ！");
+        input.value = 1;
+        return;
+      }
+      closeModal('moveModal');
+      movePlayerStepByStep(steps);
+    }
+
+    async function movePlayerStepByStep(steps) {
+      isMoving = true;
+      const p = players[currentPlayerIdx];
+      const direction = steps > 0 ? 1 : -1;
+      const totalSteps = Math.abs(steps);
+
+      for (let i = 0; i < totalSteps; i++) {
+        p.position = (p.position + direction + boardCellCount) % boardCellCount;
+        p.totalStepsTaken += (direction > 0 ? 1 : -1);
+        p.totalStepsTaken = Math.max(0, p.totalStepsTaken);
+
+        const previousLaps = p.completedLaps;
+        p.completedLaps = Math.floor(p.totalStepsTaken / boardCellCount);
+
+        // ★ 每完成一圈獎勵：只有勾選後才發放；一次跨過多圈就逐圈計算。
+        const lapRewardCb = document.getElementById('winCondLapRewardCb');
+        if (lapRewardCb && lapRewardCb.checked && p.completedLaps > previousLaps) {
+          const lapReward = Math.max(0, parseInt(document.getElementById('winCondLapRewardInput').value, 10) || 0);
+          const completedNewLaps = p.completedLaps - previousLaps;
+          if (lapReward > 0) {
+            const reward = completedNewLaps * lapReward;
+            p.totalMoney += reward;
+            document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+          }
+        }
+
+        updateOverallProgressUI();
+
+        updatePlayerPositionUI();
+        playStepSound();
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
+      isMoving = false;
+
+      if (checkWinCondition()) return;
+
+      if (p.position !== 0) {
+        triggerChallengePrompt();
+      } else {
+        switchNextPlayer();
+      }
+    }
+
+    function checkWinCondition() {
+      const p = players[currentPlayerIdx];
+      const winMoneyCb = document.getElementById('winCondMoneyCb').checked;
+      const targetMoney = parseInt(document.getElementById('winCondMoneyInput').value, 10) || 0;
+
+      const winLapsCb = document.getElementById('winCondLapsCb').checked;
+      const targetLaps = parseInt(document.getElementById('winCondLapsInput').value, 10) || 0;
+
+      const winChallengesCb = document.getElementById('winCondChallengesCb').checked;
+      const targetChallenges = parseInt(document.getElementById('winCondChallengesInput').value, 10) || 0;
+
+      let won = false;
+      let reason = [];
+
+      if (winMoneyCb && p.totalMoney >= targetMoney) {
+        won = true;
+        reason.push(`累積金額達到 $${targetMoney} 元`);
+      }
+      if (winLapsCb && p.completedLaps >= targetLaps) {
+        won = true;
+        reason.push(`走完指定圈數 ${targetLaps} 圈`);
+      }
+      if (winChallengesCb && p.successfulChallenges >= targetChallenges) {
+        won = true;
+        reason.push(`成功完成挑戰次數達到 ${targetChallenges} 次`);
+      }
+
+      if (won) {
+        playWinSound();
+        const winText = `🎉 ${p.name} 達成勝利條件：${reason.join('、')}！`;
+        document.getElementById('winModalText').innerText = winText;
+        openModal('winModal');
+        speakText(`恭喜 ${p.name} 獲勝！你已經達成勝利條件囉！`);
+        return true;
+      }
+      return false;
+    }
+
+    function updatePlayerPositionUI() {
+      cellElements.forEach(cell => {
+        const tokensContainer = cell.querySelector('.cell-tokens');
+        if (tokensContainer) tokensContainer.innerHTML = '';
+      });
+
+      players.forEach(p => {
+        const cell = cellElements[p.position];
+        if (cell) {
+          const tokensContainer = cell.querySelector('.cell-tokens');
+          if (tokensContainer) {
+            const token = document.createElement('img');
+            token.className = 'player-token';
+            token.src = `${IMAGE_FOLDER}/${encodeURIComponent(p.avatar.file)}.${IMAGE_EXT}`;
+            token.title = `${p.name} (${p.avatar.name})`;
+            token.style.borderColor = p.color;
+            tokensContainer.appendChild(token);
+          }
+        }
+      });
+    }
+
+    function formatLotteryNumber(n) { return String(n).padStart(2, '0'); }
+
+    function getPlayerLotteryNumbers(playerId) {
+      const nums = Object.keys(lotteryPurchases).filter(n => lotteryPurchases[n] === playerId).sort((a,b)=>Number(a)-Number(b));
+      return nums.length ? nums.join('、') : '無';
+    }
+
+    function updateLotteryUI() {
+      const jackpotEl = document.getElementById('lotteryJackpotDisplay');
+      if (jackpotEl) jackpotEl.innerText = `$${lotteryJackpot}`;
+      updateOverallProgressUI();
+    }
+
+    function openLotteryPurchase() {
+      const p = players[currentPlayerIdx];
+      lotteryPendingPlayerIdx = currentPlayerIdx;
+      const sessionCounter = document.getElementById("lotterySessionPurchasedCount");
+      if (sessionCounter) sessionCounter.value = "0";
+      document.getElementById('lotteryPlayerMoneyText').innerText = `${p.name} 目前金額：$${p.totalMoney}`;
+      document.getElementById('lotterySelectedText').innerText = `已購買：${getPlayerLotteryNumbers(p.id)}`;
+      renderLotteryNumberButtons();
+      openModal('lotteryPurchaseModal');
+      speakText(`${p.name} 可以花三百元購買樂透號碼。`);
+    }
+
+    function renderLotteryNumberButtons() {
+      const grid = document.getElementById('lotteryNumberGrid');
+      const p = players[lotteryPendingPlayerIdx];
+      if (!grid) return;
+      grid.innerHTML = '';
+      const count = p ? getPlayerLotteryCount(p.id) : 0;
+      // 這裡的上限是「這一次踩到樂透時最多買幾個」，不是整輪累計上限。
+      const sessionPurchasedCount = Number(document.getElementById("lotterySessionPurchasedCount")?.value || 0);
+      const reachedLimit = sessionPurchasedCount >= lotteryMaxNumbersPerPurchase;
+      const selected = document.getElementById('lotterySelectedText');
+      if (selected && p) selected.innerText = `已購買 ${count} / ${lotteryMaxNumbersPerPurchase} 個：${getPlayerLotteryNumbers(p.id) || '尚未購買'}`;
+      for (let i=1; i<=18; i++) {
+        const num = formatLotteryNumber(i);
+        const btn = document.createElement('button');
+        btn.className = 'lottery-number-btn';
+        const sold = lotteryPurchases[num] !== undefined;
+        const affordable = p && p.totalMoney >= 200;
+        if (sold) btn.classList.add('mine');
+        btn.innerText = num;
+        btn.disabled = sold || !affordable || reachedLimit;
+        if (!sold && affordable && !reachedLimit) btn.onclick = () => buyLotteryNumber(num);
+        grid.appendChild(btn);
+      }
+    }
+
+    function buyLotteryNumber(num) {
+      const p = players[lotteryPendingPlayerIdx];
+      if (!p || lotteryPurchases[num] !== undefined || p.totalMoney < 200) return;
+      // 程式層再次檢查，避免只靠按鈕 disabled 而被繞過。
+      if (Number(document.getElementById("lotterySessionPurchasedCount")?.value || 0) >= lotteryMaxNumbersPerPurchase) {
+        alert(`這次最多購買 ${lotteryMaxNumbersPerPurchase} 個樂透號碼。`);
+        renderLotteryNumberButtons();
+        return;
+      }
+      playClickSound();
+      p.totalMoney -= 300;
+      lotteryPurchases[num] = p.id;
+      lotteryJackpot += 450;
+      const sessionCounter = document.getElementById("lotterySessionPurchasedCount");
+      if (sessionCounter) sessionCounter.value = String(Number(sessionCounter.value || 0) + 1);
+      document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+      document.getElementById('lotteryPlayerMoneyText').innerText = `${p.name} 目前金額：$${p.totalMoney}`;
+      updateLotteryUI();
+      renderLotteryNumberButtons();
+    }
+
+    function finishLotteryPurchase() {
+      playClickSound();
+      const p = players[lotteryPendingPlayerIdx];
+      closeModal('lotteryPurchaseModal');
+      if (p) {
+        updateCurrentPlayerBanner();
+        updateOverallProgressUI();
+      }
+      lotteryPendingPlayerIdx = null;
+      switchNextPlayer();
+    }
+
+    function cancelLotteryPurchase() {
+      closeModal('lotteryPurchaseModal');
+      lotteryPendingPlayerIdx = null;
+      switchNextPlayer();
+    }
+
+    function triggerLotteryDraw() {
+      closeModal('askChallengeModal');
+      if (lotteryDrawTimer) clearInterval(lotteryDrawTimer);
+      const nums = Array.from({length:18}, (_,i)=>formatLotteryNumber(i+1));
+      const numberEl = document.getElementById('lotteryDrawNumber');
+      const resultEl = document.getElementById('lotteryDrawResult');
+      document.getElementById('lotteryDrawTitle').innerText = '🎰 樂透開獎';
+      resultEl.innerText = '號碼抽選中……';
+      openModal('lotteryDrawModal');
+
+      let ticks = 0;
+      lotteryDrawTimer = setInterval(() => {
+        numberEl.innerText = nums[Math.floor(Math.random()*nums.length)];
+        ticks++;
+        if (ticks >= 25) {
+          clearInterval(lotteryDrawTimer);
+          lotteryDrawTimer = null;
+          const winningNumber = nums[Math.floor(Math.random()*nums.length)];
+          numberEl.innerText = winningNumber;
+          const winnerId = lotteryPurchases[winningNumber];
+          let hasWinner = false;
+
+          if (winnerId !== undefined) {
+            const winner = players.find(x => x.id === winnerId);
+            if (winner) {
+              hasWinner = true;
+              const prize = lotteryJackpot;
+              winner.totalMoney += prize;
+              resultEl.innerText = `🎉 ${winner.name} 中獎！獲得 $${prize} 元！`;
+              speakText(`恭喜 ${winner.name}！樂透開出 ${winningNumber} 號，獲得 ${prize} 元！`);
+            }
+          }
+
+          if (!hasWinner) {
+            resultEl.innerText = `本次開出 ${winningNumber} 號，但沒有人購買這個號碼。獎金與已購買號碼保留到下一次開獎！`;
+            speakText(`本次開出 ${winningNumber} 號，但是沒有人中獎，獎金與已購買號碼保留到下一次開獎。`);
+          } else {
+            // ★ 只有真正有人中獎，才重置獎金池與所有已購買號碼。
+            lotteryJackpot = 0;
+            lotteryPurchases = {};
+          }
+
+          updateLotteryUI();
+          updateCurrentPlayerBanner();
+        }
+      }, 70);
+    }
+
+    function finishLotteryDraw() {
+      if (lotteryDrawTimer) { clearInterval(lotteryDrawTimer); lotteryDrawTimer = null; }
+      closeModal('lotteryDrawModal');
+      switchNextPlayer();
+    }
+
+    function triggerChallengePrompt() {
+      const p = players[currentPlayerIdx];
+      const activeCategories = challengeCategories.filter(cat => p.challenges.includes(cat.id));
+
+      if (activeCategories.length === 0) {
+        alert(`${p.name} 目前沒有勾選任何挑戰項目！自動換下一位。`);
+        switchNextPlayer();
+        return;
+      }
+
+      const randIdx = Math.floor(Math.random() * activeCategories.length);
+      selectedCategory = activeCategories[randIdx];
+
+      // 樂透是獨立事件：踩到後 80% 進入購買，20% 直接開獎。
+      if (selectedCategory.id === 'lottery') {
+        playChallengeAlertSound();
+        if (Math.random() < 0.8) {
+          openLotteryPurchase();
+        } else {
+          triggerLotteryDraw();
+        }
+        return;
+      }
+      
+      playChallengeAlertSound();
+      document.getElementById('askChallengeName').innerText = `${p.name} 踩到了挑戰格！【${selectedCategory.name}】\n請選擇是否挑戰！`;
+      openModal('askChallengeModal');
+
+      speakText(`${p.name} 踩到了挑戰格！${selectedCategory.name}，要接受挑戰嗎？`);
+    }
+
+    function acceptChallenge() {
+      closeModal('askChallengeModal');
+      const p = players[currentPlayerIdx];
+      document.getElementById('userMoneyHint').innerText = `${p.name} 目前持有金額：$${p.totalMoney}`;
+      const container = document.getElementById('diffBtnContainer');
+      container.innerHTML = '';
+
+      if (selectedCategory.type === "color_guess") {
+        document.getElementById('selectDiffTitle').innerText = `${selectedCategory.name} - 請猜一個顏色`;
+        const need = selectedCategory.need;
+        const canAfford = p.totalMoney >= need;
+
+        selectedCategory.options.forEach(opt => {
+          const btn = document.createElement('button');
+          const colorClass = {
+            "黑色": "color-black",
+            "白色": "color-white",
+            "紅色": "color-red"
+          }[opt.colorName];
+
+          btn.className = `opt-btn ${colorClass} ${canAfford ? '' : 'disabled'}`;
+          btn.innerText = `猜【${opt.colorName}】 (入場費$${need} / 猜中賺$${opt.reward})`;
+
+          if (canAfford) {
+            btn.onclick = () => startColorGuessGame(opt.colorName, opt.reward, need);
+          } else {
+            btn.onclick = () => {
+              alert(`金額不足！需要 $${need}，但你只有 $${p.totalMoney}。`);
+            };
+          }
+          container.appendChild(btn);
+        });
+      } else if (selectedCategory.id === "science_tf" || selectedCategory.id === "science_choice") {
+        // 科學小常識目前只有一種難度，接受挑戰後直接進入題目，不再顯示難度選擇視窗。
+        const lvl = selectedCategory.levels[0];
+        if (p.totalMoney < lvl.need) {
+          alert(`金額不足！需要 $${lvl.need}，但你只有 $${p.totalMoney}。`);
+          switchNextPlayer();
+          return;
+        }
+        startChallengeGame(lvl);
+        return;
+      } else {
+        document.getElementById('selectDiffTitle').innerText = `${selectedCategory.name} - 選擇難度`;
+        selectedCategory.levels.forEach(lvl => {
+          const btn = document.createElement('button');
+          const canAfford = p.totalMoney >= lvl.need;
+          btn.className = `opt-btn ${canAfford ? '' : 'disabled'}`;
+          btn.innerText = `${lvl.diffName}`;
+          
+          if (canAfford) {
+            btn.onclick = () => startChallengeGame(lvl);
+          } else {
+            btn.onclick = () => {
+              alert(`金額不足！需要 $${lvl.need}，但你只有 $${p.totalMoney}。`);
+            };
+          }
+          container.appendChild(btn);
+        });
+      }
+
+      openModal('selectDiffModal');
+    }
+
+    function startColorGuessGame(chosenColor, reward, need) {
+      closeModal('selectDiffModal');
+      const p = players[currentPlayerIdx];
+      p.totalMoney -= need;
+      document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+
+      const allColors = ["黑色", "白色", "紅色"];
+      const actualColor = allColors[Math.floor(Math.random() * allColors.length)];
+      const isCorrect = (chosenColor === actualColor);
+
+      if (isCorrect) {
+        p.totalMoney += reward;
+        document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+        p.successfulChallenges++;
+      }
+      updateOverallProgressUI();
+
+      const title = document.getElementById('resultModalTitle');
+      const text = document.getElementById('resultModalText');
+      const ansText = document.getElementById('resultModalAnswer');
+
+      if (isCorrect) {
+        playWinSound();
+        title.innerText = "🎉 猜對了！恭喜獲勝！";
+        title.style.color = "#00b894";
+        text.innerText = `${p.name} 猜【${chosenColor}】，機台開出【${actualColor}】！\n獲得獎金 $${reward} 元！`;
+        ansText.innerText = "";
+
+        speakText(`太棒了！機台開出 ${actualColor}，恭喜猜對！`);
+      } else {
+        playFailSound();
+        title.innerText = "❌ 猜錯了！沒中獎～";
+        title.style.color = "#d63031";
+        text.innerText = `${p.name} 猜【${chosenColor}】，但機台開出【${actualColor}】！`;
+        ansText.innerText = `很可惜，扣除入場費 $${need}`;
+
+        speakText(`可惜，機台開出 ${actualColor}，沒猜中。`);
+      }
+
+      checkWinCondition();
+      openModal('resultModal');
+    }
+
+    // === 新增：科學小常識語音與兒童版解釋 ===
+    function speakScienceQuestion(question, options, isTF) {
+      if (isTF) {
+        speakSequence([`題目：${question}`, '第一個選項，正確。', '第二個選項，不對。']);
+      } else {
+        speakSequence([`題目：${question}`, `第一個選項，${options[0]||''}`, `第二個選項，${options[1]||''}`]);
+      }
+    }
+
+    function getScienceExplanation(question, correctText, isTF) {
+      const q = question;
+      // 5～7 歲兒童版：每個解釋都盡量回答「為什麼」，用短句、生活中的例子，避免只說「因為這是科學上的答案」。
+      const map = [
+        [/地球大約是什麼形狀|地球是平平的一片/, "地球大約是圓圓的球形，就像一顆很大的球。從太空看地球，也會看到它是圓圓的。"],
+        [/白天和黑夜.*自轉|地球自轉.*白天和黑夜/, "地球會不停地轉呀轉。轉到太陽這一面的地方就是白天，轉到背對太陽的地方就是晚上，所以才會有白天和黑夜。"],
+        [/地球繞著.*太陽|繞著太陽運行/, "地球不只會自己轉，還會繞著太陽跑一大圈。地球繞太陽跑一圈，大約就是一年。"],
+        [/月亮繞著.*地球|月亮.*地球.*運行/, "月亮是地球的天然衛星，就像地球身邊的小夥伴。月亮會一直繞著地球運行。"],
+        [/月亮.*發光|月亮.*光主要/, "月亮自己不會像太陽一樣發光。我們看到的月亮亮亮的，是因為太陽光照到月亮，再反射到我們眼睛裡。"],
+        [/太陽是什麼|太陽.*恆星/, "太陽是一顆恆星。它會自己發出光和熱，所以白天我們可以看到它，也能感受到太陽帶來的溫暖。"],
+        [/太陽系的中心/, "太陽在太陽系的中心附近，地球和其他行星都繞著太陽運行。你可以把太陽想成太陽系裡很重要的『大光球』。"],
+        [/紅色星球|火星.*紅/, "火星常被叫做『紅色星球』，因為火星表面有很多含鐵的岩石和土壤，看起來帶著紅紅、橘紅色。"],
+        [/太陽系中最大的行星|木星.*最大/, "木星是太陽系裡最大的行星，大到可以裝下很多個地球。它是一顆非常巨大的氣體行星。"],
+        [/行星有很明顯的環|土星.*環/, "土星最有名的就是它漂亮的環。這些環不是一整片硬硬的圓盤，而是很多冰塊、岩石和灰塵一起繞著土星。"],
+        [/離太陽最近的行星/, "水星是離太陽最近的行星。因為它離太陽很近，所以繞太陽跑一圈的時間比地球短很多。"],
+        [/藍色星球/, "地球常被叫做『藍色星球』，因為地球表面有很多海洋，從太空看起來有很大的藍色區域。"],
+        [/繞著太陽運行的天體/, "行星會繞著太陽運行。例如地球就是一顆行星，它一邊自己轉，一邊繞著太陽跑。"],
+        [/雨水主要是從哪裡來|雨是從哪裡落|雨水和雲/, "雲裡有很多很多小水滴。小水滴越來越多、越來越大，變得太重時，就會從雲裡掉下來，變成我們看到的雨。"],
+        [/彩虹通常被分成|彩虹.*顏色/, "彩虹通常可以看到七種主要顏色：紅、橙、黃、綠、藍、靛、紫。下雨後有陽光時，雨滴就像小小的三稜鏡，能把陽光分出漂亮的顏色。"],
+        [/彩虹通常在什麼情況|彩虹通常在什麼時候/, "彩虹常在下雨後、天空又有陽光時出現。因為陽光照進小雨滴後，會被彎曲、反射，還會分出不同顏色，所以我們才能看到彩虹。"],
+        [/雲主要是由|雲裡通常有/, "雲不是棉花，也不是煙。雲裡面有很多非常小的水滴或小冰晶，它們飄在天空中，聚在一起就看起來像一朵雲。"],
+        [/打雷的聲音|雷聲|閃電.*雷/, "閃電出現時，附近的空氣會一下子變得非常熱，空氣快速膨脹，就會產生很大的聲音。這個聲音就是雷聲。"],
+        [/閃電是什麼|閃電和電/, "閃電是一種很強的放電現象。雲裡或雲和地面之間的電荷突然放電，就會出現我們看到的亮亮閃電。"],
+        [/風是什麼|風就是移動|空氣流動/, "風其實就是『正在流動的空氣』。空氣從一個地方移到另一個地方，我們就會感覺到風吹過來。"],
+        [/下雪/, "下雪時，高高的天空很冷，水會變成小冰晶。很多小冰晶聚在一起，從天空慢慢落下來，就是雪。"],
+        [/冰雹/, "冰雹是在很高的雷雨雲裡形成的冰塊。小冰塊被強風帶上帶下，越變越大，最後太重了，就掉到地面。"],
+        [/沙漠.*很少下雨|沙漠最常見/, "沙漠最大的特色之一就是很乾燥，通常很少下雨。所以沙漠裡的水很珍貴，很多植物和動物也有特別的方法保存水分。"],
+        [/海水.*鹹|海洋水大多是淡水|地球上的大部分水/, "地球上很多水都在海洋裡，而海水裡有溶解的鹽，所以喝起來是鹹的。海水不能直接當成我們平常喝的淡水。"],
+        [/植物生長|植物需要什麼|植物.*陽光.*水/, "植物生長需要水、空氣和適合的陽光。植物利用陽光製造自己需要的養分，就像植物有一座小小的『食物工廠』。"],
+        [/光合作用/, "植物會利用陽光、水和空氣中的二氧化碳，製造自己生長需要的養分，這個過程叫做『光合作用』。可以把它想成植物用陽光做食物。"],
+        [/火山.*岩漿|熔岩/, "火山裡很熱的岩石會融化成液體，叫做岩漿。當岩漿從火山口流到地面時，我們通常叫它熔岩。"],
+        [/地震.*搖晃|地面.*搖晃/, "地震發生時，地底的岩石和地層會突然移動，這個動作會讓地面跟著搖晃，所以我們會感覺房子或地板在震動。"],
+        [/海嘯.*海底地震|海嘯/, "海嘯常常和海底的大地震有關。海底突然大幅移動，會推動大量海水，海水往岸邊跑時，就可能形成很大的海浪。"],
+        [/化石/, "化石是很久很久以前的動物、植物，或它們留下的腳印、骨頭等痕跡，經過很長時間保存下來的證據。科學家可以用化石認識以前的地球。"],
+        [/潮汐|海水每天有規律/, "海水會慢慢上升、再慢慢下降，這種有規律的變化叫『潮汐』。月亮的引力會拉著海水，對潮汐有很重要的影響。"],
+        [/日食|月亮.*擋住太陽/, "日食發生時，月亮剛好走到太陽和地球中間，從地球看過去，月亮就可能把太陽的一部分遮住。"],
+        [/月食|地球的影子.*月亮/, "月食發生時，地球走到太陽和月亮中間，地球的影子落到月亮上，所以我們會看到月亮變暗。"],
+        [/四季.*地球傾斜|一年中天氣變化/, "地球是斜斜地繞著太陽跑。當地球不同的位置讓某個半球得到的陽光角度和時間不同，就會出現春、夏、秋、冬的季節變化。"],
+        [/溫度計/, "溫度計是用來量『冷不冷、熱不熱』的工具，也就是測量溫度。像量體溫時，就會用到溫度計。"],
+        [/指南針/, "指南針可以幫我們找方向。它的指針會受到地球磁場影響，大致指向南北方向，所以旅行或看地圖時很好用。"],
+        [/大氣層|地球外面包圍/, "地球外面包著一大層空氣，叫做『大氣層』。我們平常呼吸的空氣就在這一層裡，大氣層也能幫助地球維持適合生命的環境。"],
+        [/水變成水蒸氣|蒸發/, "水受到熱的時候，有些水會變成看不見的水蒸氣跑到空氣裡，這個過程叫做『蒸發』。例如地上的水曬太陽後會慢慢變少，就是在蒸發。"],
+        [/水蒸氣變成小水滴|形成什麼.*雲/, "水蒸氣遇到比較冷的空氣時，會變成很小的水滴。很多小水滴聚在一起，就能形成雲。"],
+        [/水滴.*太重|水滴在雲中/, "雲裡的小水滴一直碰在一起、變得越來越大。當水滴大到空氣托不住它們時，就會往下掉，形成雨。"],
+        [/用哪個器官看|眼睛/, "我們用眼睛看東西。光線進入眼睛後，眼睛會把看到的資訊傳給大腦，所以我們才能知道眼前是什麼。"],
+        [/用哪個器官聽|耳朵/, "我們用耳朵聽聲音。聲音讓耳朵裡的小小結構振動，再把訊息傳給大腦，我們就知道自己聽到了什麼。"],
+        [/用哪個器官聞|鼻子/, "我們用鼻子聞味道。空氣中的氣味分子進到鼻子裡，鼻子裡的感覺細胞會把訊息傳給大腦。"],
+        [/品嚐食物|舌頭/, "舌頭上有很多味覺細胞，可以幫我們感覺食物的味道，例如甜、鹹、酸等。"],
+        [/心臟主要負責|心臟可以幫助/, "心臟就像身體裡的小幫浦。它不停地跳動，把血液送到身體各處，讓身體的細胞得到需要的氧氣和養分。"],
+        [/人呼吸時需要|氧氣|呼吸/, "我們呼吸時會吸進氧氣。身體裡的細胞需要氧氣來幫忙取得能量，才能好好活動。"],
+        [/健康的食物|水果|蔬菜/, "水果和蔬菜含有很多身體需要的營養。每天吃不同種類的食物，身體才比較容易得到各種需要的營養。"],
+        [/吃東西前.*洗手|洗手/, "手上可能有我們看不到的小細菌。吃東西前用清水和肥皂洗手，可以把手上的髒東西和很多細菌洗掉，讓我們比較不容易生病。"],
+        [/刷牙|保護牙齒/, "吃完東西後，食物殘渣可能留在牙齒上。刷牙可以把牙齒上的牙菌斑和食物殘渣清掉，幫助保護牙齒，減少蛀牙。"],
+        [/口渴.*白開水/, "白開水可以幫身體補充水分，而且沒有額外的糖。口渴的時候喝水，是很簡單又好的選擇。"],
+        [/睡覺|休息/, "睡覺時，身體和大腦可以好好休息。小朋友正在長大，更需要充足的睡眠，隔天才有精神學習和玩耍。"],
+        [/運動時.*心跳|心跳.*變快/, "運動時身體需要更多氧氣和能量，所以心臟會跳得比較快，把血液更快送到全身。休息一下後，心跳通常就會慢慢恢復。"],
+        [/安全帽.*頭部|保護.*頭部/, "安全帽是戴在頭上的保護裝備。如果不小心跌倒或碰撞，安全帽可以幫忙減少頭部受到的傷害。"],
+        [/過馬路.*斑馬線/, "斑馬線是給行人過馬路的地方。過馬路時要停下來看清楚車子，遵守號誌，再從安全的地方通過。"],
+        [/紅燈.*行人|看到紅燈/, "紅燈亮起時，表示現在不能通行。行人要停下來等待綠燈，確認安全後再走，這樣比較安全。"],
+        [/安全帶/, "安全帶可以把身體固定在座位上。車子突然煞車或碰撞時，安全帶能幫助減少身體向前衝的情況。"],
+        [/冰塊.*融化|水.*冷凍庫/, "冰塊是固體的水。遇到比較溫暖的地方，冰會吸收熱量慢慢融化成水；水放進很冷的冷凍庫，則會結冰。"],
+        [/水煮開|水蒸氣/, "水加熱到很熱時，會產生水蒸氣。水蒸氣是水變成氣體的樣子，通常看不見；看到白白的霧氣時，裡面常有很多很小的水滴。"],
+        [/魚.*水中呼吸|魚.*鰓/, "魚生活在水裡，主要用鰓從水中取得氧氣。鰓就像魚的呼吸工具，能幫魚在水裡呼吸。"],
+        [/鳥類.*羽毛/, "鳥類身上有羽毛。羽毛可以幫助保暖，也能幫助許多鳥飛行，所以我們看到鳥時常會看到一身羽毛。"],
+        [/蝴蝶.*毛毛蟲/, "蝴蝶小時候不是小蝴蝶，而是毛毛蟲。毛毛蟲長大後會變成蛹，最後才羽化成美麗的蝴蝶。"],
+        [/蜜蜂.*花蜜/, "蜜蜂會到花朵裡採集花蜜，也會沾上花粉。花蜜可以成為蜜蜂的食物來源，蜜蜂在採蜜時也能幫助植物傳播花粉。"],
+        [/植物的根.*土裡/, "植物的根通常長在土裡。根可以幫植物固定在地面，也能從土壤中吸收水分和一些養分。"],
+        [/植物的葉子.*綠色/, "很多植物的葉子看起來是綠色，是因為葉子裡有葉綠素。葉綠素能幫助植物利用陽光進行光合作用。"],
+        [/手電筒.*發出光/, "手電筒裡有電池和發光的零件，打開開關後就會發出光。枕頭、橡皮擦和書包本身不會自己發光。"],
+        [/影子.*光被物體擋住/, "光通常會往前走。當一個物體擋在光前面，光照不到物體後方，就會形成比較暗的地方，那就是影子。"],
+        [/磁鐵.*鐵釘/, "磁鐵對鐵這類材料有吸引力，所以鐵釘容易被磁鐵吸住。紙張、木頭和橡皮擦通常不會被普通磁鐵吸住。"],
+        [/尺.*測量.*長度/, "尺可以用來量長度，例如量一支鉛筆有多長。尺上的刻度可以告訴我們物品大約有幾公分。"],
+        [/垃圾.*垃圾桶/, "垃圾要放進垃圾桶，不要丟在地上、河裡或馬路上。這樣可以保持環境乾淨，也能保護小動物和我們自己。"],
+        [/不使用電燈.*關掉/, "不需要電燈時把它關掉，可以少用一些電，也是一個節約能源的好習慣。"],
+        [/洗手時.*清水和肥皂/, "用清水和肥皂洗手，可以把手上的髒東西和很多細菌帶走。搓洗手心、手背和手指，再沖乾淨，會洗得更完整。"],
+        [/流汗.*降溫/, "運動或天氣很熱時，身體會流汗。汗水在皮膚表面蒸發時會帶走一些熱，幫助身體降溫。"],
+        [/打噴嚏.*手帕|手肘內側/, "打噴嚏時用手帕，或用手肘內側遮住口鼻，可以減少飛沫跑到空氣中或沾到手上，是比較衛生的做法。"],
+        [/受傷流血/, "如果受傷流血，要先告訴大人。可以用乾淨的紗布或乾淨的布輕輕按住傷口，幫助止血，不要把泥土塗在傷口上。"],
+        [/新鮮牛奶.*冰箱|放進冰箱/, "新鮮牛奶容易變壞，需要冷藏保存。把牛奶放在冰箱裡，可以讓細菌生長得比較慢，幫助食物保存得更久。"],
+        [/甜食.*蛀牙/, "糖果等甜食裡的糖，會被口腔裡的一些細菌利用，產生可能傷害牙齒的酸。常吃很多甜食又沒有好好刷牙，就比較容易蛀牙。"],
+        [/蔬菜.*營養/, "蔬菜裡有許多身體需要的營養，例如維生素、礦物質和膳食纖維。吃不同種類的蔬菜，可以幫助我們吃得更均衡。"],
+        [/食物變壞.*發霉|怪味/, "食物放太久或保存不好，可能會被細菌或黴菌影響，出現發霉、變色或怪味。看到這種情況就不要吃，要請大人幫忙處理。"],
+        [/慢慢咀嚼|咀嚼/, "慢慢咀嚼可以把食物弄得更小、更容易吞下去，也能讓唾液和食物充分混合，幫助消化。吃東西慢慢來也比較安全。"],
+        [/外太空.*聲音|聲音.*太空/, "聲音需要空氣或其他物質來幫忙傳播。外太空非常接近真空，沒有足夠的空氣，所以聲音不能像在地球上一樣直接傳過去。"],
+        [/望遠鏡/, "望遠鏡可以把遙遠的天體看得更清楚，例如月亮、行星和一些星星。就像把遠方的東西拉近來看一樣。"],
+        [/流星/, "我們看到夜空中快速劃過的一道亮光，通常是小小的太空岩石進入地球大氣層時，被摩擦加熱而發亮的現象。"],
+        [/彗星.*尾巴/, "彗星靠近太陽時，受到太陽熱和光的影響，冰和其他物質會變成氣體並帶出塵埃，形成看起來長長的尾巴。"],
+        [/銀河系/, "銀河系是一個非常非常大的星系，裡面有許多許多恆星，太陽就是其中的一顆。我們的太陽系也住在銀河系裡。"],
+        [/太空人.*太空衣|太空衣/, "太空中沒有我們平常可以呼吸的空氣，環境也很特別。太空衣可以幫太空人提供需要的空氣，還能保護身體。"],
+        [/微重力|物品常常會飄/, "太空船裡的物品看起來會飄起來，是因為太空船正在繞著地球運動，裡面會有微重力環境。這和『沒有重力』不完全一樣。"],
+        [/南北極.*赤道|赤道.*寒冷/, "地球兩極得到的陽光比較斜，收到的熱量比較少，所以通常比靠近赤道的地方冷。"],
+        [/月亮總是大約同一面/, "月亮一邊繞地球，一邊也自己轉，而且轉一圈的時間剛好和繞地球一圈差不多，所以我們從地球看到的月亮總是大約同一面。"],
+        [/每天剛好有12小時/, "白天和黑夜不一定每天都剛好各12小時。不同季節、不同地方的白天和夜晚長度會改變，所以有時白天比較長，有時晚上比較長。"],
+        [/冰通常會浮在水面/, "冰的密度比液態水小，所以冰會浮在水面上。這也是為什麼冰塊放進飲料裡會浮起來。"],
+        [/山一定比所有的雲都高/, "雲的高度每天都可能不一樣，有些雲就在很低的天空，有些雲則非常高。所以不能說每一座山都一定比所有雲高。"],
+      ];
+      for (const [re, explanation] of map) if (re.test(q)) return explanation;
+
+      // 如果題庫之後新增題目，至少仍給孩子一個清楚的答案提示，而不是空泛地說「這是科學結果」。
+      if (isTF) {
+        return correctText === "Yes（正確）"
+          ? `答案是 Yes（正確）！「${q}」說的是正確的事情。你可以把它記住，下一次遇到類似的問題，就能自己想一想囉！`
+          : `答案是 No（不對）！「${q}」這個說法不正確。正確答案是「${correctText}」。下次看到類似的說法，可以先想想看它和我們平常觀察到的事情是不是一樣。`;
+      }
+      return `正確答案是「${correctText}」。這個答案是在題目提供的選項中，最符合我們觀察到的自然現象。把這個小知識記起來，你就又學會一件事情囉！`;
+    }
+
+    function addScienceReplayButton(question, options, isTF) {
+      const soundContainer = document.getElementById('gameSoundContainer');
+      soundContainer.innerHTML = '';
+      const btn = document.createElement('button');
+      btn.className = 'science-replay-btn';
+      btn.type = 'button';
+      btn.innerText = '🔊 再念一次題目與選項';
+      btn.onclick = () => { playClickSound(); speakScienceQuestion(question, options, isTF); };
+      soundContainer.appendChild(btn);
+      setTimeout(() => speakScienceQuestion(question, options, isTF), 150);
+    }
+
+    function startChallengeGame(level) {
+      closeModal('selectDiffModal');
+      playChallengeAlertSound();
+
+      const p = players[currentPlayerIdx];
+      p.totalMoney -= level.need;
+      document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+      updateOverallProgressUI();
+
+      const title = document.getElementById('gameModalTitle');
+      const qText = document.getElementById('gameModalQuestion');
+      const soundContainer = document.getElementById('gameSoundContainer');
+      const optsContainer = document.getElementById('gameOptionsContainer');
+      const timerContainer = document.getElementById('timerContainer');
+      const timerBox = document.getElementById('timerBox');
+
+      title.innerText = `${p.name} - ${selectedCategory.name} (${level.diffName})`;
+      soundContainer.innerHTML = '';
+      optsContainer.innerHTML = '';
+
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      let correctAnswer = "";
+      let options = [];
+      currentScienceExplanation = "";
+
+      // 使用玩家獨立設定的時間限制 (p.timerLimit)
+      let activeLimit = level.timeLimit || (selectedCategory.type !== 'spin_manual' && level.type !== 'action' ? p.timerLimit : 0);
+
+      // ★ 科學題目必須先產生並顯示，倒數計時只是給玩家「作答」的時間。
+      // 以前的版本把科學題目放在倒數歸零後才建立，導致玩家看到「題目載入中」。
+      if (level.type === 'science_tf') {
+        const item = trueFalseQuestions[Math.floor(Math.random() * trueFalseQuestions.length)];
+        const question = item[0];
+        const isTrue = item[1] === true;
+        const displayOptions = ["Yes（正確）", "No（不對）"];
+        correctAnswer = isTrue ? displayOptions[0] : displayOptions[1];
+        currentScienceExplanation = getScienceExplanation(question, correctAnswer, true);
+        qText.innerText = `[已扣 $${level.need}]\n科學小常識：是非題\n${question}`;
+        options = displayOptions;
+        addScienceReplayButton(question, displayOptions, true);
+      }
+      else if (level.type === 'science_choice') {
+        const item = choiceQuestions[Math.floor(Math.random() * choiceQuestions.length)];
+        const question = item.question;
+        const correctText = item.options[item.answer];
+        const wrongPool = item.options.filter((_, i) => i !== item.answer);
+        const wrongText = wrongPool[Math.floor(Math.random() * wrongPool.length)];
+        const twoOptions = Math.random() < 0.5
+          ? [`1. ${correctText}`, `2. ${wrongText}`]
+          : [`1. ${wrongText}`, `2. ${correctText}`];
+        correctAnswer = twoOptions.find(x => x.endsWith(correctText));
+        currentScienceExplanation = getScienceExplanation(question, correctText, false);
+        qText.innerText = `[已扣 $${level.need}]\n科學小常識：選擇題\n${question}`;
+        options = twoOptions;
+        addScienceReplayButton(question, twoOptions, false);
+      }
+
+      // 題目已經顯示後才開始倒數；倒數期間玩家可以正常按選項作答。
+      if (activeLimit > 0) {
+        timerContainer.style.display = 'inline-block';
+        let remainingTime = activeLimit;
+        timerBox.innerText = remainingTime;
+
+        countdownInterval = setInterval(() => {
+          remainingTime--;
+          timerBox.innerText = remainingTime;
+
+          if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+            if (level.type === 'spin_manual') {
+              playChallengeAlertSound();
+              speakText("時間到囉！請選擇挑戰成功或失敗");
+              qText.innerText = `⏰ 時間到！任務時間已結束。\n請選擇實際挑戰結果：`;
+            } else {
+              finishChallenge(false, correctAnswer || "時間到", level.reward, true);
+            }
+          }
+        }, 1000);
+      } else {
+        timerContainer.style.display = 'none';
+      }
+
+      if (selectedCategory.type === 'spin_manual') {
+        qText.innerText = `已扣除代幣 $${level.need}！\n任務目標：完成 ${selectedCategory.name} ${level.target}！`;
+        options = ["完成挑戰", "挑戰失敗"];
+        correctAnswer = "完成挑戰";
+
+        speakText(`任務目標：請完成 ${selectedCategory.name} ${level.target}`);
+      }
+      else if (level.type === 'action') {
+        qText.innerText = `已扣除代幣 $${level.need}！\n任務目標：完成 ${selectedCategory.name} ${level.target}！`;
+        options = ["完成挑戰", "挑戰失敗"];
+        correctAnswer = "完成挑戰";
+
+        speakText(`任務目標：請完成 ${selectedCategory.name} ${level.target}`);
+      }
+      else if (level.type.startsWith('math_add') || level.type.startsWith('math_sub') || level.type.startsWith('math_mix_3')) {
+        let n1, n2, n3, ans;
+
+        if (level.type === 'math_add_2') {
+          n1 = Math.floor(Math.random() * 8) + 5;
+          n2 = Math.floor(Math.random() * 8) + 5;
+          ans = n1 + n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} = ?`;
+          speakText(`${n1} 加 ${n2} 等於多少？`);
+        }
+        else if (level.type === 'math_sub_2') {
+          n1 = Math.floor(Math.random() * 10) + 10;
+          n2 = Math.floor(Math.random() * 8) + 1;
+          ans = n1 - n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} - ${n2} = ?`;
+          speakText(`${n1} 減 ${n2} 等於多少？`);
+        }
+        else {
+          n1 = Math.floor(Math.random() * 10) + 5;
+          n2 = Math.floor(Math.random() * 10) + 2;
+          n3 = Math.floor(Math.random() * 5) + 1;
+          ans = n1 + n2 - n3;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} + ${n2} - ${n3} = ?`;
+          speakText(`${n1} 加 ${n2} 減 ${n3} 等於多少？`);
+        }
+
+        correctAnswer = ans.toString();
+        options = generate2Options(ans);
+      }
+      else if (level.type.startsWith('math_cmp')) {
+        let min = 1, max = 99;
+        if (level.type === 'math_cmp_med') { min = 100; max = 999; }
+        else if (level.type === 'math_cmp_hard') { min = 1000; max = 9999; }
+
+        let n1 = Math.floor(Math.random() * (max - min + 1)) + min;
+        let n2 = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        while (n1 === n2) {
+          n2 = Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        const compareOptions = n1 > n2
+          ? [`1. ${n1} 比較大`, `2. ${n2} 比較大`]
+          : [`1. ${n2} 比較大`, `2. ${n1} 比較大`];
+        qText.innerText = `[已扣 $${level.need}]\n比較大小：\n${n1} 和 ${n2}\n請選出比較大的數字。`;
+        correctAnswer = compareOptions[0];
+        options = compareOptions;
+        speakText(`${n1} 和 ${n2} 比大小，請選出比較大的數字。`);
+      }
+      else if (level.type === 'geometry_easy' || level.type === 'geometry_medium' || level.type === 'geometry_hard') {
+        let question, correctText, wrongText;
+        if (level.type === 'geometry_easy') {
+          const bank = [
+            ['哪一個圖形有三個邊？', '三角形', '正方形'],
+            ['哪一個圖形有四個一樣長的邊？', '正方形', '三角形'],
+            ['哪一個圖形沒有角？', '圓形', '長方形']
+          ];
+          [question, correctText, wrongText] = bank[Math.floor(Math.random()*bank.length)];
+        } else if (level.type === 'geometry_medium') {
+          const side = Math.floor(Math.random()*5)+2;
+          if (Math.random() < 0.5) {
+            const ans = side*side; question = `正方形邊長 ${side} 公分，面積是多少平方公分？`; correctText=String(ans); wrongText=String(ans+side);
+          } else {
+            const ans = side*4; question = `正方形邊長 ${side} 公分，周長是多少公分？`; correctText=String(ans); wrongText=String(ans+2);
+          }
+        } else {
+          const a = Math.floor(Math.random()*6)*10+20; const ans=180-a;
+          question=`三角形有一個角是 ${a} 度，另外兩個角加起來是多少度？`; correctText=`${ans} 度`; wrongText=`${180-Math.floor(a/2)} 度`;
+        }
+        const geometryOptions = Math.random()<0.5 ? [`1. ${correctText}`,`2. ${wrongText}`] : [`1. ${wrongText}`,`2. ${correctText}`];
+        qText.innerText=`[已扣 $${level.need}]\n幾何挑戰：\n${question}`;
+        correctAnswer=geometryOptions.find(x=>x.endsWith(correctText)); options=geometryOptions;
+        speakText(`幾何題。${question}`);
+      }
+      else if (level.type.startsWith('kid_money_')) {
+        let price1, price2 = 0, budget, ans, question;
+        const item1 = ["🍎 蘋果", "🍪 餅乾", "🧃 果汁", "🍦 冰淇淋", "🧸 小玩具"];
+        const a = item1[Math.floor(Math.random() * item1.length)];
+        price1 = Math.floor(Math.random() * 6) * 5 + 5;
+
+        if (level.type === 'kid_money_easy') {
+          budget = price1 + Math.floor(Math.random() * 6) * 5 + 5;
+          ans = budget - price1;
+          question = `你有 $${budget} 元，買 ${a} $${price1} 元，還剩多少錢？`;
+        } else if (level.type === 'kid_money_medium') {
+          let b = item1[Math.floor(Math.random() * item1.length)];
+          while (b === a) b = item1[Math.floor(Math.random() * item1.length)];
+          price2 = Math.floor(Math.random() * 6) * 5 + 5;
+          budget = price1 + price2 + Math.floor(Math.random() * 8) * 5 + 10;
+          ans = budget - price1 - price2;
+          question = `你有 $${budget} 元，買 ${a} $${price1} 元，再買 ${b} $${price2} 元，還剩多少錢？`;
+        } else {
+          let b = item1[Math.floor(Math.random() * item1.length)];
+          while (b === a) b = item1[Math.floor(Math.random() * item1.length)];
+          price2 = Math.floor(Math.random() * 8) * 5 + 10;
+          const price3 = Math.floor(Math.random() * 6) * 5 + 5;
+          const c = item1[Math.floor(Math.random() * item1.length)];
+          budget = price1 + price2 + price3 + Math.floor(Math.random() * 10) * 5 + 10;
+          ans = budget - price1 - price2 - price3;
+          question = `你有 $${budget} 元，買 ${a} $${price1} 元、${b} $${price2} 元、${c} $${price3} 元，還剩多少錢？`;
+        }
+        qText.innerText = `[已扣 $${level.need}]\n💰 金錢挑戰\n${question}`;
+        correctAnswer = String(ans);
+        options = generate2Options(ans);
+        speakText(question);
+      }
+      else if (level.type.startsWith('kid_logic_')) {
+        let question, ans;
+        if (level.type === 'kid_logic_easy') {
+          const start = Math.floor(Math.random() * 5) + 1;
+          const step = Math.floor(Math.random() * 3) + 1;
+          ans = start + step * 3;
+          question = `${start}、${start+step}、${start+step*2}、？`;
+        } else if (level.type === 'kid_logic_medium') {
+          const start = Math.floor(Math.random() * 4) + 1;
+          ans = start + 8;
+          question = `${start}、${start+2}、${start+4}、${start+6}、？`;
+        } else {
+          const big = Math.floor(Math.random() * 4) + 6;
+          const small = big - 2;
+          ans = big;
+          question = `🐘 比 🐱 大，🐱 比 🐭 大。\n哪一個最大？`;
+          options = ["🐘 大象", "🐭 老鼠"];
+        }
+        qText.innerText = `[已扣 $${level.need}]\n🧩 邏輯挑戰\n${question}`;
+        correctAnswer = level.type === 'kid_logic_hard' ? "🐘 大象" : String(ans);
+        if (!options.length) options = generate2Options(ans);
+        speakText(question);
+      }
+      else if (level.type.startsWith('kid_observation_')) {
+        const sets = [
+          ["🍎","🍎","🍎","🍊","🍎"],
+          ["🐶","🐶","🐱","🐶","🐶"],
+          ["⭐","⭐","🌟","⭐","⭐"],
+          ["🔵","🔵","🔴","🔵","🔵"],
+          ["🟩","🟩","🟨","🟩","🟩"]
+        ];
+        const seq = sets[Math.floor(Math.random() * sets.length)];
+        const different = seq.findIndex((x, i) => i > 0 && x !== seq[0]) + 1;
+        qText.innerText = `[已扣 $${level.need}]\n👀 觀察力挑戰\n哪一個位置和其他的不一樣？\n\n${seq.join("  ")}`;
+        correctAnswer = String(different);
+        options = [String(different), String(different === 5 ? 1 : different + 1)].sort(() => Math.random() - 0.5);
+        speakText("請仔細看，找出不一樣的位置。");
+      }
+      else if (level.type.startsWith('kid_memory_')) {
+        const all = ["🍎","🐶","🚗","⭐","🍌","🐱","🌈","⚽"];
+        const count = level.type === 'kid_memory_easy' ? 3 : (level.type === 'kid_memory_medium' ? 4 : 5);
+        const seq = [...all].sort(() => Math.random() - 0.5).slice(0, count);
+        const wrong = [...seq].reverse().join(" ");
+        const right = seq.join(" ");
+        options = Math.random() < 0.5 ? [right, wrong] : [wrong, right];
+        correctAnswer = right;
+        qText.innerText = `[已扣 $${level.need}]\n🧠 記憶挑戰\n請記住下面的順序！\n\n${right}`;
+        speakText("請記住圖案出現的順序。");
+        setTimeout(() => {
+          if (document.getElementById('playGameModal').classList.contains('active')) {
+            qText.innerText = `[已扣 $${level.need}]\n🧠 記憶挑戰\n剛才的順序是哪一個？`;
+          }
+        }, 2200);
+      }
+      else if (level.type.startsWith('kid_direction_')) {
+        let moves, answer;
+        if (level.type === 'kid_direction_easy') {
+          const dirs = [["⬆️","上面"],["⬇️","下面"],["⬅️","左邊"],["➡️","右邊"]];
+          const d = dirs[Math.floor(Math.random()*dirs.length)];
+          moves = d[0];
+          answer = d[1];
+          options = [d[1], ({上面:"下面",下面:"上面",左邊:"右邊",右邊:"左邊"})[d[1]]];
+        } else if (level.type === 'kid_direction_medium') {
+          const pairs = [
+            ["➡️ ➡️ ⬆️","右上方","左上方"],
+            ["⬅️ ⬅️ ⬇️","左下方","右下方"],
+            ["⬆️ ➡️ ➡️","右上方","左上方"]
+          ];
+          const item = pairs[Math.floor(Math.random()*pairs.length)];
+          moves = item[0]; answer = item[1]; options = [item[1],item[2]];
+        } else {
+          const pairs = [
+            ["➡️ ➡️ ⬆️ ⬆️","右上方","左上方"],
+            ["⬅️ ⬅️ ⬇️ ⬇️","左下方","右下方"],
+            ["⬆️ ⬆️ ➡️ ➡️","右上方","左上方"]
+          ];
+          const item = pairs[Math.floor(Math.random()*pairs.length)];
+          moves = item[0]; answer = item[1]; options = [item[1],item[2]];
+        }
+        qText.innerText = `[已扣 $${level.need}]\n🗺️ 方向挑戰\n小車從起點出發：\n${moves}\n最後會在哪個方向？`;
+        correctAnswer = answer;
+        speakText("請看箭頭，想一想最後會在哪個方向。");
+      }
+      else if (level.type.startsWith('kid_shape_color_')) {
+        const targets = [
+          ["🔺","紅色三角形","藍色圓形"],
+          ["🟢","綠色圓形","黃色三角形"],
+          ["🟦","藍色正方形","紅色圓形"],
+          ["🟨","黃色正方形","綠色圓形"]
+        ];
+        const item = targets[Math.floor(Math.random()*targets.length)];
+        qText.innerText = `[已扣 $${level.need}]\n🎨 顏色形狀挑戰\n請找出「${item[1]}」`;
+        correctAnswer = item[1];
+        options = [item[1], item[2]];
+        speakText(`請找出${item[1]}。`);
+      }
+      else if (level.type.startsWith('kid_reaction_')) {
+        const pairs = [
+          ["看到 ⭐，請快速選擇它。","⭐","🍎"],
+          ["看到 🔴，請快速選擇它。","🔴","🔵"],
+          ["看到 🐶，請快速選擇它。","🐶","🐱"],
+          ["看到 🔺，請快速選擇它。","🔺","🔵"]
+        ];
+        const item = pairs[Math.floor(Math.random()*pairs.length)];
+        qText.innerText = `[已扣 $${level.need}]\n⚡ 快速反應挑戰\n${item[0]}`;
+        correctAnswer = item[1];
+        options = [item[1], item[2]];
+        speakText("準備好了嗎？看到目標就快點選！");
+      }
+      else if (level.type.startsWith('math_mul') || level.type.startsWith('math_div') || level.type.startsWith('math_mix_mul_div')) {
+        let ans = 0;
+        if (level.type === 'math_mul_2') {
+          let n1 = Math.floor(Math.random() * 30) + 1;
+          let n2 = Math.floor(Math.random() * 30) + 1;
+          ans = n1 * n2;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${n1} × ${n2} = ?`;
+          speakText(`${n1} 乘以 ${n2} 等於多少？`);
+        }
+        else if (level.type === 'math_div_2') {
+          let divisor = Math.floor(Math.random() * 30) + 1;
+          ans = Math.floor(Math.random() * 30) + 1;
+          let dividend = divisor * ans;
+          qText.innerText = `[已扣 $${level.need}]\n題目：${dividend} ÷ ${divisor} = ?`;
+          speakText(`${dividend} 除以 ${divisor} 等於多少？`);
+        }
+        else {
+          let op = Math.random() < 0.5 ? "mul_div" : "div_mul";
+          let n1, n2, n3;
+          if (op === "mul_div") {
+            n1 = Math.floor(Math.random() * 15) + 1;
+            n2 = Math.floor(Math.random() * 15) + 1;
+            let temp = n1 * n2;
+            let factors = [];
+            for (let i = 1; i <= 30; i++) {
+              if (temp % i === 0) factors.push(i);
+            }
+            n3 = factors[Math.floor(Math.random() * factors.length)];
+            ans = temp / n3;
+            qText.innerText = `[已扣 $${level.need}]\n題目：${n1} × ${n2} ÷ ${n3} = ?`;
+            speakText(`${n1} 乘以 ${n2} 除以 ${n3} 等於多少？`);
+          } else {
+            n2 = Math.floor(Math.random() * 10) + 1;
+            let tempAns = Math.floor(Math.random() * 10) + 1;
+            n1 = n2 * tempAns;
+            n3 = Math.floor(Math.random() * 15) + 1;
+            ans = tempAns * n3;
+            qText.innerText = `[已扣 $${level.need}]\n題目：${n1} ÷ ${n2} × ${n3} = ?`;
+            speakText(`${n1} 除以 ${n2} 乘以 ${n3} 等於多少？`);
+          }
+        }
+
+        correctAnswer = ans.toString();
+        options = generate2Options(ans);
+      }
+      else if (level.type === 'phonics_en') {
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let targetStr = "";
+        for (let i = 0; i < level.count; i++) {
+          targetStr += letters.charAt(Math.floor(Math.random() * letters.length));
+        }
+
+        qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確字母：`;
+        correctAnswer = targetStr;
+        options = generate2StrOptions(targetStr, () => {
+          let s = "";
+          for (let i = 0; i < level.count; i++) s += letters.charAt(Math.floor(Math.random() * letters.length));
+          return s;
+        });
+
+        const sBtn = document.createElement('button');
+        sBtn.className = 'sound-btn';
+        sBtn.innerText = '🔊 點擊重播發音';
+        sBtn.onclick = () => speakPronunciationSequence([targetStr], 'en-US', 'letters');
+        soundContainer.appendChild(sBtn);
+
+        speakPromptThenPronunciation("請聽英文發音。", [targetStr], 'en-US', 'letters');
+      }
+      else if (level.type === 'phonics_zh') {
+        const zhList = [
+          "ㄅ", "ㄆ", "ㄇ", "ㄈ", "ㄉ", "ㄊ", "ㄋ", "ㄌ", "ㄍ", "ㄎ", "ㄏ", "ㄐ", "ㄑ", "ㄒ",
+          "ㄓ", "ㄔ", "ㄕ", "ㄖ", "ㄗ", "ㄘ", "ㄙ", "ㄚ", "ㄛ", "ㄜ", "ㄝ", "ㄞ", "ㄟ", "ㄠ",
+          "ㄡ", "ㄢ", "ㄣ", "ㄤ", "ㄥ", "ㄦ", "ㄧ", "ㄨ", "ㄩ"
+        ];
+        let targetStr = "";
+        for (let i = 0; i < level.count; i++) {
+          targetStr += zhList[Math.floor(Math.random() * zhList.length)];
+        }
+
+        qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確注音：`;
+        correctAnswer = targetStr;
+        options = generate2StrOptions(targetStr, () => {
+          let s = "";
+          for (let i = 0; i < level.count; i++) s += zhList[Math.floor(Math.random() * zhList.length)];
+          return s;
+        });
+
+        const sBtn = document.createElement('button');
+        sBtn.className = 'sound-btn';
+        sBtn.innerText = '🔊 點擊重播發音';
+        sBtn.onclick = () => speakPronunciationSequence(targetStr.split('').filter(Boolean), 'zh-TW');
+        soundContainer.appendChild(sBtn);
+
+        speakPromptThenPronunciation("請聽注音發音。", targetStr.split('').filter(Boolean), 'zh-TW');
+      }
+      else if (level.type === "ocean_yes_no") {
+        const imageItem = oceanAnimals[Math.floor(Math.random() * oceanAnimals.length)];
+        const isYes = Math.random() < 0.5;
+        let statementItem = imageItem;
+
+        if (!isYes) {
+          const otherAnimals = oceanAnimals.filter(item => item.name !== imageItem.name);
+          statementItem = otherAnimals[Math.floor(Math.random() * otherAnimals.length)];
+        }
+
+        const imagePath = `${IMAGE_FOLDER}/${encodeURIComponent(imageItem.file)}.${IMAGE_EXT}`;
+        qText.innerHTML = `
+          <img class="ocean-question-image" src="${imagePath}" alt="${imageItem.name}">
+          <div class="ocean-question-label">看圖片回答問題</div>
+          <div>這是「${statementItem.name}」嗎？</div>
+        `;
+
+        correctAnswer = isYes ? "YES" : "NO";
+        options = ["YES", "NO"];
+
+        speakText(`看圖片回答，這是 ${statementItem.name} 嗎？`);
+      }
+      else if (level.type === 'word_en' || level.type === 'word_zh') {
+        const targetItem = wordBank[Math.floor(Math.random() * wordBank.length)];
+
+        if (level.type === 'word_en') {
+          qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確英文單字：`;
+          correctAnswer = `${targetItem.en} (${targetItem.zh})`;
+          options = generate3WordObjOptions(targetItem, 'en');
+
+          const sBtn = document.createElement('button');
+          sBtn.className = 'sound-btn';
+          sBtn.innerText = '🔊 點擊重播英文發音';
+          sBtn.onclick = () => speakText(targetItem.en, 'en-US');
+          soundContainer.appendChild(sBtn);
+
+          speakText("請聽英文單字");
+          setTimeout(() => speakText(targetItem.en, 'en-US'), 1000);
+        } else {
+          qText.innerText = `[已扣 $${level.need}]\n請聽發音選擇正確中文單字：`;
+          correctAnswer = `${targetItem.zh} (${targetItem.zhPy})`;
+          options = generate3WordObjOptions(targetItem, 'zh');
+
+          const sBtn = document.createElement('button');
+          sBtn.className = 'sound-btn';
+          sBtn.innerText = '🔊 點擊重播中文發音';
+          sBtn.onclick = () => speakText(targetItem.zh, 'zh-TW');
+          soundContainer.appendChild(sBtn);
+
+          speakText("請聽中文單字");
+          setTimeout(() => speakText(targetItem.zh, 'zh-TW'), 1000);
+        }
+      }
+
+      const colorClasses = ['opt-green', 'opt-red'];
+      options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        if (level.type === "science_tf") {
+          btn.className = opt.startsWith("Yes") ? "opt-btn science-yes" : "opt-btn science-no";
+          btn.innerText = opt.startsWith("Yes") ? "🟢 Yes（正確）" : "🔴 No（不對）";
+        } else if (level.type === "science_choice") {
+          btn.className = `opt-btn science-option-${idx + 1}`;
+          btn.innerText = opt;
+        } else if (level.type === "ocean_yes_no") {
+          btn.className = opt === "YES" ? "opt-btn opt-green" : "opt-btn opt-red";
+          btn.innerText = opt === "YES" ? "✅ YES，是這個動物" : "❌ NO，不是這個動物";
+        } else if (options.length === 3) {
+          btn.className = `opt-btn ${colorClasses[idx % 3]}`;
+          btn.innerText = opt;
+        } else {
+          btn.className = `opt-btn ${idx === 0 ? "opt-green" : "opt-red"}`;
+          btn.innerText = opt;
+        }
+
+        btn.onclick = () => {
+          if (countdownInterval) clearInterval(countdownInterval);
+          finishChallenge(opt === correctAnswer, correctAnswer, level.reward, false);
+        };
+
+        optsContainer.appendChild(btn);
+      });
+
+      openModal('playGameModal');
+    }
+
+    function generate2Options(correctVal) {
+      const set = new Set([correctVal.toString()]);
+      while (set.size < 2) {
+        let delta = (Math.floor(Math.random()*5)+1) * (Math.random()>0.5 ? 1 : -1);
+        let val = correctVal + delta;
+        if (val < 0) val = Math.abs(val)+1;
+        set.add(val.toString());
+      }
+      return Array.from(set).sort(()=>Math.random()-0.5);
+    }
+    function generate2StrOptions(correctStr, genFunc) {
+      const set=new Set([correctStr]);
+      while(set.size<2) set.add(genFunc());
+      return Array.from(set).sort(()=>Math.random()-0.5);
+    }
+    function generate2WordObjOptions(correctItem, mode) {
+      const set=new Set();
+      const fmt=item=>mode==='en'?`${item.en} (${item.zh})`:`${item.zh} (${item.zhPy})`;
+      set.add(fmt(correctItem));
+      while(set.size<2) set.add(fmt(wordBank[Math.floor(Math.random()*wordBank.length)]));
+      return Array.from(set).sort(()=>Math.random()-0.5);
+    }
+    // 舊函式保留，避免原本其他設計失效。
+    function generate3Options(correctVal) { return generate2Options(correctVal); }
+    function generate3StrOptions(correctStr, genFunc) { return generate2StrOptions(correctStr, genFunc); }
+    function generate3WordObjOptions(correctItem, mode) { return generate2WordObjOptions(correctItem, mode); }
+
+    function finishChallenge(isSuccess, correctAnswer, reward, isTimeout = false) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      closeModal('playGameModal');
+      
+      const p = players[currentPlayerIdx];
+      const title = document.getElementById('resultModalTitle');
+      const text = document.getElementById('resultModalText');
+      const ansText = document.getElementById('resultModalAnswer');
+      const scienceExplanationReplayBtn = document.getElementById('scienceExplanationReplayBtn');
+      if (scienceExplanationReplayBtn) { scienceExplanationReplayBtn.style.display = 'none'; scienceExplanationReplayBtn.onclick = null; }
+
+      if (isSuccess) {
+        playWinSound();
+        p.successfulChallenges++;
+
+        title.innerText = "🎉 挑戰成功！";
+        title.style.color = "#00b894";
+        if (reward > 0) {
+          p.totalMoney += reward;
+          document.getElementById('totalMoneyDisplay').innerText = `$${p.totalMoney}`;
+          text.innerText = `恭喜答對！獲得獎金 $${reward} 元！`;
+        } else {
+          text.innerText = `挑戰成功！`;
+        }
+        ansText.innerText = correctAnswer ? `正確答案是：${correctAnswer}` : "";
+        if (currentScienceExplanation) ansText.innerText += `\n\n💡 為什麼？\n${currentScienceExplanation}`;
+        setupScienceExplanationReplay();
+
+        if (currentScienceExplanation && correctAnswer) { speakText(`太棒了！恭喜答對！正確答案是：${correctAnswer}。為什麼呢？${currentScienceExplanation}`); } else { speakText("太棒了！恭喜挑戰成功！"); }
+      } else {
+        playFailSound();
+        title.innerText = isTimeout ? "⏰ 時間到！挑戰失敗" : "❌ 答錯了！挑戰失敗";
+        title.style.color = "#d63031";
+        text.innerText = isTimeout ? `超過設定的時間限制，無法拿回扣除的費用。` : `挑戰失敗，無法拿回扣除的費用。`;
+        ansText.innerText = correctAnswer ? `正確答案是：${correctAnswer}` : "";
+        if (currentScienceExplanation) ansText.innerText += `\n\n💡 為什麼？\n${currentScienceExplanation}`;
+        setupScienceExplanationReplay();
+
+        if (currentScienceExplanation && correctAnswer) { speakText(`這一題的正確答案是：${correctAnswer}。為什麼呢？${currentScienceExplanation}`); } else if (isTimeout) { speakText("時間到了，挑戰失敗，下次再加油！"); } else { speakText("答錯囉，挑戰失敗，再接再勵！"); }
+      }
+
+      updateOverallProgressUI();
+      checkWinCondition();
+      openModal('resultModal');
+    }
+
+    function setupScienceExplanationReplay() {
+      const btn = document.getElementById('scienceExplanationReplayBtn');
+      if (!btn) return;
+      if (currentScienceExplanation) {
+        btn.style.display = 'block';
+        btn.onclick = () => {
+          playClickSound();
+          speakText(`為什麼呢？${currentScienceExplanation}`);
+        };
+      } else {
+        btn.style.display = 'none';
+        btn.onclick = null;
+      }
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      playClickSound();
+      if (id === 'playGameModal' && countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function resetGame() {
+      playClickSound();
+      lotteryJackpot = 0;
+      lotteryPurchases = {};
+      lotteryPendingPlayerIdx = null;
+      if (countdownInterval) clearInterval(countdownInterval);
+      closeModal('winModal');
+      initGameSetup();
+    }
+
+    window.onload = () => {
+      initGameSetup();
+    };
+  </script>
+</body>
+</html>
