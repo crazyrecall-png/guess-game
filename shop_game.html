@@ -26,7 +26,7 @@ h2{font-size:18px;margin:0 0 11px}
 .flavor{position:relative;min-width:105px;flex:1;background:#fff;border:2px solid transparent;border-radius:17px;padding:10px;transition:.15s}
 .flavor:hover{transform:translateY(-2px)} .flavor.selected{border-color:var(--gold);background:#fff9e9}
 .ball{width:45px;height:45px;border-radius:50%;margin:auto;box-shadow:inset -5px -6px 8px rgba(0,0,0,.12),inset 4px 4px 5px rgba(255,255,255,.35)}
-.white{background:#f5ead7}.red{background:#df4a58}.green{background:#87ad4c}.blue{background:#4d82bd}.orange{background:#ed8a31}.purple{background:#8b67b5}
+.yellow{background:#f3c331}.darkblue{background:#24548f}.white{background:#f5ead7}.red{background:#df4a58}.green{background:#87ad4c}.blue{background:#4d82bd}.orange{background:#ed8a31}.purple{background:#8b67b5}
 .flavor strong{display:block;text-align:center;margin-top:5px}.flavor small{display:block;text-align:center;color:var(--muted)}
 .controls{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
 .qty{font-weight:800;min-width:35px;text-align:center}.mini{width:32px;height:32px;border-radius:50%;background:#f1e4d1}
@@ -63,7 +63,7 @@ h2{font-size:18px;margin:0 0 11px}
   <div class="top">
     <div class="logo">
       <h1>🥣 湯圓小掌櫃</h1>
-      <p>自己進貨、定價、接訂單，把小湯圓店經營起來！</p>
+      <p>依照實際湯圓數量，把六種顏色分碗、接訂單、買賣湯圓！</p>
     </div>
     <div class="stats">
       <div class="stat"><b id="money">$100</b><span>現金</span></div>
@@ -108,17 +108,17 @@ h2{font-size:18px;margin:0 0 11px}
 
 <script>
 const foods=[
- {id:"white",name:"原味",cost:2,price:4,cls:"white"},
- {id:"red",name:"紅豆",cost:3,price:6,cls:"red"},
- {id:"green",name:"抹茶",cost:3,price:7,cls:"green"},
- {id:"blue",name:"藍莓",cost:4,price:8,cls:"blue"},
- {id:"orange",name:"橘子",cost:4,price:9,cls:"orange"},
- {id:"purple",name:"紫薯",cost:5,price:10,cls:"purple"}
+ {id:"yellow",name:"黃色",cost:2,price:4,cls:"yellow",start:4},
+ {id:"orange",name:"橘色",cost:2,price:5,cls:"orange",start:5},
+ {id:"red",name:"紅色",cost:2,price:6,cls:"red",start:6},
+ {id:"green",name:"綠色",cost:2,price:5,cls:"green",start:3},
+ {id:"blue",name:"藍色",cost:2,price:6,cls:"blue",start:2},
+ {id:"darkblue",name:"深藍色",cost:2,price:8,cls:"darkblue",start:1}
 ];
 let money=100, profit=0, day=1, inventory={};
 let order={}, sold={}; let currentFace="👧";
 
-function initInv(){foods.forEach(f=>inventory[f.id]=0)}
+function initInv(){foods.forEach(f=>inventory[f.id]=f.start||0)}
 initInv();
 
 function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
@@ -129,7 +129,7 @@ function renderFlavors(){
  foods.forEach(f=>{
   const d=document.createElement("div");d.className="flavor";
   d.innerHTML=`<div class="ball ${f.cls}"></div><strong>${f.name}</strong><small>進貨 ${moneyText(f.cost)}/顆</small>
-  <div class="controls"><button class="mini" onclick="buy('${f.id}',-1)">−</button><span class="qty" id="q-${f.id}">0</span><button class="mini" onclick="buy('${f.id}',1)">＋</button></div>`;
+  <div class="controls"><button class="mini" onclick="buy('${f.id}',-1)">−</button><span class="qty" id="q-${f.id}">${inventory[f.id]}</span><button class="mini" onclick="buy('${f.id}',1)">＋</button></div>`;
   el.appendChild(d);
  });
 }
