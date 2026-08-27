@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>湯圓小掌櫃｜買賣湯圓遊戲</title>
+<style>
+:root{
+  --bg:#fff7e8; --card:#fffdf8; --ink:#4b3526; --muted:#806c5c;
+  --red:#e94b55; --gold:#f2b84b; --green:#79a957; --blue:#4785c5;
+  --shadow:0 5px 16px rgba(90,55,25,.12);
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#fff7e8,#fff1d5);font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;color:var(--ink)}
+button{font:inherit;border:0;cursor:pointer}
+.app{max-width:1050px;margin:auto;padding:14px}
+.top{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+.logo{background:#fff;border-radius:20px;padding:14px 18px;box-shadow:var(--shadow);flex:1;min-width:270px}
+.logo h1{margin:0;font-size:25px}.logo p{margin:5px 0 0;color:var(--muted);font-size:14px}
+.stats{display:flex;gap:8px;flex:2;min-width:320px}
+.stat{background:#fff;border-radius:18px;padding:10px 15px;box-shadow:var(--shadow);flex:1;text-align:center}
+.stat b{display:block;font-size:22px}.stat span{font-size:12px;color:var(--muted)}
+.panel{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:16px;margin-top:13px}
+h2{font-size:18px;margin:0 0 11px}
+.row{display:flex;gap:9px;flex-wrap:wrap}
+.flavor{position:relative;min-width:105px;flex:1;background:#fff;border:2px solid transparent;border-radius:17px;padding:10px;transition:.15s}
+.flavor:hover{transform:translateY(-2px)} .flavor.selected{border-color:var(--gold);background:#fff9e9}
+.ball{width:45px;height:45px;border-radius:50%;margin:auto;box-shadow:inset -5px -6px 8px rgba(0,0,0,.12),inset 4px 4px 5px rgba(255,255,255,.35)}
+.white{background:#f5ead7}.red{background:#df4a58}.green{background:#87ad4c}.blue{background:#4d82bd}.orange{background:#ed8a31}.purple{background:#8b67b5}
+.flavor strong{display:block;text-align:center;margin-top:5px}.flavor small{display:block;text-align:center;color:var(--muted)}
+.controls{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.qty{font-weight:800;min-width:35px;text-align:center}.mini{width:32px;height:32px;border-radius:50%;background:#f1e4d1}
+.buy{background:#e95b45;color:#fff;border-radius:12px;padding:8px 14px;font-weight:800}
+.order{display:grid;grid-template-columns:1fr 1.25fr;gap:15px}
+.customer{background:#fff0d2;border-radius:18px;padding:14px;display:flex;gap:13px;align-items:center}
+.face{font-size:47px;background:#fff;border-radius:50%;width:70px;height:70px;display:grid;place-items:center}
+.bubble{background:#fff;border-radius:15px;padding:11px;flex:1;font-size:15px}
+.bubble b{color:#d64b43}
+.order-items{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tag{background:#fff;border-radius:12px;padding:7px 10px;font-size:13px}
+.tag b{font-size:16px}
+.sellbox{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sellitem{background:#fff;border-radius:14px;padding:8px;text-align:center;border:2px solid #eee1d2}
+.sellitem.need{border-color:#f0b84e;background:#fff9e9}
+.sellitem .ball{width:35px;height:35px}
+.sellitem .sbtn{margin-top:6px;background:#4d8b5b;color:white;border-radius:10px;padding:7px 9px;width:100%;font-weight:700}
+.notice{text-align:center;min-height:25px;font-weight:800;color:#d34d3f}
+.big{width:100%;padding:13px;border-radius:14px;background:#4d8b5b;color:#fff;font-weight:900;font-size:17px}
+.big:disabled{opacity:.45;cursor:not-allowed}
+.board{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:12px}
+.cell{height:37px;border-radius:8px;background:#f0e2cd;display:grid;place-items:center;font-size:11px;font-weight:800}
+.cell.active{background:#f1bd52;color:#fff}.cell.done{background:#8db06c;color:#fff}
+.message{padding:12px;border-radius:14px;background:#fff7df;margin-top:9px;font-size:14px;line-height:1.6}
+.footer{font-size:12px;color:#927c6a;text-align:center;padding:12px}
+@media(max-width:700px){
+ .order{grid-template-columns:1fr}.board{grid-template-columns:repeat(7,1fr)}
+ .stats{min-width:100%}.stat b{font-size:18px}.flavor{min-width:30%;flex-basis:30%}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo">
+      <h1>🥣 湯圓小掌櫃</h1>
+      <p>自己進貨、定價、接訂單，把小湯圓店經營起來！</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="money">$100</b><span>現金</span></div>
+      <div class="stat"><b id="profit">$0</b><span>今日利潤</span></div>
+      <div class="stat"><b id="day">第 1 天</b><span>營業日</span></div>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h2>🛒 ① 買湯圓進貨</h2>
+    <div id="flavors" class="row"></div>
+    <div class="message">小技巧：不同口味成本不同。先觀察今天客人的訂單，再決定買多少，避免買太多浪費。</div>
+  </section>
+
+  <section class="panel">
+    <h2>👨‍👩‍👧 ② 今日客人訂單</h2>
+    <div class="order">
+      <div>
+        <div class="customer">
+          <div class="face" id="face">👧</div>
+          <div class="bubble" id="speech">歡迎光臨！我想吃幾種不同口味的湯圓～</div>
+        </div>
+        <div class="order-items" id="orderTags"></div>
+      </div>
+      <div>
+        <h2 style="font-size:16px">🍡 ③ 出售湯圓</h2>
+        <div class="sellbox" id="sellbox"></div>
+      </div>
+    </div>
+    <div class="notice" id="notice"></div>
+    <button class="big" id="next" onclick="nextDay()" disabled>完成訂單 → 下一位客人</button>
+  </section>
+
+  <section class="panel">
+    <h2>🏪 ④ 今日經營進度</h2>
+    <div class="board" id="board"></div>
+    <div class="message" id="result">完成客人的訂單就能往前走！連續完成訂單，會遇到更難的客人。</div>
+  </section>
+
+  <div class="footer">適合親子一起玩的簡易經營／數學遊戲｜金額與數量都可以改成更難的版本</div>
+</div>
+
+<script>
+const foods=[
+ {id:"white",name:"原味",cost:2,price:4,cls:"white"},
+ {id:"red",name:"紅豆",cost:3,price:6,cls:"red"},
+ {id:"green",name:"抹茶",cost:3,price:7,cls:"green"},
+ {id:"blue",name:"藍莓",cost:4,price:8,cls:"blue"},
+ {id:"orange",name:"橘子",cost:4,price:9,cls:"orange"},
+ {id:"purple",name:"紫薯",cost:5,price:10,cls:"purple"}
+];
+let money=100, profit=0, day=1, inventory={};
+let order={}, sold={}; let currentFace="👧";
+
+function initInv(){foods.forEach(f=>inventory[f.id]=0)}
+initInv();
+
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function moneyText(n){return "$"+n}
+
+function renderFlavors(){
+ const el=document.getElementById("flavors"); el.innerHTML="";
+ foods.forEach(f=>{
+  const d=document.createElement("div");d.className="flavor";
+  d.innerHTML=`<div class="ball ${f.cls}"></div><strong>${f.name}</strong><small>進貨 ${moneyText(f.cost)}/顆</small>
+  <div class="controls"><button class="mini" onclick="buy('${f.id}',-1)">−</button><span class="qty" id="q-${f.id}">0</span><button class="mini" onclick="buy('${f.id}',1)">＋</button></div>`;
+  el.appendChild(d);
+ });
+}
+function buy(id,delta){
+ const f=foods.find(x=>x.id===id);
+ if(delta>0 && money<f.cost){toast("現金不夠了，不能再進貨！");return}
+ if(delta<0 && inventory[id]<=0){return}
+ inventory[id]+=delta; money-=delta*f.cost;
+ document.getElementById("money").textContent=moneyText(money);
+ document.getElementById("q-"+id).textContent=inventory[id];
+}
+function makeOrder(){
+ order={}; sold={};
+ let types=Math.min(2+Math.floor((day-1)/2),4);
+ let pool=[...foods].sort(()=>Math.random()-.5).slice(0,types);
+ pool.forEach(f=>order[f.id]=rand(1,Math.min(3,1+Math.floor(day/2))));
+ const faces=["👧","👦","👩","👨","👵","👴"];
+ currentFace=faces[rand(0,faces.length-1)];
+ document.getElementById("face").textContent=currentFace;
+ const words=["今天想吃湯圓！","老闆，我要一碗好吃的湯圓～","可以幫我準備這些口味嗎？","我要買湯圓回家跟家人一起吃！"];
+ document.getElementById("speech").innerHTML=words[rand(0,words.length-1)];
+ renderOrder(); renderSell(); document.getElementById("next").disabled=true;
+ document.getElementById("notice").textContent="";
+}
+function renderOrder(){
+ let tags=document.getElementById("orderTags");tags.innerHTML="";
+ foods.forEach(f=>{if(order[f.id]){
+  let x=document.createElement("div");x.className="tag";x.id="tag-"+f.id;
+  x.innerHTML=`${f.name} <b>${order[f.id]}顆</b>`;tags.appendChild(x);
+ }});
+}
+function renderSell(){
+ let box=document.getElementById("sellbox");box.innerHTML="";
+ foods.forEach(f=>{
+  if(!order[f.id]) return;
+  let x=document.createElement("div");x.className="sellitem";x.id="sell-"+f.id;
+  x.innerHTML=`<div class="ball ${f.cls}"></div><b>${f.name}</b><div>庫存：<span id="inv-${f.id}">${inventory[f.id]}</span></div>
+  <button class="sbtn" onclick="sell('${f.id}')">賣 1 顆 · $${f.price}</button>`;
+  box.appendChild(x);
+ });
+}
+function sell(id){
+ if(inventory[id]<=0){toast("這個口味庫存不夠！");return}
+ if((sold[id]||0)>=order[id]){toast("這個口味已經達到客人的需求了！");return}
+ const f=foods.find(x=>x.id===id);
+ inventory[id]--; sold[id]=(sold[id]||0)+1; money+=f.price; profit+=f.price-f.cost;
+ document.getElementById("money").textContent=moneyText(money);
+ document.getElementById("profit").textContent=moneyText(profit);
+ document.getElementById("inv-"+id).textContent=inventory[id];
+ const allDone=foods.every(f=>(sold[f.id]||0)===(order[f.id]||0));
+ if(allDone){
+  document.getElementById("notice").textContent="🎉 訂單完成！客人非常滿意！";
+  document.getElementById("next").disabled=false;
+  document.getElementById("result").textContent=`本次訂單完成，賺到的毛利會累積到「今日利潤」。下一位客人會更有挑戰！`;
+ }else{
+  document.getElementById("notice").textContent="👍 賣得很好，再看看還缺哪一種。";
+ }
+ renderSell();
+}
+function nextDay(){
+ day++;
+ document.getElementById("day").textContent="第 "+day+" 天";
+ updateBoard();
+ makeOrder();
+ if(day%4===0){money+=15;document.getElementById("money").textContent=moneyText(money);toast("⭐ 回頭客獎勵！額外獲得 $15");}
+}
+function updateBoard(){
+ let b=document.getElementById("board");b.innerHTML="";
+ for(let i=1;i<=20;i++){
+  let c=document.createElement("div");c.className="cell "+(i<day?"done ":"")+(i===day?"active":"");
+  c.textContent=i===20?"🏆":i;c.title="營業日 "+i;b.appendChild(c);
+ }
+}
+function toast(msg){document.getElementById("notice").textContent=msg}
+renderFlavors();updateBoard();makeOrder();
+</script>
+</body>
+</html>
