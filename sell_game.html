@@ -85,6 +85,10 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
   <button id="removeProduct">−</button><input class="value" id="productCount" type="number" min="1" max="100" value="40" inputmode="numeric"><button id="addProduct">＋</button>
 </div>
 <div class="settings">
+  <label class="unlock-label"><input type="radio" name="restockMode" value="manual"> 📦 每次都要補貨</label>
+  <label class="unlock-label"><input type="radio" name="restockMode" value="auto" checked> ✨ 自動回補庫存</label>
+</div>
+<div class="settings">
   <button class="big-btn" id="saveSettings">💾 儲存商品設定</button>
   <button class="secondary" id="resetSettings">↺ 全部恢復預設</button>
 </div>
@@ -167,6 +171,8 @@ function ensureProducts(){
   products=products.slice(0,productCount);
 }
 ensureProducts();
+const savedMode=localStorage.getItem("shop_restock_mode")||"auto";
+const modeRadio=document.querySelector(`input[name="restockMode"][value="${savedMode}"]`); if(modeRadio) modeRadio.checked=true;
 
 function imgPath(i){return `sell_pic/item_${i+1}.png`;}
 function makeImg(i,cls=""){
@@ -248,7 +254,8 @@ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{
 document.getElementById("addProduct").onclick=()=>{if(productCount<100){productCount++;ensureProducts();save();renderBoss();renderCustomer();cuteSound("success");}};
 document.getElementById("productCount").onchange=()=>{productCount=Math.min(100,Math.max(1,Number(document.getElementById("productCount").value)||1));ensureProducts();cart=cart.filter(x=>x.index<productCount);save();renderBoss();renderCustomer();cuteSound("click");};
 document.getElementById("removeProduct").onclick=()=>{if(productCount>1){productCount--;ensureProducts();cart=cart.filter(x=>x.index<productCount);save();renderBoss();renderCustomer();cuteSound("click");}};
-document.getElementById("saveSettings").onclick=()=>{save();cuteSound("success");alert("商品設定已儲存！");};
+document.querySelectorAll('input[name="restockMode"]').forEach(r=>r.onchange=()=>{localStorage.setItem("shop_restock_mode",r.value);});
+document.getElementById("saveSettings").onclick=()=>{localStorage.setItem("shop_restock_mode",getRestockMode());save();cuteSound("success");alert("商品設定已儲存！");};
 document.getElementById("resetSettings").onclick=()=>{if(confirm("確定全部恢復預設？")){products=Array.from({length:productCount},(_,i)=>defaultProduct(i));cart=[];save();renderBoss();renderCustomer();cuteSound("success");}};
 document.querySelectorAll(".qty-buttons button").forEach(b=>b.onclick=()=>{selectedQty=Number(b.dataset.qty);document.querySelectorAll(".qty-buttons button").forEach(x=>x.style.transform="");b.style.transform="scale(1.08)";cuteSound("click");});
 document.getElementById("cancelQty").onclick=()=>document.getElementById("qtyModal").classList.remove("show");
@@ -306,10 +313,20 @@ document.getElementById("checkPaid").onclick=()=>{
  if(paid<real){m.textContent="💡 客人的錢還不夠喔！";m.style.color="#df6b45";cuteSound("bad");return;}
  const change=paid-real;
  const userChange=prompt(`客人應該找多少錢？（答案：${change} 元）\n請輸入小朋友算出的找零：`);
- if(Number(userChange)===change){m.textContent=`🌟 太棒了！正確！應找 ${change} 元`;m.style.color="#36a269";cuteSound("success");}
+ if(Number(userChange)===change){m.textContent=`🌟 太棒了！正確！應找 ${change} 元`;m.style.color="#36a269";cuteSound("success"); setTimeout(finishSale,700);}
  else{m.textContent="😊 再想一下找零是多少？";m.style.color="#df6b45";cuteSound("bad");}
 };
 
+function getRestockMode(){ return document.querySelector('input[name="restockMode"]:checked')?.value || localStorage.getItem("shop_restock_mode") || "auto"; }
+function finishSale(){
+  cart=[];
+  if(getRestockMode()==="auto") products.forEach(p=>p.stock=1);
+  save();
+  resetCheckout();
+  renderBoss(); renderCustomer();
+  document.querySelector('[data-page="customer"]').click();
+  alert(getRestockMode()==="auto" ? "🎉 結帳完成！商品已自動回補，可以開始下一位客人囉！" : "🎉 結帳完成！本次商品已售出，請老闆重新補貨！");
+}
 let audioCtx;
 function cuteSound(type){
  try{
