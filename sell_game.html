@@ -22,7 +22,7 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
 .empty-img{width:100px;height:100px;margin:auto;border-radius:15px;background:#f5eee4;display:flex;align-items:center;justify-content:center;color:#b5a18a;font-size:12px}
 .control{display:flex;align-items:center;justify-content:center;gap:8px;margin:7px 0}
 .control button{width:34px;height:34px;border-radius:12px;background:#ffd16e;color:#68491f;font-size:22px;font-weight:900}
-.value{min-width:68px;padding:5px 8px;border-radius:10px;background:#fff4d7;font-weight:900}
+.value{min-width:68px;width:100px;padding:8px;border-radius:10px;background:#fff4d7;border:2px solid #ffd18c;font-weight:900;text-align:center}
 .price-input{width:82px;text-align:center;border:2px solid #ffd18c;border-radius:10px;padding:6px;background:#fffaf0}
 .label{font-size:13px;color:#98795c}
 .sell-count{margin-bottom:15px;text-align:center}
@@ -50,11 +50,11 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
 .cancel{background:#ddd0bd;color:#5f513f;padding:12px 18px;border-radius:14px;font-weight:900;margin-left:8px}
 .calculator-wrap{max-width:460px;margin:auto}
 .calc{background:#fff;border-radius:25px;padding:15px;box-shadow:0 5px 18px #8b5e2e20;border:3px solid #ffd18c}
-.calc-display{background:#463a32;color:#fff;border-radius:15px;padding:15px;text-align:right;font-size:35px;min-height:65px;overflow:hidden}
+.calc-display{background:#463a32;color:#fff;border-radius:15px;padding:15px;text-align:right;font-size:40px;min-height:75px;overflow:hidden}
 .calc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
 .calc-grid button{height:62px;border-radius:15px;background:#fff0cf;font-size:25px;font-weight:900;color:#5c4631}
 .calc-grid button.clear{background:#ffc0a4}
-.check-area{background:#fff;margin-top:15px;border-radius:20px;padding:15px;text-align:center;border:3px solid #ffd18c}
+.check-area{background:#fff;margin-top:15px;border-radius:20px;padding:18px;text-align:center;border:3px solid #ffd18c;font-size:22px}.checkout-cart{margin-bottom:15px;text-align:left}.checkout-cart .cart-row img{width:75px;height:75px}.checkout-cart .cart-row{font-size:21px}.checkout-cart .cart-total{font-size:28px}
 .money-box{font-size:24px;font-weight:900;margin:10px}
 .money-box input{width:130px;padding:9px;border:2px solid #ffd18c;border-radius:12px;text-align:center}
 .message{font-size:20px;font-weight:900;min-height:30px;margin-top:10px}
@@ -82,7 +82,7 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
 <h1>🏪 小小商店・老闆設定</h1>
 <div class="notice">先選擇要販售的商品數量。圖片請放在 <b>sell_pic</b> 資料夾，檔名為 <b>item_1、item_2、item_3…</b></div>
 <div class="sell-count control">
-  <button id="removeProduct">−</button><div class="value" id="productCount">46 個商品</div><button id="addProduct">＋</button>
+  <button id="removeProduct">−</button><input class="value" id="productCount" type="number" min="1" max="100" value="40" inputmode="numeric"><button id="addProduct">＋</button>
 </div>
 <div class="settings">
   <button class="big-btn" id="saveSettings">💾 儲存商品設定</button>
@@ -109,7 +109,8 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
 <section id="checkout" class="page">
 <h1>💰 小小收銀台</h1>
 <div class="calculator-wrap">
-  <div class="notice">先用計算機算出購物車的正確總金額，再確認！</div>
+  <div class="notice">先看下面的購物車，用計算機算出正確總金額，再確認！</div>
+  <div class="cart checkout-cart"><div class="cart-title">🛍️ 本次購買商品</div><div id="checkoutCartRows"></div><div class="cart-total">總金額：<span id="checkoutCartTotal">0</span> 元</div></div>
   <div class="calc">
     <div id="calcDisplay" class="calc-display">0</div>
     <div class="calc-grid">
@@ -151,7 +152,7 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
 </div>
 
 <script>
-const DEFAULT_COUNT=6;
+const DEFAULT_COUNT=40;
 let productCount=Number(localStorage.getItem("shop_product_count")||DEFAULT_COUNT);
 let products=JSON.parse(localStorage.getItem("shop_products")||"null");
 let cart=JSON.parse(localStorage.getItem("shop_cart")||"[]");
@@ -178,7 +179,7 @@ function save(){
  localStorage.setItem("shop_cart",JSON.stringify(cart));
 }
 function renderBoss(){
- document.getElementById("productCount").textContent=productCount+" 個商品";
+ document.getElementById("productCount").value=productCount;
  const box=document.getElementById("bossProducts"); box.innerHTML="";
  for(let i=0;i<productCount;i++){
   const p=products[i]||defaultProduct(i); products[i]=p;
@@ -212,6 +213,7 @@ function renderCustomer(){
   box.appendChild(card);
  }
  renderCart();
+ const rows=document.getElementById("checkoutCartRows"); if(rows){rows.innerHTML=""; let total=0; cart.forEach(item=>{const p=products[item.index]; if(!p)return; total+=p.price*item.qty; const row=document.createElement("div");row.className="cart-row";row.appendChild(makeImg(item.index));row.insertAdjacentHTML("beforeend",`<div class="cart-info"><div><b>單價：${p.price} 元</b></div><div>數量：${item.qty}</div><div><b>小計：${p.price*item.qty} 元</b></div></div>`);rows.appendChild(row);});document.getElementById("checkoutCartTotal").textContent=total;}
 }
 function renderCart(){
  const box=document.getElementById("cartRows");box.innerHTML="";
@@ -243,6 +245,7 @@ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{
  cuteSound("click");
 });
 document.getElementById("addProduct").onclick=()=>{if(productCount<100){productCount++;ensureProducts();save();renderBoss();renderCustomer();cuteSound("success");}};
+document.getElementById("productCount").onchange=()=>{productCount=Math.min(100,Math.max(1,Number(document.getElementById("productCount").value)||1));ensureProducts();cart=cart.filter(x=>x.index<productCount);save();renderBoss();renderCustomer();cuteSound("click");};
 document.getElementById("removeProduct").onclick=()=>{if(productCount>1){productCount--;ensureProducts();cart=cart.filter(x=>x.index<productCount);save();renderBoss();renderCustomer();cuteSound("click");}};
 document.getElementById("saveSettings").onclick=()=>{save();cuteSound("success");alert("商品設定已儲存！");};
 document.getElementById("resetSettings").onclick=()=>{if(confirm("確定全部恢復預設？")){products=Array.from({length:productCount},(_,i)=>defaultProduct(i));cart=[];save();renderBoss();renderCustomer();cuteSound("success");}};
@@ -268,6 +271,7 @@ function resetCheckout(){
  document.getElementById("changeMessage").textContent="";
  document.getElementById("customerPayArea").classList.add("hidden");
  renderCart();
+ const rows=document.getElementById("checkoutCartRows"); if(rows){rows.innerHTML=""; let total=0; cart.forEach(item=>{const p=products[item.index]; if(!p)return; total+=p.price*item.qty; const row=document.createElement("div");row.className="cart-row";row.appendChild(makeImg(item.index));row.insertAdjacentHTML("beforeend",`<div class="cart-info"><div><b>單價：${p.price} 元</b></div><div>數量：${item.qty}</div><div><b>小計：${p.price*item.qty} 元</b></div></div>`);rows.appendChild(row);});document.getElementById("checkoutCartTotal").textContent=total;}
 }
 document.querySelectorAll(".calc-grid button").forEach(b=>b.onclick=()=>{
  const k=b.dataset.key;
