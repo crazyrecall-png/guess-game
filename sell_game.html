@@ -112,6 +112,8 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
   #customerProducts{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
 }
 
+#changeModal .modal-box{max-width:520px;text-align:center}
+#changeAmount{color:#d97932}
 </style>
 </head>
 <body>
@@ -482,10 +484,8 @@ document.querySelectorAll(".pay-grid button").forEach(b=>b.onclick=()=>{
      expectedChange=value-real;
      msg.textContent=`🎉 收錢正確！客人付 ${value} 元！`;
      msg.style.color="#36a269";
-     if(document.getElementById("autoChange").checked){
-       msg.textContent+=` 應找 ${expectedChange} 元。`;
-     }
-     finishSale();
+     showChangeModal(value);
+     return;
    }else{
      msg.textContent="😊 收到的金額不對，再看看客人拿了多少！";
      msg.style.color="#df6b45";cuteSound("bad");
@@ -527,7 +527,31 @@ function fireworkSound6s(){
  }catch(e){}
 }
 
-function finishSale(){
+
+function getCurrentTotal(){
+  return cart.reduce((sum,i)=>{
+    const p=products[i.index];
+    return sum + p.price*i.qty;
+  },0);
+}
+
+function showChangeModal(paid){
+  const total=getCurrentTotal();
+  const change=Math.max(0,paid-total);
+  const modal=document.getElementById("changeModal");
+  document.getElementById("changeTotal").textContent=total+" 元";
+  document.getElementById("changePaid").textContent=paid+" 元";
+  document.getElementById("changeAmount").textContent=change+" 元";
+  modal.classList.add("show");
+  fireworkSound6s();
+}
+
+function finishChangeAndWin(){
+  document.getElementById("changeModal").classList.remove("show");
+  finishSale(false);
+}
+
+function finishSale(showSuccessModal=true){
   finishChallenge();
   document.getElementById("payModal").classList.remove("show");
 
@@ -540,12 +564,14 @@ function finishSale(){
   resetCheckout();
   renderBoss(); renderCustomer();
 
-  const text=document.getElementById("saleCompleteText");
-  text.textContent = mode==="auto"
-    ? "🎉 結帳成功！商品已自動回補，可以開始下一位客人囉！"
-    : "🎉 結帳成功！本次商品已售出，請老闆重新補貨！";
-  document.getElementById("saleCompleteModal").classList.add("show");
-  fireworkSound6s();
+  if(showSuccessModal){
+    const text=document.getElementById("saleCompleteText");
+    text.textContent = mode==="auto"
+      ? "🎉 結帳成功！商品已自動回補，可以開始下一位客人囉！"
+      : "🎉 結帳成功！本次商品已售出，請老闆重新補貨！";
+    document.getElementById("saleCompleteModal").classList.add("show");
+    fireworkSound6s();
+  }
 }
 let audioCtx;
 function cuteSound(type){
@@ -580,6 +606,7 @@ document.getElementById("failEndBtn").onclick=()=>{
  document.querySelector('[data-page="customer"]').click();
  cuteSound("click");
 };
+document.getElementById("changeDoneBtn").onclick=finishChangeAndWin;
 </script>
 
 <div id="saleCompleteModal" class="modal">
@@ -603,6 +630,23 @@ document.getElementById("failEndBtn").onclick=()=>{
     <p style="font-size:23px;font-weight:900;line-height:1.5">⏰ 時間到了，客人跑走了！</p>
     <p style="font-size:18px">按下按鈕結束這一局，重新開始。</p>
     <button class="failure-end-btn" id="failEndBtn">🔄 結束遊戲</button>
+  </div>
+</div>
+
+
+<div id="changeModal" class="modal">
+  <div class="modal-box">
+    <div style="font-size:62px">🎆</div>
+    <h2>🎉 挑戰成功！</h2>
+    <p style="font-size:20px;font-weight:800">客人付款正確！現在請從現實中的玩具錢幣拿出正確的金額還給客人。</p>
+    <div style="background:#fff3d6;border-radius:18px;padding:14px;margin:12px 0;font-size:20px;font-weight:900">
+      <div>商品總額：<span id="changeTotal">0 元</span></div>
+      <div>客人付款：<span id="changePaid">0 元</span></div>
+      <div style="font-size:32px;margin-top:8px;color:#d97932">💰 應還客人：<span id="changeAmount">0 元</span></div>
+    </div>
+    <button class="cart-checkout-btn" id="changeDoneBtn" style="font-size:23px;padding:16px 30px">
+      🛒 下一位客人
+    </button>
   </div>
 </div>
 
