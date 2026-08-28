@@ -624,7 +624,8 @@ function showChangeModal(paid){
 }
 
 function finishChangeAndWin(){
-  document.getElementById("changeModal").classList.remove("show");
+  const modal=document.getElementById("changeModal");
+  if(modal) modal.classList.remove("show");
   finishSale(false);
 }
 
@@ -683,7 +684,11 @@ document.getElementById("failEndBtn").onclick=()=>{
  document.querySelector('[data-page="customer"]').click();
  cuteSound("click");
 };
-document.getElementById("changeDoneBtn").onclick=finishChangeAndWin;
+document.addEventListener("click", e=>{
+  if(e.target && (e.target.id==="changeDoneBtn" || e.target.closest("#changeDoneBtn"))){
+    finishChangeAndWin();
+  }
+});
 </script>
 
 <div id="saleCompleteModal" class="modal">
