@@ -462,7 +462,7 @@ document.querySelectorAll(".pay-grid button").forEach(b=>b.onclick=()=>{
      const change=value;
      if(change===expectedChange){
        msg.textContent=`🌟 找零正確！應找 ${expectedChange} 元`;
-       msg.style.color="#36a269";cuteSound("success");setTimeout(finishSale,700);
+       msg.style.color="#36a269";cuteSound("success");setTimeout(finishSale,5000);
      }else{
        msg.textContent="😊 找零還不對，再想一下！";msg.style.color="#df6b45";cuteSound("bad");
      }
