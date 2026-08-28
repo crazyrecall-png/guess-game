@@ -463,7 +463,7 @@ function openPayModal(){
  const target=candidates.length?candidates[0]:1000;
  window.customerPayTarget=target;
  document.getElementById("payTitle").textContent="💵 客人付多少錢？";
- document.getElementById("payHint").textContent=`客人拿出 ${target} 元。請真的從現實的玩具錢幣中拿出相同金額，再用下面計算機輸入。按 = 送出，只判斷一次！`;
+ document.getElementById("payHint").textContent=`客人拿出 ${target} 元。請用計算機算：${target} − 商品總額 = 要找的錢。算完按 = 送出。`;
  document.getElementById("payMessage").textContent="";
  updatePayDisplay();
  document.getElementById("payModal").classList.add("show");
@@ -471,30 +471,50 @@ function openPayModal(){
 
 document.querySelectorAll(".pay-grid button").forEach(b=>b.onclick=()=>{
  const k=b.dataset.pay;
- const msg=document.getElementById("payMessage");msg.textContent="";
- if((k==="+"||k==="-")&&!document.getElementById("allowPlusMinus").checked){cuteSound("bad");return;}
- if(k==="C") payCalc="";
- else if(k==="back") payCalc=payCalc.slice(0,-1);
- else if(k==="="){
-   if(!payCalc){msg.textContent="請先輸入客人付的金額。";msg.style.color="#df6b45";cuteSound("bad");return;}
-   const value=Number(calcExpression(payCalc));
-   if(value===Number(window.customerPayTarget)){
-     paidAmount=value;
-     const real=Number(document.getElementById("realTotal").textContent);
-     expectedChange=value-real;
-     msg.textContent=`🎉 收錢正確！客人付 ${value} 元！`;
+ const msg=document.getElementById("payMessage");
+ msg.textContent="";
+
+ if((k==="+"||k==="-")&&!document.getElementById("allowPlusMinus").checked){
+   cuteSound("bad");return;
+ }
+
+ if(k==="C"){
+   payCalc="";
+ }else if(k==="back"){
+   payCalc=payCalc.slice(0,-1);
+ }else if(k==="="){
+   if(!payCalc){
+     msg.textContent="請先算出客人付的錢要找多少。";
+     msg.style.color="#df6b45";
+     cuteSound("bad");
+     return;
+   }
+
+   const result=Number(calcExpression(payCalc));
+   const real=Number(document.getElementById("realTotal").textContent);
+   const paid=Number(window.customerPayTarget);
+   const correctChange=paid-real;
+
+   // 必須真的算「客人收到的錢 - 商品總額」
+   // 只比對算出的結果，不直接把答案塞給小朋友。
+   if(Number.isFinite(result) && result===correctChange && /-/.test(payCalc)){
+     paidAmount=paid;
+     expectedChange=correctChange;
+     msg.textContent=`🎉 計算正確！`;
      msg.style.color="#36a269";
-     showChangeModal(value);
+     showChangeModal(paid);
      return;
    }else{
-     msg.textContent="😊 收到的金額不對，再看看客人拿了多少！";
-     msg.style.color="#df6b45";cuteSound("bad");
+     msg.textContent="😊 再算一次：客人付的錢 − 商品總額 = 要找的錢";
+     msg.style.color="#df6b45";
+     cuteSound("bad");
+     return;
    }
-   return;
  }else{
    if((k==="+"||k==="-")&&/[+-]$/.test(payCalc))return;
    payCalc+=k;
  }
+
  payCalc=payCalc.replace(/([+-]){2,}/g,'$1');
  updatePayDisplay();
 });
@@ -638,16 +658,26 @@ document.getElementById("changeDoneBtn").onclick=finishChangeAndWin;
   <div class="modal-box">
     <div style="font-size:62px">🎆</div>
     <h2>🎉 挑戰成功！</h2>
-    <p style="font-size:20px;font-weight:800">客人付款正確！現在請從現實中的玩具錢幣拿出正確的金額還給客人。</p>
+    <p style="font-size:20px;font-weight:800;line-height:1.5">
+      太棒了！你成功算出客人應該拿回多少錢！
+    </p>
     <div style="background:#fff3d6;border-radius:18px;padding:14px;margin:12px 0;font-size:20px;font-weight:900">
       <div>商品總額：<span id="changeTotal">0 元</span></div>
       <div>客人付款：<span id="changePaid">0 元</span></div>
-      <div style="font-size:32px;margin-top:8px;color:#d97932">💰 應還客人：<span id="changeAmount">0 元</span></div>
+      <div style="font-size:32px;margin-top:8px;color:#d97932">
+        💰 應還客人：<span id="changeAmount">0 元</span>
+      </div>
     </div>
-    <button class="cart-checkout-btn" id="changeDoneBtn" style="font-size:23px;padding:16px 30px">
+    <p style="font-size:18px;font-weight:800">
+      現在請從現實中的玩具錢幣拿出上面的金額還給客人。
+    </p>
+    <button class="cart-checkout-btn" id="changeDoneBtn"
+            style="font-size:23px;padding:16px 30px">
       🛒 下一位客人
     </button>
   </div>
+</div>
+
 </div>
 
 </body>
