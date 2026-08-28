@@ -27,6 +27,26 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
 .label{font-size:13px;color:#98795c}
 .sell-count{margin-bottom:15px;text-align:center}
 .big-btn{background:#ff9f68;color:#fff;padding:11px 22px;border-radius:15px;font-weight:900;font-size:17px}
+.cart-checkout-btn{background:#74c58a;color:#fff;padding:15px 26px;border-radius:16px;font-weight:900;font-size:19px;box-shadow:0 4px 0 #4fa967}
+.check-answer-btn{background:#8ed4ea;color:#21495a;padding:15px 30px;border-radius:16px;font-weight:900;font-size:22px;box-shadow:0 4px 0 #66b6d0}
+.challenge-modal .modal-box{max-width:500px}
+.challenge-time-row{display:flex;align-items:center;justify-content:center;gap:14px;margin:18px 0}
+.challenge-time-row button{width:56px;height:56px;border-radius:16px;background:#ffd16e;color:#68491f;font-size:30px;font-weight:900}
+.challenge-time{width:130px;padding:10px 8px;border:3px solid #ffd18c;border-radius:15px;text-align:center;font-size:28px;font-weight:900;background:#fff}
+.infinity-btn{background:#b8d9f5;color:#24506f;padding:14px 22px;border-radius:16px;font-size:20px;font-weight:900}
+.countdown{position:fixed;right:18px;top:82px;z-index:45;background:#fff;border:4px solid #ffd18c;border-radius:20px;padding:10px 18px;box-shadow:0 6px 20px #0002;text-align:center;min-width:150px}
+.countdown .label{font-size:14px}.countdown .num{font-size:36px;font-weight:900;color:#e87948;line-height:1}
+.countdown.warn .num{color:#df5d4d;animation:pulse .6s infinite alternate}
+@keyframes pulse{to{transform:scale(1.08)}}
+.calc-grid button{background:#fff4db}.calc-grid button:nth-child(n){color:#5c4631}.calc-grid button[data-key="+"]{background:#ffb5cf;color:#7b2e4c}.calc-grid button[data-key="-"]{background:#bca9ef;color:#4d397d}.calc-grid button[data-key="="]{background:#80cfe0;color:#1f5360}
+.pay-grid button.pay-equals{background:#80cfe0;color:#1f5360;font-weight:900}.calc-grid button.clear{background:#ffc9b0}
+.pay-modal .modal-box{max-width:520px}
+.pay-display{background:#463a32;color:#fff;border-radius:15px;padding:12px;text-align:right;font-size:36px;min-height:66px;margin:10px 0}
+.pay-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:10px}.pay-grid button{height:58px;border-radius:15px;background:#fff4db;font-size:24px;font-weight:900;color:#5c4631}.pay-grid button.clear{background:#ffc9b0}.pay-grid button[data-key="+"]{background:#ffb5cf;color:#7b2e4c}.pay-grid button[data-key="-"]{background:#bca9ef;color:#4d397d}
+.modal-actions{display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.check-area .unlock-label{font-size:16px}
+@media(max-width:520px){.countdown{right:8px;top:72px;min-width:125px}.countdown .num{font-size:30px}.cart-checkout-btn,.check-answer-btn{width:100%}.challenge-time{width:105px}.pay-grid button{height:54px}}
+
 .customer-products .product{transition:.15s;cursor:pointer}
 .customer-products .product:active{transform:scale(.96)}
 .cart{margin-top:20px;background:#fff;border:3px solid #ffd18c;border-radius:20px;padding:12px}
@@ -104,8 +124,8 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
   <div id="cartRows"></div>
   <div class="cart-total">總金額：<span id="cartTotal">0</span> 元</div>
   <div class="cart-actions">
-    <button class="secondary" id="clearCart">清空購物車</button>
-    <button class="big-btn" id="goCheckout">前往結帳 💰</button>
+    <button class="secondary" id="clearCart">🗑️ 清空購物車</button>
+    <button class="cart-checkout-btn" id="goCheckout">✅ 購買完成，開始結帳</button>
   </div>
 </div>
 </section>
@@ -126,23 +146,55 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
     </div>
   </div>
   <div class="check-area">
-    <div class="settings"> <label class="unlock-label"><input type="checkbox" id="allowPlusMinus"> 🔓 啟用加減</label> <button class="big-btn" id="showRealTotal">👀 顯示正確總金額</button></div>
+    <div class="settings"> <label class="unlock-label"><input type="checkbox" id="allowPlusMinus" checked> 🔓 啟用加減</label> <button class="big-btn" id="showRealTotal">👀 顯示正確總金額</button></div>
     <div id="realTotalArea" class="hidden">購物車真正總金額：<b id="realTotal">0</b> 元</div>
     <div class="money-box">小朋友算出的答案：
       <input id="answerInput" type="number" min="0" inputmode="numeric" placeholder="金額">
     </div>
-    <button class="big-btn" id="checkAnswer">檢查答案</button>
+    <div class="settings"><label class="unlock-label"><input type="checkbox" id="autoChange"> 🤖 自動計算找零</label></div>
+    <button class="check-answer-btn" id="checkAnswer">🔎 檢查答案</button>
     <div id="answerMessage" class="message"></div>
-    <div id="customerPayArea" class="hidden">
-      <hr>
-      <div>客人給你多少錢？</div>
-      <div class="money-box"><input id="paidInput" type="number" min="0" inputmode="numeric" placeholder="例如 100"></div>
-      <button class="big-btn" id="checkPaid">檢查找零</button>
-      <div id="changeMessage" class="message"></div>
-    </div>
+    <div id="customerPayArea" class="hidden"></div>
   </div>
 </div>
 </section>
+
+<div id="challengeModal" class="modal challenge-modal">
+ <div class="modal-box">
+   <h2>⏱️ 選擇本次挑戰時間</h2>
+   <div class="small">倒數會從進入結帳開始，直到完成找零。</div>
+   <div class="challenge-time-row">
+     <button id="challengeMinus">−</button>
+     <input id="challengeSeconds" class="challenge-time" type="number" min="10" max="9999" step="10" value="60">
+     <span style="font-size:24px;font-weight:900">秒</span>
+     <button id="challengePlus">＋</button>
+   </div>
+   <div class="modal-actions">
+     <button class="infinity-btn" id="challengeInfinity">♾️ 無限時間（Baby）</button>
+     <button class="confirm" id="challengeStart">開始挑戰 🚀</button>
+     <button class="cancel" id="challengeCancel">取消</button>
+   </div>
+ </div>
+</div>
+
+<div id="countdownBox" class="countdown hidden"><div class="label">⏱️ 剩餘時間</div><div class="num" id="countdownNum">60</div><div class="label">秒</div></div>
+
+<div id="payModal" class="modal pay-modal">
+ <div class="modal-box">
+   <h2 id="payTitle">💵 客人付多少錢？</h2>
+   <div class="small" id="payHint">請真的從現實的玩具錢幣中拿出相同金額，再輸入到這裡。</div>
+   <div id="payDisplay" class="pay-display">0</div>
+   <div class="pay-grid">
+     <button class="clear" data-pay="C">C</button><button data-pay="back">⌫</button><button class="pay-equals" data-pay="=">=</button>
+     <button data-pay="1">1</button><button data-pay="2">2</button><button data-pay="3">3</button>
+     <button data-pay="4">4</button><button data-pay="5">5</button><button data-pay="6">6</button>
+     <button data-pay="7">7</button><button data-pay="8">8</button><button data-pay="9">9</button>
+     <button data-pay="0">0</button><button data-pay="+">＋</button><button data-pay="-">－</button>
+   </div>
+   <div id="payMessage" class="message"></div>
+   <div class="modal-actions"><button class="cancel" id="payCancel">取消</button></div>
+ </div>
+</div>
 
 <div id="qtyModal" class="modal">
  <div class="modal-box">
@@ -164,10 +216,11 @@ let cart=JSON.parse(localStorage.getItem("shop_cart")||"[]");
 let selectedIndex=null, selectedQty=1;
 let calc="";
 
-function defaultProduct(i){return {price:10,stock:1};}
+function defaultProduct(i){return {price:10,stock:1,baseStock:1};}
 function ensureProducts(){
   if(!Array.isArray(products)) products=[];
   for(let i=products.length;i<productCount;i++) products.push(defaultProduct(i));
+  products.forEach(p=>{ if(p.baseStock==null) p.baseStock=p.stock??1; });
   products=products.slice(0,productCount);
 }
 ensureProducts();
@@ -270,8 +323,9 @@ document.getElementById("confirmQty").onclick=()=>{
  save();document.getElementById("qtyModal").classList.remove("show");renderBoss();renderCustomer();cuteSound("success");
 };
 document.getElementById("clearCart").onclick=()=>{cart.forEach(x=>products[x.index].stock+=x.qty);cart=[];save();renderBoss();renderCustomer();cuteSound("click");};
-document.getElementById("goCheckout").onclick=()=>{if(!cart.length){cuteSound("bad");alert("購物車還沒有商品喔！");return;}document.querySelector('[data-page="checkout"]').click();};
+document.getElementById("goCheckout").onclick=()=>{if(!cart.length){cuteSound("bad");alert("購物車還沒有商品喔！");return;}document.getElementById("challengeModal").classList.add("show");cuteSound("pop");};
 
+let challengeSeconds=60, challengeUnlimited=false, challengeTimer=null, payCalc="";
 function resetCheckout(){
  calc="";document.getElementById("calcDisplay").textContent="0";
  document.getElementById("answerInput").value="";document.getElementById("paidInput").value="";
@@ -288,44 +342,158 @@ plusMinusAllowed.onchange=()=>{updateCalcLocks();cuteSound("click");}; updateCal
 document.querySelectorAll(".calc-grid button").forEach(b=>b.onclick=()=>{
  const k=b.dataset.key;
  if((k==="+"||k==="-")&&!plusMinusAllowed.checked){cuteSound("bad");return;}
- if(k==="C")calc="";
- else if(k==="back")calc=calc.slice(0,-1);
- else if(k==="="){
-  if(!calc)return;
-  try{calc=String(Math.max(0,Math.floor(Function("return "+calc.replace(/[^0-9+-]/g,""))())));}
-  catch{calc="";}
-  cuteSound("success");
- }else calc+=k;
+ if(k==="C"){
+   calc="";
+ }else if(k==="back"){
+   calc=calc.slice(0,-1);
+ }else if(k==="="){
+   if(!calc || /^[+-]$/.test(calc)) return;
+   try{
+     const expr=calc.replace(/[^0-9+-]/g,"");
+     if(!/^\d+(?:[+-]\d+)*$/.test(expr)) throw new Error("invalid");
+     let total=Number((expr.match(/^\d+/)||["0"])[0]);
+     for(const term of (expr.match(/[+-]\d+/g)||[])){
+       const n=Number(term.slice(1));
+       total += term[0]==="+" ? n : -n;
+     }
+     calc=String(Math.max(0,total));
+     cuteSound("success");
+   }catch(e){
+     cuteSound("bad");
+     return;
+   }
+ }else{
+   // Avoid multiple operators in a row.
+   if((k==="+"||k==="-") && /[+-]$/.test(calc)) return;
+   calc+=k;
+ }
  document.getElementById("calcDisplay").textContent=calc||"0";
- document.getElementById("answerInput").value=calc.replace(/[^0-9]/g,"");
+ // Only copy a pure numeric result into the answer box.
+ document.getElementById("answerInput").value=/^\d+$/.test(calc)?calc:"";
 });
 document.getElementById("showRealTotal").onclick=()=>{document.getElementById("realTotalArea").classList.remove("hidden");cuteSound("pop");};
 document.getElementById("checkAnswer").onclick=()=>{
  const real=Number(document.getElementById("realTotal").textContent);
  const ans=Number(document.getElementById("answerInput").value);
  const m=document.getElementById("answerMessage");
- if(ans===real){m.textContent="🎉 答對了！現在來算找零！";m.style.color="#36a269";document.getElementById("customerPayArea").classList.remove("hidden");cuteSound("success");}
- else{m.textContent="🤔 再算一次看看！";m.style.color="#df6b45";cuteSound("bad");}
+ if(ans===real){
+   m.textContent="🎉 答對了！客人要付錢囉！";m.style.color="#36a269";cuteSound("success");
+   setTimeout(openPayModal,350);
+ } else {m.textContent="🤔 再算一次看看！";m.style.color="#df6b45";cuteSound("bad");}
 };
-document.getElementById("checkPaid").onclick=()=>{
- const real=Number(document.getElementById("realTotal").textContent),paid=Number(document.getElementById("paidInput").value);
- const m=document.getElementById("changeMessage");
- if(paid<real){m.textContent="💡 客人的錢還不夠喔！";m.style.color="#df6b45";cuteSound("bad");return;}
- const change=paid-real;
- const userChange=prompt(`客人應該找多少錢？（答案：${change} 元）\n請輸入小朋友算出的找零：`);
- if(Number(userChange)===change){m.textContent=`🌟 太棒了！正確！應找 ${change} 元`;m.style.color="#36a269";cuteSound("success"); setTimeout(finishSale,700);}
- else{m.textContent="😊 再想一下找零是多少？";m.style.color="#df6b45";cuteSound("bad");}
-};
+
+function openChallenge(seconds, unlimited=false){
+ challengeSeconds=Math.max(10,Math.min(9999,Number(seconds)||60));
+ challengeUnlimited=unlimited;
+ document.getElementById("challengeModal").classList.remove("show");
+ document.querySelector('[data-page="checkout"]').click();
+ startChallengeTimer();
+}
+function startChallengeTimer(){
+ if(challengeTimer) clearInterval(challengeTimer);
+ const box=document.getElementById("countdownBox"), num=document.getElementById("countdownNum");
+ box.classList.remove("hidden"); box.classList.remove("warn");
+ if(challengeUnlimited){num.textContent="∞";return;}
+ let left=challengeSeconds;num.textContent=left;
+ challengeTimer=setInterval(()=>{
+   left--;num.textContent=left;
+   if(left<=10) box.classList.add("warn");
+   if(left<=0){clearInterval(challengeTimer);challengeTimer=null;challengeFail();}
+ },1000);
+}
+function challengeFail(){
+ cuteSound("bad");
+ document.getElementById("countdownBox").classList.add("hidden");
+ alert("🏃 客人跑走了！\n挑戰失敗，再來一次吧！");
+ cart.forEach(x=>{if(products[x.index])products[x.index].stock+=x.qty;});
+ cart=[];save();renderBoss();renderCustomer();resetCheckout();document.querySelector('[data-page="customer"]').click();
+}
+function finishChallenge(){
+ if(challengeTimer){clearInterval(challengeTimer);challengeTimer=null;}
+ document.getElementById("countdownBox").classList.add("hidden");
+ cuteSound("success");
+}
+
+// challenge time controls
+document.getElementById("challengeMinus").onclick=()=>{const e=document.getElementById("challengeSeconds");e.value=Math.max(10,Number(e.value||60)-10);cuteSound("click");};
+document.getElementById("challengePlus").onclick=()=>{const e=document.getElementById("challengeSeconds");e.value=Math.min(9999,Number(e.value||60)+10);cuteSound("click");};
+document.getElementById("challengeSeconds").onchange=()=>{const e=document.getElementById("challengeSeconds");e.value=Math.max(10,Math.min(9999,Number(e.value)||60));};
+document.getElementById("challengeCancel").onclick=()=>document.getElementById("challengeModal").classList.remove("show");
+document.getElementById("challengeStart").onclick=()=>openChallenge(document.getElementById("challengeSeconds").value,false);
+document.getElementById("challengeInfinity").onclick=()=>openChallenge(0,true);
+
+// payment keypad
+let payMode="paid", paidAmount=0, expectedChange=0;
+function updatePayDisplay(){document.getElementById("payDisplay").textContent=payCalc||"0";}
+function calcExpression(expr){
+ try{return String(Math.max(0,Math.floor(Function("return "+expr.replace(/[^0-9+-]/g,""))())))}catch(e){return "";}
+}
+function openPayModal(){
+ payMode="paid"; payCalc=""; paidAmount=0; expectedChange=0;
+ document.getElementById("payTitle").textContent="💵 客人付多少錢？";
+ document.getElementById("payHint").textContent="請真的從現實的玩具錢幣中拿出相同金額，再輸入到這裡。";
+ document.getElementById("payMessage").textContent=""; updatePayDisplay();
+ document.getElementById("payModal").classList.add("show");
+}
+
+document.querySelectorAll(".pay-grid button").forEach(b=>b.onclick=()=>{
+ const k=b.dataset.pay;
+ const msg=document.getElementById("payMessage"); msg.textContent="";
+ if((k==="+"||k==="-")&&!document.getElementById("allowPlusMinus").checked){cuteSound("bad");return;}
+ if(k==="C") payCalc="";
+ else if(k==="back") payCalc=payCalc.slice(0,-1);
+ else if(k==="="){
+   const value=payMode==="paid" ? Number(calcExpression(payCalc)) : Number(calcExpression(payCalc));
+   if(payMode==="paid"){
+     if(!payCalc){msg.textContent="請先輸入客人付的金額。";msg.style.color="#df6b45";cuteSound("bad");return;}
+     const real=Number(document.getElementById("realTotal").textContent);
+     if(value<real){msg.textContent="💡 客人的錢還不夠喔！";msg.style.color="#df6b45";cuteSound("bad");return;}
+     paidAmount=value; expectedChange=value-real;
+     if(document.getElementById("autoChange").checked){
+       msg.textContent=`✅ 客人付 ${paidAmount} 元，應找 ${expectedChange} 元！`;
+       msg.style.color="#36a269";cuteSound("success");setTimeout(finishSale,700);
+     }else{
+       payMode="change"; payCalc="";
+       document.getElementById("payTitle").textContent="🪙 現在來算找零！";
+       document.getElementById("payHint").textContent=`客人付 ${paidAmount} 元，請自己算出應找多少錢，再輸入答案。`;
+       msg.textContent="👛 請輸入你算出的找零金額。";msg.style.color="#5b7890";cuteSound("pop");updatePayDisplay();
+     }
+   }else{
+     const change=value;
+     if(change===expectedChange){
+       msg.textContent=`🌟 找零正確！應找 ${expectedChange} 元`;
+       msg.style.color="#36a269";cuteSound("success");setTimeout(finishSale,700);
+     }else{
+       msg.textContent="😊 找零還不對，再想一下！";msg.style.color="#df6b45";cuteSound("bad");
+     }
+   }
+   return;
+ }else payCalc+=k;
+ payCalc=payCalc.replace(/([+-]){2,}/g,'$1');
+ updatePayDisplay();
+});
+document.getElementById("payCancel").onclick=()=>document.getElementById("payModal").classList.remove("show");
 
 function getRestockMode(){ return document.querySelector('input[name="restockMode"]:checked')?.value || localStorage.getItem("shop_restock_mode") || "auto"; }
 function finishSale(){
+  finishChallenge();
+  document.getElementById("payModal").classList.remove("show");
+
+  const mode=getRestockMode();
+  // Transaction is complete: remove the current cart.
+  // Auto mode restores the original boss-set stock for every product.
   cart=[];
-  if(getRestockMode()==="auto") products.forEach(p=>p.stock=1);
+  if(mode==="auto") products.forEach(p=>p.stock=p.baseStock);
   save();
   resetCheckout();
   renderBoss(); renderCustomer();
-  document.querySelector('[data-page="customer"]').click();
-  alert(getRestockMode()==="auto" ? "🎉 結帳完成！商品已自動回補，可以開始下一位客人囉！" : "🎉 結帳完成！本次商品已售出，請老闆重新補貨！");
+
+  const text=document.getElementById("saleCompleteText");
+  text.textContent = mode==="auto"
+    ? "🎉 結帳成功！商品已自動回補，可以開始下一位客人囉！"
+    : "🎉 結帳成功！本次商品已售出，請老闆重新補貨！";
+  document.getElementById("saleCompleteModal").classList.add("show");
+  cuteSound("success");
 }
 let audioCtx;
 function cuteSound(type){
@@ -341,6 +509,30 @@ function cuteSound(type){
  }catch(e){}
 }
 renderBoss();renderCustomer();
+
+document.getElementById("nextCustomerBtn").onclick=()=>{
+  document.getElementById("saleCompleteModal").classList.remove("show");
+  // Cart is already reset in finishSale; start a fresh customer round.
+  resetCheckout();
+  renderBoss();
+  renderCustomer();
+  document.querySelector('[data-page="customer"]').click();
+  cuteSound("click");
+};
 </script>
+
+<div id="saleCompleteModal" class="modal">
+  <div class="modal-box">
+    <div style="font-size:68px">🎉</div>
+    <h2>結帳完成！</h2>
+    <p id="saleCompleteText" style="font-size:23px;font-weight:900;line-height:1.5">
+      太棒了！這位客人已經完成購買。
+    </p>
+    <button class="cart-checkout-btn" id="nextCustomerBtn" style="font-size:22px;padding:15px 28px">
+      🛒 下一個客人
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
