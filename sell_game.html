@@ -624,9 +624,30 @@ function showChangeModal(paid){
 }
 
 function finishChangeAndWin(){
-  const modal=document.getElementById("changeModal");
-  if(modal) modal.classList.remove("show");
-  finishSale(false);
+  try{
+    const modal=document.getElementById("changeModal");
+    if(modal) modal.classList.remove("show");
+    if(typeof finishSale==="function"){
+      finishSale(false);
+    }else{
+      cart=[];
+      resetCheckout();
+      renderBoss();
+      renderCustomer();
+      const customerTab=document.querySelector('[data-page="customer"]');
+      if(customerTab) customerTab.click();
+    }
+  }catch(err){
+    console.error("下一位客人錯誤:",err);
+    const modal=document.getElementById("changeModal");
+    if(modal) modal.classList.remove("show");
+    cart=[];
+    resetCheckout();
+    renderBoss();
+    renderCustomer();
+    const customerTab=document.querySelector('[data-page="customer"]');
+    if(customerTab) customerTab.click();
+  }
 }
 
 function finishSale(showSuccessModal=true){
@@ -684,11 +705,7 @@ document.getElementById("failEndBtn").onclick=()=>{
  document.querySelector('[data-page="customer"]').click();
  cuteSound("click");
 };
-document.addEventListener("click", e=>{
-  if(e.target && (e.target.id==="changeDoneBtn" || e.target.closest("#changeDoneBtn"))){
-    finishChangeAndWin();
-  }
-});
+
 </script>
 
 <div id="saleCompleteModal" class="modal">
@@ -733,13 +750,12 @@ document.addEventListener("click", e=>{
     <p style="font-size:18px;font-weight:800">
       現在請從現實中的玩具錢幣拿出上面的金額還給客人。
     </p>
-    <button class="cart-checkout-btn" id="changeDoneBtn"
+    <button class="cart-checkout-btn" id="changeDoneBtn" type="button"
+            onclick="finishChangeAndWin(); return false;"
             style="font-size:23px;padding:16px 30px">
       🛒 下一位客人
     </button>
   </div>
-</div>
-
 </div>
 
 </body>
