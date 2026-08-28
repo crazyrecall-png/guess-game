@@ -89,6 +89,29 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
  .calc-grid button{height:58px}
  h1{font-size:25px}
 }
+
+/* v8 layout: customer products in 3 columns + floating cart */
+#customer{padding-right:335px}
+#customerProducts{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+#customer .cart{
+  position:fixed;right:16px;top:92px;width:305px;max-height:calc(100vh - 110px);
+  overflow:auto;margin:0;z-index:35;box-shadow:0 8px 24px #0002
+}
+#customer .cart .cart-row img{width:58px;height:58px}
+#customer .cart .cart-actions{display:flex;flex-direction:column;gap:8px}
+#customer .cart .cart-actions button{width:100%}
+.sale-complete-btn{background:#74c58a;color:#fff;padding:15px 28px;border-radius:16px;font-weight:900;font-size:22px;box-shadow:0 4px 0 #4fa967}
+.failure-end-btn{background:#e87948;color:#fff;padding:15px 28px;border-radius:16px;font-weight:900;font-size:22px;box-shadow:0 4px 0 #c75f35}
+@media(max-width:850px){
+  #customer{padding-right:315px}
+  #customer .cart{width:290px;right:10px}
+}
+@media(max-width:680px){
+  #customer{padding-right:12px}
+  #customer .cart{position:relative;right:auto;top:auto;width:auto;max-height:none;margin-top:14px}
+  #customerProducts{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+}
+
 </style>
 </head>
 <body>
@@ -404,9 +427,10 @@ function startChallengeTimer(){
 function challengeFail(){
  cuteSound("bad");
  document.getElementById("countdownBox").classList.add("hidden");
- alert("🏃 客人跑走了！\n挑戰失敗，再來一次吧！");
+ // Put the purchased goods back because the customer ran away.
  cart.forEach(x=>{if(products[x.index])products[x.index].stock+=x.qty;});
- cart=[];save();renderBoss();renderCustomer();resetCheckout();document.querySelector('[data-page="customer"]').click();
+ save();renderBoss();renderCustomer();resetCheckout();
+ document.getElementById("challengeFailModal").classList.add("show");
 }
 function finishChallenge(){
  if(challengeTimer){clearInterval(challengeTimer);challengeTimer=null;}
@@ -423,58 +447,86 @@ document.getElementById("challengeStart").onclick=()=>openChallenge(document.get
 document.getElementById("challengeInfinity").onclick=()=>openChallenge(0,true);
 
 // payment keypad
-let payMode="paid", paidAmount=0, expectedChange=0;
+let paidAmount=0, expectedChange=0;
 function updatePayDisplay(){document.getElementById("payDisplay").textContent=payCalc||"0";}
 function calcExpression(expr){
  try{return String(Math.max(0,Math.floor(Function("return "+expr.replace(/[^0-9+-]/g,""))())))}catch(e){return "";}
 }
 function openPayModal(){
- payMode="paid"; payCalc=""; paidAmount=0; expectedChange=0;
+ payCalc=""; paidAmount=0; expectedChange=0;
+ const real=Number(document.getElementById("realTotal").textContent);
+ // Pick a simple realistic amount from the physical play-money denominations.
+ const denominations=[10,50,100,500,1000];
+ const candidates=denominations.filter(n=>n>=real);
+ const target=candidates.length?candidates[0]:1000;
+ window.customerPayTarget=target;
  document.getElementById("payTitle").textContent="💵 客人付多少錢？";
- document.getElementById("payHint").textContent="請真的從現實的玩具錢幣中拿出相同金額，再輸入到這裡。";
- document.getElementById("payMessage").textContent=""; updatePayDisplay();
+ document.getElementById("payHint").textContent=`客人拿出 ${target} 元。請真的從現實的玩具錢幣中拿出相同金額，再用下面計算機輸入。按 = 送出，只判斷一次！`;
+ document.getElementById("payMessage").textContent="";
+ updatePayDisplay();
  document.getElementById("payModal").classList.add("show");
 }
 
 document.querySelectorAll(".pay-grid button").forEach(b=>b.onclick=()=>{
  const k=b.dataset.pay;
- const msg=document.getElementById("payMessage"); msg.textContent="";
+ const msg=document.getElementById("payMessage");msg.textContent="";
  if((k==="+"||k==="-")&&!document.getElementById("allowPlusMinus").checked){cuteSound("bad");return;}
  if(k==="C") payCalc="";
  else if(k==="back") payCalc=payCalc.slice(0,-1);
  else if(k==="="){
-   const value=payMode==="paid" ? Number(calcExpression(payCalc)) : Number(calcExpression(payCalc));
-   if(payMode==="paid"){
-     if(!payCalc){msg.textContent="請先輸入客人付的金額。";msg.style.color="#df6b45";cuteSound("bad");return;}
+   if(!payCalc){msg.textContent="請先輸入客人付的金額。";msg.style.color="#df6b45";cuteSound("bad");return;}
+   const value=Number(calcExpression(payCalc));
+   if(value===Number(window.customerPayTarget)){
+     paidAmount=value;
      const real=Number(document.getElementById("realTotal").textContent);
-     if(value<real){msg.textContent="💡 客人的錢還不夠喔！";msg.style.color="#df6b45";cuteSound("bad");return;}
-     paidAmount=value; expectedChange=value-real;
+     expectedChange=value-real;
+     msg.textContent=`🎉 收錢正確！客人付 ${value} 元！`;
+     msg.style.color="#36a269";
      if(document.getElementById("autoChange").checked){
-       msg.textContent=`✅ 客人付 ${paidAmount} 元，應找 ${expectedChange} 元！`;
-       msg.style.color="#36a269";cuteSound("success");setTimeout(finishSale,700);
-     }else{
-       payMode="change"; payCalc="";
-       document.getElementById("payTitle").textContent="🪙 現在來算找零！";
-       document.getElementById("payHint").textContent=`客人付 ${paidAmount} 元，請自己算出應找多少錢，再輸入答案。`;
-       msg.textContent="👛 請輸入你算出的找零金額。";msg.style.color="#5b7890";cuteSound("pop");updatePayDisplay();
+       msg.textContent+=` 應找 ${expectedChange} 元。`;
      }
+     finishSale();
    }else{
-     const change=value;
-     if(change===expectedChange){
-       msg.textContent=`🌟 找零正確！應找 ${expectedChange} 元`;
-       msg.style.color="#36a269";cuteSound("success");setTimeout(finishSale,5000);
-     }else{
-       msg.textContent="😊 找零還不對，再想一下！";msg.style.color="#df6b45";cuteSound("bad");
-     }
+     msg.textContent="😊 收到的金額不對，再看看客人拿了多少！";
+     msg.style.color="#df6b45";cuteSound("bad");
    }
    return;
- }else payCalc+=k;
+ }else{
+   if((k==="+"||k==="-")&&/[+-]$/.test(payCalc))return;
+   payCalc+=k;
+ }
  payCalc=payCalc.replace(/([+-]){2,}/g,'$1');
  updatePayDisplay();
 });
 document.getElementById("payCancel").onclick=()=>document.getElementById("payModal").classList.remove("show");
 
 function getRestockMode(){ return document.querySelector('input[name="restockMode"]:checked')?.value || localStorage.getItem("shop_restock_mode") || "auto"; }
+
+function fireworkSound6s(){
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  const ac=new C(), master=ac.createGain();master.gain.value=.16;master.connect(ac.destination);
+  const start=ac.currentTime;
+  for(let t=0;t<6;t+=.72){
+   const o=ac.createOscillator(),g=ac.createGain();o.type="sine";
+   o.frequency.setValueAtTime(260,start+t);
+   o.frequency.exponentialRampToValueAtTime(1050,start+t+.34);
+   g.gain.setValueAtTime(.0001,start+t);g.gain.exponentialRampToValueAtTime(.22,start+t+.10);
+   g.gain.exponentialRampToValueAtTime(.0001,start+t+.43);
+   o.connect(g);g.connect(master);o.start(start+t);o.stop(start+t+.46);
+   for(let k=0;k<8;k++){
+    const b=ac.createOscillator(),bg=ac.createGain();b.type="triangle";
+    b.frequency.value=700+Math.random()*1000;
+    bg.gain.setValueAtTime(.0001,start+t+.40);
+    bg.gain.exponentialRampToValueAtTime(.10,start+t+.44);
+    bg.gain.exponentialRampToValueAtTime(.0001,start+t+.76);
+    b.connect(bg);bg.connect(master);b.start(start+t+.40);b.stop(start+t+.78);
+   }
+  }
+  setTimeout(()=>{try{ac.close()}catch(e){}},6500);
+ }catch(e){}
+}
+
 function finishSale(){
   finishChallenge();
   document.getElementById("payModal").classList.remove("show");
@@ -493,7 +545,7 @@ function finishSale(){
     ? "🎉 結帳成功！商品已自動回補，可以開始下一位客人囉！"
     : "🎉 結帳成功！本次商品已售出，請老闆重新補貨！";
   document.getElementById("saleCompleteModal").classList.add("show");
-  cuteSound("success");
+  fireworkSound6s();
 }
 let audioCtx;
 function cuteSound(type){
@@ -519,6 +571,15 @@ document.getElementById("nextCustomerBtn").onclick=()=>{
   document.querySelector('[data-page="customer"]').click();
   cuteSound("click");
 };
+
+document.getElementById("failEndBtn").onclick=()=>{
+ document.getElementById("challengeFailModal").classList.remove("show");
+ if(challengeTimer){clearInterval(challengeTimer);challengeTimer=null;}
+ cart=[];
+ resetCheckout();renderBoss();renderCustomer();
+ document.querySelector('[data-page="customer"]').click();
+ cuteSound("click");
+};
 </script>
 
 <div id="saleCompleteModal" class="modal">
@@ -528,9 +589,20 @@ document.getElementById("nextCustomerBtn").onclick=()=>{
     <p id="saleCompleteText" style="font-size:23px;font-weight:900;line-height:1.5">
       太棒了！這位客人已經完成購買。
     </p>
-    <button class="cart-checkout-btn" id="nextCustomerBtn" style="font-size:22px;padding:15px 28px">
+    <button class="sale-complete-btn" id="nextCustomerBtn" style="font-size:22px;padding:15px 28px">
       🛒 下一個客人
     </button>
+  </div>
+</div>
+
+
+<div id="challengeFailModal" class="modal">
+  <div class="modal-box">
+    <div style="font-size:68px">🏃💨</div>
+    <h2>挑戰失敗！</h2>
+    <p style="font-size:23px;font-weight:900;line-height:1.5">⏰ 時間到了，客人跑走了！</p>
+    <p style="font-size:18px">按下按鈕結束這一局，重新開始。</p>
+    <button class="failure-end-btn" id="failEndBtn">🔄 結束遊戲</button>
   </div>
 </div>
 
