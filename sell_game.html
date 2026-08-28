@@ -114,6 +114,16 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
 
 #changeModal .modal-box{max-width:520px;text-align:center}
 #changeAmount{color:#d97932}
+
+.pay-amount-control{margin:12px 0 8px}
+.pay-amount-label{font-size:19px;font-weight:900;margin-bottom:7px}
+.pay-amount-row{display:flex;align-items:center;gap:8px}
+.pay-amount-row button{width:58px;height:54px;border:0;border-radius:15px;background:#fff0cf;
+  color:#5c4631;font-size:28px;font-weight:900;cursor:pointer}
+#payAmountInput{flex:1;min-width:0;height:58px;border:3px solid #e8d8b8;border-radius:15px;
+  background:#fffdf7;text-align:center;font-size:32px;font-weight:900;color:#463a32;outline:none}
+#payAmountInput:focus{border-color:#80cfe0;box-shadow:0 0 0 3px rgba(128,207,224,.2)}
+
 </style>
 </head>
 <body>
@@ -208,6 +218,15 @@ h1{text-align:center;margin:8px 0 18px;font-size:30px;color:#e87948}
  <div class="modal-box">
    <h2 id="payTitle">💵 客人付多少錢？</h2>
    <div class="small" id="payHint">請真的從現實的玩具錢幣中拿出相同金額，再輸入到這裡。</div>
+   <div class="pay-amount-control">
+     <div class="pay-amount-label">💵 客人這次付多少錢？</div>
+     <div class="pay-amount-row">
+       <button type="button" id="payAmountMinus">−</button>
+       <input id="payAmountInput" type="number" inputmode="numeric" min="0" step="10" value="100">
+       <button type="button" id="payAmountPlus">＋</button>
+     </div>
+     <div class="small">預設 100 元，每次增加／減少 10 元，也可以直接點數字輸入。</div>
+   </div>
    <div id="payDisplay" class="pay-display">0</div>
    <div class="pay-grid">
      <button class="clear" data-pay="C">C</button><button data-pay="back">⌫</button><button class="pay-equals" data-pay="=">=</button>
@@ -454,20 +473,50 @@ function updatePayDisplay(){document.getElementById("payDisplay").textContent=pa
 function calcExpression(expr){
  try{return String(Math.max(0,Math.floor(Function("return "+expr.replace(/[^0-9+-]/g,""))())))}catch(e){return "";}
 }
+function getCustomerPayAmount(){
+ const el=document.getElementById("payAmountInput");
+ let n=Number(el.value);
+ if(!Number.isFinite(n)) n=100;
+ n=Math.max(0,Math.round(n/10)*10);
+ el.value=n;
+ return n;
+}
+function setCustomerPayAmount(n){
+ n=Math.max(0,Math.round(Number(n)/10)*10);
+ document.getElementById("payAmountInput").value=n;
+ window.customerPayTarget=n;
+}
 function openPayModal(){
  payCalc=""; paidAmount=0; expectedChange=0;
+ setCustomerPayAmount(100);
  const real=Number(document.getElementById("realTotal").textContent);
- // Pick a simple realistic amount from the physical play-money denominations.
- const denominations=[10,50,100,500,1000];
- const candidates=denominations.filter(n=>n>=real);
- const target=candidates.length?candidates[0]:1000;
- window.customerPayTarget=target;
+ window.customerPayTarget=getCustomerPayAmount();
  document.getElementById("payTitle").textContent="💵 客人付多少錢？";
- document.getElementById("payHint").textContent=`客人拿出 ${target} 元。請用計算機算：${target} − 商品總額 = 要找的錢。算完按 = 送出。`;
+ document.getElementById("payHint").textContent=`請看上方客人付款金額，再用計算機算：${window.customerPayTarget} − ${real} = 要找的錢。算完按 = 送出。`;
  document.getElementById("payMessage").textContent="";
  updatePayDisplay();
  document.getElementById("payModal").classList.add("show");
 }
+
+document.getElementById("payAmountMinus").onclick=()=>{
+ setCustomerPayAmount(getCustomerPayAmount()-10);
+ const real=Number(document.getElementById("realTotal").textContent);
+ document.getElementById("payHint").textContent=`請用計算機算：${window.customerPayTarget} − ${real} = 要找的錢。算完按 = 送出。`;
+ cuteSound("click");
+};
+document.getElementById("payAmountPlus").onclick=()=>{
+ setCustomerPayAmount(getCustomerPayAmount()+10);
+ const real=Number(document.getElementById("realTotal").textContent);
+ document.getElementById("payHint").textContent=`請用計算機算：${window.customerPayTarget} − ${real} = 要找的錢。算完按 = 送出。`;
+ cuteSound("click");
+};
+document.getElementById("payAmountInput").addEventListener("input",()=>{
+ let n=Number(document.getElementById("payAmountInput").value);
+ if(!Number.isFinite(n))return;
+ window.customerPayTarget=Math.max(0,Math.round(n/10)*10);
+ const real=Number(document.getElementById("realTotal").textContent);
+ document.getElementById("payHint").textContent=`請用計算機算：${window.customerPayTarget} − ${real} = 要找的錢。算完按 = 送出。`;
+});
 
 document.querySelectorAll(".pay-grid button").forEach(b=>b.onclick=()=>{
  const k=b.dataset.pay;
@@ -492,11 +541,19 @@ document.querySelectorAll(".pay-grid button").forEach(b=>b.onclick=()=>{
 
    const result=Number(calcExpression(payCalc));
    const real=Number(document.getElementById("realTotal").textContent);
-   const paid=Number(window.customerPayTarget);
+   const paid=getCustomerPayAmount();
+   window.customerPayTarget=paid;
+   if(paid<real){
+     msg.textContent=`客人付 ${paid} 元，但商品總額是 ${real} 元，錢不夠喔！`;
+     msg.style.color="#df6b45";
+     cuteSound("bad");
+     return;
+   }
+
    const correctChange=paid-real;
 
    // 必須真的算「客人收到的錢 - 商品總額」
-   // 只比對算出的結果，不直接把答案塞給小朋友。
+   // 只比對小朋友計算出的結果。
    if(Number.isFinite(result) && result===correctChange && /-/.test(payCalc)){
      paidAmount=paid;
      expectedChange=correctChange;
