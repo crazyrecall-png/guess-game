@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兒童表演超級隨機抽題庫（不重複版）</title>
+
+    <style>
+        body {
+            font-family: Arial, "Microsoft JhengHei", sans-serif;
+            background-color: #f0f4f9;
+            text-align: center;
+            padding: 20px 15px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #444;
+            margin: 15px 0 8px;
+            font-size: 18px;
+            text-align: left;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-width: 900px;
+            margin: 0 auto 15px auto;
+        }
+
+        .category-buttons button {
+            font-size: 15px;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .category-buttons button:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+        }
+
+        .category-buttons button.advanced {
+            background-color: #e67e22;
+        }
+
+        .category-buttons button.advanced:hover {
+            background-color: #d35400;
+        }
+
+        .result-container {
+            margin-top: 20px;
+        }
+
+        .result-box {
+            font-size: 32px;
+            color: #222;
+            background: white;
+            display: inline-block;
+            padding: 25px 40px;
+            border-radius: 16px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            min-width: 280px;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        #hiddenMessage {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        #word {
+            display: none;
+            margin-top: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            min-height: 45px;
+            line-height: 45px;
+            word-wrap: break-word;
+        }
+
+        #speakButton,
+        #showAnswerButton {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 10px auto;
+            font-size: 18px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #speakButton {
+            background-color: #2ecc71;
+        }
+
+        #speakButton:hover {
+            background-color: #27ae60;
+        }
+
+        #showAnswerButton {
+            background-color: #3498db;
+        }
+
+        #showAnswerButton:hover {
+            background-color: #2980b9;
+        }
+
+        #speakButton:disabled,
+        #showAnswerButton:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        #categoryTitle {
+            color: #34495e;
+            font-size: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .reset-btn {
+            margin-top: 25px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎭 兒童表演隨機抽題庫（不重複版）</h1>
+    <div class="subtitle">每類題目在全數抽完前保證不重複！</div>
+
+    <div class="section-title">🌱 基礎類別（適合單人肢體與表情表演）</div>
+    <div class="category-buttons">
+        <button onclick="randomWord('陸地動物')">🐶 陸地動物</button>
+        <button onclick="randomWord('海洋與飛鳥')">🐬 海洋與飛鳥</button>
+        <button onclick="randomWord('美食與水果')">🍎 美食與水果</button>
+        <button onclick="randomWord('生活用品')">☂️ 生活用品</button>
+        <button onclick="randomWord('交通工具')">✈️ 交通工具</button>
+        <button onclick="randomWord('職業與角色')">👨‍🚒 職業與角色</button>
+        <button onclick="randomWord('基礎肢體動作')">🏃 基礎肢體動作</button>
+        <button onclick="randomWord('表情與情緒')">😡 表情與情緒</button>
+        <button onclick="randomWord('運動與休閒')">🏀 運動與休閒</button>
+        <button onclick="randomWord('自然與天氣')">☀️ 自然與天氣</button>
+    </div>
+
+    <div class="section-title">🔥 進階高難度類別（適合情境、成語與團體合作）</div>
+    <div class="category-buttons">
+        <button class="advanced" onclick="randomWord('四字成語與俗語')">📜 四字成語與俗語</button>
+        <button class="advanced" onclick="randomWord('複合雙重動作')">🎭 複合雙重動作</button>
+        <button class="advanced" onclick="randomWord('經典動畫與故事')">🎬 經典動畫與故事</button>
+        <button class="advanced" onclick="randomWord('緊急極端情境')">🚨 緊急極端情境</button>
+        <button class="advanced" onclick="randomWord('雙人團體合作')">👥 雙人團體合作</button>
+    </div>
+
+    <div id="categoryTitle">請選擇一個分類開始抽題！</div>
+
+    <div class="result-container">
+        <div class="result-box">
+            <div id="hiddenMessage">🎭 題目已準備好</div>
+            <button id="speakButton" onclick="speakWord()" disabled>🔊 發出題目聲音</button>
+            <button id="showAnswerButton" onclick="showAnswer()" disabled>👀 顯示答案</button>
+            <div id="word"></div>
+        </div>
+    </div>
+
+    <br>
+    <button class="reset-btn" onclick="resetAllPools()">🔄 重置所有題庫（重新洗牌）</button>
+
+    <script>
+        // 原始題庫資料
+        const wordList = {
+            // --- 基礎類別 ---
+            陸地動物: [
+                "狗", "貓", "大象", "獅子", "老虎", "兔子", "猴子", "長頸鹿", "熊貓", "袋鼠",
+                "恐龍", "蛇", "烏龜", "綿羊", "馬", "豬", "狐狸", "狼", "樹懶", "變色龍",
+                "猩猩", "斑馬", "刺蝟", "河馬", "犀牛", "駱駝", "松鼠", "獵豹", "狐獴", "無尾熊"
+            ],
+
+            海洋與飛鳥: [
+                "海豚", "企鵝", "青蛙", "螃蟹", "蝴蝶", "章魚", "水母", "鯊魚", "鯨魚", "老鷹",
+                "鸚鵡", "海龜", "鴨子", "天鵝", "啄木鳥", "蜜蜂", "蜻蜓", "飛魚", "龍蝦", "海獅",
+                "孔雀", "貓頭鷹", "河豚", "海馬", "火烈鳥"
+            ],
+
+            美食與水果: [
+                "蘋果", "香蕉", "西瓜", "葡萄", "草莓", "檸檬", "榴槤", "冰淇淋", "漢堡", "薯条",
+                "披薩", "珍珠奶茶", "甜甜圈", "棒棒糖", "蛋糕", "熱狗", "包子", "泡麵", "壽司", "爆米花",
+                "臭豆腐", "麻辣火鍋", "棉花糖", "義大利麵", "糖葫蘆"
+            ],
+
+            生活用品: [
+                "椅子", "桌子", "牙刷", "毛巾", "杯子", "雨傘", "書包", "剪刀", "鏡子", "電風扇",
+                "眼鏡", "梳子", "手錶", "枕頭", "時鐘", "手電筒", "口罩", "吹風機", "掃把", "馬桶",
+                "指甲剪", "水壺", "耳機", "體重計", "垃圾桶"
+            ],
+
+            交通工具: [
+                "汽車", "公車", "火車", "捷運", "飛機", "腳踏車", "機車", "船", "計程車", "卡車",
+                "直升機", "救護車", "消防車", "警車", "熱氣球", "潛水艇", "高鐵", "纜車", "賽車", "宇宙飛船",
+                "獨輪車", "獨木舟", "雲霄飛車", "壓路機", "拖拉機"
+            ],
+
+            職業與角色: [
+                "老師", "醫生", "護士", "警察", "消防員", "廚師", "工程師", "司機", "農夫", "律師",
+                "太空人", "畫家", "歌手", "魔術師", "運動員", "郵差", "理髮師", "攝影師", "偵探", "忍者",
+                "海盜", "芭蕾舞者", "救生員", "考古學家", "模特兒"
+            ],
+
+            基礎肢體動作: [
+                "打噴嚏", "伸懶腰", "打瞌睡", "打嗝", "跑步", "跳舞", "游泳", "刷牙", "洗臉", "拍手",
+                "吹氣球", "抓癢", "騎腳踏車", "跳繩", "溜冰", "跌倒", "踩到泥巴", "搬重物", "放風箏", "喝熱水燙到"
+            ],
+
+            表情與情緒: [
+                "生氣", "害羞", "害怕", "開心", "傷心", "驚訝", "得意", "委屈", "無聊", "著急",
+                "發呆", "搞笑", "驕傲", "緊張", "嫌棄", "疑惑", "期待", "迷茫", "崩潰", "興奮"
+            ],
+
+            運動與休閒: [
+                "籃球", "足球", "棒球", "桌球", "跆拳道", "賽跑", "跳高", "舉重", "射箭", "保齡球",
+                "衝浪", "滑雪", "拳擊", "拔河", "體操", "打羽毛球", "打高爾夫", "攀岩", "划船", "溜冰"
+            ],
+
+            自然與天氣: [
+                "太陽", "下雨", "打雷", "刮大風", "下雪", "彩虹", "星星", "月亮", "火山爆發", "地震",
+                "海浪", "龍捲風", "流星", "雲朵", "日全食"
+            ],
+
+            // --- 進階高難度類別 ---
+            四字成語與俗語: [
+                "手忙腳亂", "雞飛狗跳", "對牛彈琴", "畫蛇添足", "呆若木雞", 
+                "七手八腳", "盲人摸象", "狼吞虎嚥", "心花怒放", "鶴立雞群",
+                "垂頭喪氣", "目瞪口呆", "狂風暴雨", "東張西望", "幸災樂禍",
+                "胸有成竹", "張牙舞爪", "鬼鬼祟祟", "狼狽不堪", "狐假虎威"
+            ],
+
+            複合雙重動作: [
+                "一邊騎腳踏車一邊吃冰淇淋",
+                "踩到香蕉皮試圖保持平衡",
+                "偷吃洋芋片被媽媽突然發現",
+                "戴著厚手套拆糖果包裝",
+                "一邊打噴嚏一邊跑百米賽跑",
+                "穿著太大的鞋子追公車",
+                "一邊背重重的書包一邊抓腳底癢",
+                "在極度寒冷的風雪中喝熱湯",
+                "在非常黏的泥巴地裡走路",
+                "試圖把一張巨大的地圖折起來",
+                "一邊搖呼拉圈一邊喝水",
+                "穿著高跟鞋走在冰面上"
+            ],
+
+            經典動畫與故事: [
+                "艾莎發射冰雪魔法把大家凍住",
+                "孫悟空被壓在五指山下動彈不得",
+                "蜘蛛人被自己的蜘蛛絲纏住",
+                "瑪利歐跳起來撞磚塊吃香菇變大",
+                "灰姑娘趕在十二點前掉了一隻鞋",
+                "哥吉拉踩壞高樓大廈後仰天長嘯",
+                "匹諾曹說謊話導致鼻子變長",
+                "綠巨人浩克生氣變身拆房子",
+                "阿拉丁揉神燈召喚出精靈",
+                "哈利波特騎著掃帚飛起來抓飛賊"
+            ],
+
+            緊急極端情境: [
+                "醫生在顛簸的船上進行緊急手術",
+                "廚師炒菜炒到一半發現鍋子起火",
+                "消防員在濃煙中抱著小貓逃生",
+                "考古學家在金字塔裡被木乃伊追",
+                "新聞記者在超級颱風現場做連線報導",
+                "太空人搭乘火箭升空時承受強大重力",
+                "賽車手在高速行駛中突然爆胎",
+                "賽車維修員在三秒內幫賽車換輪胎"
+            ],
+
+            雙人團體合作: [
+                "兩人合體組裝成一輛摩托車",
+                "一個人當鏡子，完美模仿另一個人的所有動作",
+                "兩人在極度狹窄的獨木橋上相遇並閃避",
+                "攝影師試圖幫一個完全不受控的模特兒拍照",
+                "兩人合體演一隻前腳與後腳不協調的獅子",
+                "兩個人一起玩抬轎子遊戲",
+                "一個人扮演木偶，另一個人扮演拉線的操控師",
+                "兩人合作組裝一個一直倒塌的城堡"
+            ]
+        };
+
+        // 追蹤各類別剩餘題目的池子 (Pools)
+        let categoryPools = {};
+        let currentWord = "";
+
+        // 初始化題庫池
+        function initPools() {
+            for (let category in wordList) {
+                categoryPools[category] = [...wordList[category]];
+            }
+        }
+
+        // 抽題邏輯（抽完前絕不重複）
+        function randomWord(category) {
+            if (!categoryPools[category] || categoryPools[category].length === 0) {
+                categoryPools[category] = [...wordList[category]];
+                alert(`🎉 【${category}】的所有題目已全部表演完畢！已自動為您重新洗牌。`);
+            }
+
+            const pool = categoryPools[category];
+            const randomIndex = Math.floor(Math.random() * pool.length);
+            currentWord = pool.splice(randomIndex, 1)[0];
+
+            const remainingCount = pool.length;
+            const totalCount = wordList[category].length;
+
+            document.getElementById("categoryTitle").textContent =
+                `目前分類：${category} (剩餘 ${remainingCount}/${totalCount} 題)`;
+
+            document.getElementById("word").textContent = "";
+            document.getElementById("word").style.display = "none";
+            document.getElementById("hiddenMessage").textContent =
+                "🎭 題目已準備好，請按下發聲按鈕";
+
+            document.getElementById("speakButton").disabled = false;
+            document.getElementById("showAnswerButton").disabled = false;
+        }
+
+        // 語音朗讀
+        function speakWord() {
+            if (currentWord === "") return;
+            window.speechSynthesis.cancel();
+
+            const speech = new SpeechSynthesisUtterance(currentWord);
+            speech.lang = "zh-TW";
+            speech.rate = 0.8;
+            speech.pitch = 1;
+
+            window.speechSynthesis.speak(speech);
+        }
+
+        function showAnswer() {
+            if (currentWord === "") return;
+
+            document.getElementById("word").textContent = currentWord;
+            document.getElementById("word").style.display = "block";
+            document.getElementById("hiddenMessage").textContent = "🎭 答案如下";
+        }
+
+        // 手動重置所有類別
+        function resetAllPools() {
+            initPools();
+            document.getElementById("categoryTitle").textContent =
+                "已重置所有題庫！請選擇分類開始抽題。";
+            document.getElementById("hiddenMessage").textContent =
+                "🎭 題目已準備好";
+            document.getElementById("word").textContent = "";
+            document.getElementById("word").style.display = "none";
+            document.getElementById("speakButton").disabled = true;
+            document.getElementById("showAnswerButton").disabled = true;
+            currentWord = "";
+            window.speechSynthesis.cancel();
+            alert("所有題庫已重新洗牌！");
+        }
+
+        // 頁面載入時自動初始化
+        initPools();
+    </script>
+
+</body>
+</html>
