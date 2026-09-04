@@ -137,8 +137,28 @@
             background-color: #2980b9;
         }
 
+        #nextQuestionButton {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 10px auto;
+            font-size: 18px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #9b59b6;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #nextQuestionButton:hover {
+            background-color: #8e44ad;
+        }
+
         #speakButton:disabled,
-        #showAnswerButton:disabled {
+        #showAnswerButton:disabled,
+        #nextQuestionButton:disabled {
             background-color: #bdc3c7;
             cursor: not-allowed;
         }
@@ -202,6 +222,7 @@
             <div id="hiddenMessage">🎭 題目已準備好</div>
             <button id="speakButton" onclick="speakWord()" disabled>🔊 發出題目聲音</button>
             <button id="showAnswerButton" onclick="showAnswer()" disabled>👀 顯示答案</button>
+            <button id="nextQuestionButton" onclick="nextQuestion()" disabled>➡️ 下一題</button>
             <div id="word"></div>
         </div>
     </div>
@@ -331,6 +352,7 @@
         // 追蹤各類別剩餘題目的池子 (Pools)
         let categoryPools = {};
         let currentWord = "";
+        let currentCategory = "";
 
         // 初始化題庫池
         function initPools() {
@@ -341,6 +363,7 @@
 
         // 抽題邏輯（抽完前絕不重複）
         function randomWord(category) {
+            currentCategory = category;
             if (!categoryPools[category] || categoryPools[category].length === 0) {
                 categoryPools[category] = [...wordList[category]];
                 alert(`🎉 【${category}】的所有題目已全部表演完畢！已自動為您重新洗牌。`);
@@ -384,6 +407,12 @@
             document.getElementById("word").textContent = currentWord;
             document.getElementById("word").style.display = "block";
             document.getElementById("hiddenMessage").textContent = "🎭 答案如下";
+            document.getElementById("nextQuestionButton").disabled = false;
+        }
+
+        function nextQuestion() {
+            if (currentCategory === "") return;
+            randomWord(currentCategory);
         }
 
         // 手動重置所有類別
@@ -397,7 +426,9 @@
             document.getElementById("word").style.display = "none";
             document.getElementById("speakButton").disabled = true;
             document.getElementById("showAnswerButton").disabled = true;
+            document.getElementById("nextQuestionButton").disabled = true;
             currentWord = "";
+            currentCategory = "";
             window.speechSynthesis.cancel();
             alert("所有題庫已重新洗牌！");
         }
