@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>眼明手快尋寶</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center;
+  font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;
+  background:#fff7e9;
+}
+.game{
+  width:min(600px,94vw); text-align:center; padding:24px 16px;
+}
+h1{font-size:clamp(30px,8vw,46px);margin:0 0 8px;color:#f28aa0}
+.subtitle{font-size:18px;color:#777;margin-bottom:22px}
+.card{
+  background:white;border-radius:28px;padding:24px 18px;
+  box-shadow:0 7px 0 #ead9bd;border:3px solid #f3dfbd;
+}
+h2{margin:0 0 20px;font-size:25px;color:#665}
+.counts{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+}
+.item{
+  border-radius:22px;padding:16px 8px;background:#fffaf3;
+}
+.color-name{font-size:20px;font-weight:bold}
+.num{font-size:52px;font-weight:900;line-height:1.1;margin-top:6px}
+.white .num{color:#777}
+.pink .num{color:#ed7892}
+.blue .num{color:#499bd8}
+.total{
+  margin:20px 0 16px;font-size:21px;font-weight:bold;color:#666;
+}
+button{
+  border:0;border-radius:18px;padding:14px 25px;font-size:21px;
+  font-weight:bold;cursor:pointer;background:#ffb66b;color:#6d451e;
+  box-shadow:0 5px 0 #df984e;
+}
+button:active{transform:translateY(4px);box-shadow:0 1px 0 #df984e}
+#done{
+  display:none;background:#8bd5a2;color:#315d3f;box-shadow:0 5px 0 #68b783;
+  margin-left:8px;
+}
+.tip{margin-top:18px;color:#999;font-size:15px}
+</style>
+</head>
+<body>
+<div class="game">
+  <h1>🪨 眼明手快尋寶！</h1>
+  <div class="subtitle">看清楚數量，快去把石頭找出來！</div>
+
+  <div class="card">
+    <h2>這一題要找：</h2>
+
+    <div class="counts">
+      <div class="item white">
+        <div class="color-name">⚪ 白色</div>
+        <div class="num" id="white">0</div>
+        <div>顆</div>
+      </div>
+
+      <div class="item pink">
+        <div class="color-name">🩷 粉色</div>
+        <div class="num" id="pink">0</div>
+        <div>顆</div>
+      </div>
+
+      <div class="item blue">
+        <div class="color-name">🔵 藍色</div>
+        <div class="num" id="blue">0</div>
+        <div>顆</div>
+      </div>
+    </div>
+
+    <div class="total">🎯 總共：10 顆</div>
+
+    <button id="new">🎲 出題！</button>
+    <button id="done">✨ 找完了！下一題</button>
+
+    <div class="tip">白、粉、藍三種石頭，每種最多 10 顆</div>
+  </div>
+</div>
+
+<script>
+const white=document.getElementById("white");
+const pink=document.getElementById("pink");
+const blue=document.getElementById("blue");
+const newBtn=document.getElementById("new");
+const doneBtn=document.getElementById("done");
+
+function newQuestion(){
+  // 從三種顏色中隨機產生 10 顆。
+  // 每種最多 10 顆，符合實際擁有的石頭數量。
+  let w=Math.floor(Math.random()*11);
+  let p=Math.floor(Math.random()*(11-w));
+  let b=10-w-p;
+
+  // 三種顏色都至少出現 1 顆，避免某色完全沒有。
+  if(b===0 || p===0 || w===0){
+    const cuts=[1,2,3,4,5,6,7,8,9];
+    w=cuts[Math.floor(Math.random()*cuts.length)];
+    const remain=10-w;
+    p=1+Math.floor(Math.random()*(remain-1));
+    b=10-w-p;
+  }
+
+  white.textContent=w;
+  pink.textContent=p;
+  blue.textContent=b;
+
+  newBtn.style.display="none";
+  doneBtn.style.display="inline-block";
+}
+
+newBtn.addEventListener("click",newQuestion);
+doneBtn.addEventListener("click",newQuestion);
+</script>
+</body>
+</html>
