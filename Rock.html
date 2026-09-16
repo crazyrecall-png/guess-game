@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>眼明手快尋寶｜找到顏色石頭</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;
+  background:linear-gradient(180deg,#fff8ef,#eaf8ff);
+  color:#554b55; min-height:100vh; display:flex; justify-content:center;
+}
+.game{width:min(900px,96vw); padding:18px 10px 28px; text-align:center}
+h1{margin:5px 0 4px;font-size:clamp(28px,6vw,48px);color:#ff8a9b;text-shadow:2px 3px #fff}
+.sub{font-size:16px;margin-bottom:14px}
+.panel{
+  background:#ffffffdd;border:4px solid #ffd8a8;border-radius:24px;
+  padding:14px;box-shadow:0 7px 0 #e7cda9;margin-bottom:16px
+}
+.rules{font-size:18px;font-weight:bold}
+.colors{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.badge{padding:7px 13px;border-radius:999px;background:#fff;border:2px solid #ddd}
+.dot{display:inline-block;width:18px;height:18px;border-radius:50%;vertical-align:-3px;margin-right:5px;border:1px solid #aaa}
+.white{background:#fff}.pink{background:#ff9eb5}.blue{background:#76bdf2}
+.target{
+  font-size:clamp(22px,5vw,34px);font-weight:900;
+  margin:8px 0;color:#6654a8
+}
+.target span{padding:5px 12px;border-radius:15px;background:#f0eaff}
+button{
+  border:0;cursor:pointer;font:inherit;font-weight:900;
+  border-radius:18px;padding:11px 20px;background:#8ed8a5;color:#315c40;
+  box-shadow:0 5px 0 #68b983; margin:4px
+}
+button:active{transform:translateY(4px);box-shadow:0 1px 0 #68b983}
+#start{background:#ffb86b;color:#744718;box-shadow:0 5px 0 #e79b4d}
+.board{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:9px;
+  padding:12px;background:#d9c29a;border-radius:24px;
+  border:5px solid #c4aa7b;box-shadow:inset 0 0 0 3px #ead7b2
+}
+.stone{
+  aspect-ratio:1;min-height:65px;border-radius:42% 58% 52% 48%;
+  border:3px solid #ffffffaa;box-shadow:0 5px 8px #806b5644;
+  transition:.08s;position:relative;cursor:pointer;
+}
+.stone:hover{transform:scale(1.06)}
+.stone.found{animation:pop .35s ease forwards;pointer-events:none}
+.stone.wrong{animation:shake .3s ease}
+@keyframes pop{50%{transform:scale(1.25)}100%{transform:scale(0);opacity:0}}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+#message{min-height:32px;font-size:20px;font-weight:900;margin:12px 0}
+.stats{font-size:18px;font-weight:bold}
+@media(max-width:520px){
+ .board{grid-template-columns:repeat(5,1fr);gap:6px;padding:8px}
+ .stone{min-height:55px}
+}
+</style>
+</head>
+<body>
+<div class="game">
+  <h1>🪨 眼明手快尋寶！🔎</h1>
+  <div class="sub">小小探險家，看看你能不能快速找到指定顏色的石頭！</div>
+
+  <div class="panel">
+    <div class="rules">每回合會隨機出現 <b>10 顆石頭</b>！</div>
+    <div class="colors">
+      <span class="badge"><i class="dot white"></i>白色</span>
+      <span class="badge"><i class="dot pink"></i>粉色</span>
+      <span class="badge"><i class="dot blue"></i>藍色</span>
+    </div>
+    <div class="target">這一回合要找：<span id="target">按「開始尋寶」</span></div>
+    <button id="start">🌟 開始尋寶</button>
+    <button id="newRound" style="display:none">🔄 再來一回合</button>
+    <div id="message"></div>
+    <div class="stats">找到：<span id="found">0</span> / <span id="need">0</span>　　錯誤：<span id="wrong">0</span></div>
+  </div>
+
+  <div id="board" class="board" aria-label="石頭區"></div>
+</div>
+
+<script>
+const board=document.getElementById("board");
+const targetEl=document.getElementById("target");
+const foundEl=document.getElementById("found");
+const needEl=document.getElementById("need");
+const wrongEl=document.getElementById("wrong");
+const message=document.getElementById("message");
+const start=document.getElementById("start");
+const newRound=document.getElementById("newRound");
+
+const COLORS=[
+  {name:"白色", cls:"white"},
+  {name:"粉色", cls:"pink"},
+  {name:"藍色", cls:"blue"}
+];
+
+let target="", need=0, found=0, wrong=0, active=false;
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function startRound(){
+  // 從每種最多10顆的實體庫存中抽出10顆。
+  // 因此每回合三色總數一定剛好10顆，且不會超過你實際擁有的數量。
+  const bag=[];
+  COLORS.forEach(c=>{
+    for(let i=0;i<10;i++) bag.push(c);
+  });
+  shuffle(bag);
+  const stones=bag.slice(0,10);
+
+  const counts={白色:0,粉色:0,藍色:0};
+  stones.forEach(s=>counts[s.name]++);
+
+  // 隨機指定這回合要找的顏色；若該色為0，重新抽一回合。
+  const possible=COLORS.filter(c=>counts[c.name]>0);
+  const chosen=possible[Math.floor(Math.random()*possible.length)];
+  target=chosen.name;
+  need=counts[target];
+  found=0; wrong=0; active=true;
+
+  targetEl.textContent=target+"石頭";
+  targetEl.style.color=target==="白色"?"#777":target==="粉色"?"#e66f8b":"#4798d4";
+  foundEl.textContent=found; needEl.textContent=need; wrongEl.textContent=wrong;
+  message.textContent="準備好了！快找快按！";
+  start.style.display="none"; newRound.style.display="none";
+  board.innerHTML="";
+
+  shuffle(stones).forEach((stone,i)=>{
+    const el=document.createElement("button");
+    el.className="stone "+stone.cls;
+    el.dataset.color=stone.name;
+    el.title=stone.name;
+    el.setAttribute("aria-label","石頭");
+    el.style.padding="0";
+    el.style.background=stone.name==="白色"?"linear-gradient(145deg,#fff,#e5e5e5)":
+                         stone.name==="粉色"?"linear-gradient(145deg,#ffc0cd,#f1849d)":
+                         "linear-gradient(145deg,#a8dcff,#5da9e3)";
+    el.addEventListener("click",()=>pick(el));
+    board.appendChild(el);
+  });
+}
+
+function pick(el){
+  if(!active || el.classList.contains("found")) return;
+
+  if(el.dataset.color===target){
+    el.classList.add("found");
+    found++;
+    foundEl.textContent=found;
+    if(found===need){
+      active=false;
+      message.textContent="🎉 全部找到了！太厲害了！";
+      newRound.style.display="inline-block";
+    }
+  }else{
+    wrong++;
+    wrongEl.textContent=wrong;
+    message.textContent="😆 不是這個顏色，再找找看！";
+    el.classList.remove("wrong");
+    void el.offsetWidth;
+    el.classList.add("wrong");
+  }
+}
+
+start.addEventListener("click",startRound);
+newRound.addEventListener("click",startRound);
+</script>
+</body>
+</html>
