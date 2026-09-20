@@ -1,0 +1,20 @@
+<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>猜球遊戲</title>
+<style>
+body{margin:0;background:#fff3df;font-family:Arial,"Microsoft JhengHei";text-align:center;color:#55495a}.game{max-width:700px;margin:auto;padding:20px}h1{color:#ed8ba1;font-size:clamp(28px,7vw,45px)}.card{background:white;border:3px solid #efd4aa;border-radius:25px;padding:20px;box-shadow:0 6px #e7cfb0}select,button{font:inherit;font-weight:bold;border:0;border-radius:14px;padding:12px;margin:5px;cursor:pointer}select{background:#fff0cc}button{background:#ffb66d;box-shadow:0 4px #d99a54;color:#70471e}button:disabled{opacity:.4}.stage{height:250px;background:#e6c18b;border:5px solid #cda873;border-radius:25px;position:relative;overflow:hidden;margin-top:15px}.cups{position:absolute;bottom:35px;left:0;right:0;display:flex;justify-content:center;gap:12px}.wrap{width:clamp(65px,15vw,110px);height:160px;position:relative;display:flex;align-items:end}.cup{width:100%;height:105px;background:linear-gradient(90deg,#ed8798,#ffc1cb,#e7798b);border:4px solid #d66d7e;border-radius:8px 8px 35px 35px;position:relative;transition:transform .25s}.cup:before{content:"";position:absolute;left:-8px;right:-8px;top:-12px;height:20px;border-radius:50%;background:#ffd4dc;border:4px solid #d66d7e}.cup span{font-size:25px;color:#a94f60}.ball{position:absolute;width:28px;height:28px;border-radius:50%;background:#ffd54e;border:3px solid #bc8a20;bottom:125px;left:50%;transform:translateX(-50%);display:none}.show .ball{display:block}.up{transform:translateY(-65px)}#msg{min-height:30px;font-size:20px;font-weight:bold;margin:12px}
+</style>
+<div class="game"><h1>🥤 猜猜看球在哪個杯子裡？</h1><div class="card">
+<label>難度：</label><select id="level"><option value="1">第1關｜2杯・慢速</option><option value="2">第2關｜3杯・慢速</option><option value="3">第3關｜3杯・中速</option><option value="4">第4關｜4杯・中速</option><option value="5">第5關｜5杯・快速</option><option value="6">第6關｜6杯・快速</option></select>
+<div id="msg">按開始遊戲！</div><button id="start">🎲 開始遊戲</button><button id="next" disabled>➡️ 下一關</button><div class="stage"><div class="cups" id="cups"></div></div>
+<p>先記住小球位置，杯子移動完再選答案。</p></div></div>
+<script>
+const cfg={1:[2,2,850,500],2:[3,3,750,420],3:[3,6,550,300],4:[4,8,480,260],5:[5,11,360,200],6:[6,15,280,150]};
+let level=1,ball=0,guessing=false,els=[],wins=0,losses=0;
+const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function make(n){$("cups").innerHTML="";els=[];for(let i=0;i<n;i++){let w=document.createElement("div");w.className="wrap";let b=document.createElement("div");b.className="ball";let c=document.createElement("button");c.className="cup";c.innerHTML="<span>"+(i+1)+"</span>";c.onclick=()=>guess(i);w.append(b,c);$("cups").append(w);els.push({w,c})}}
+function show(i,on){els.forEach((e,j)=>e.w.classList.toggle("show",on&&j===i))}
+async function play(){level=+$("level").value;let [n,m,s,p]=cfg[level];$("start").disabled=true;$("next").disabled=true;$("level").disabled=true;$("msg").textContent="記住小球位置！";make(n);ball=Math.floor(Math.random()*n);show(ball,true);await sleep(900);show(ball,false);
+let pos=[...Array(n).keys()];for(let k=0;k<m;k++){let a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);while(a===b)b=Math.floor(Math.random()*n);[pos[a],pos[b]]=[pos[b],pos[a]];els[a].c.classList.add("up");els[b].c.classList.add("up");await sleep(s);els[a].c.classList.remove("up");els[b].c.classList.remove("up");ball=pos.indexOf(ball);await sleep(p)}
+guessing=true;$("start").disabled=false;$("level").disabled=false;$("msg").textContent="請選擇你認為有小球的杯子！"}
+function guess(i){if(!guessing)return;guessing=false;show(ball,true);if(i===ball){wins++;$("msg").textContent="🎉 答對了！";if(level<6)$("next").disabled=false}else{losses++;$("msg").textContent="😊 小球在第"+(ball+1)+"號杯子，再試一次！"}$("start").textContent="🔄 再玩一次"}
+$("start").onclick=play;$("next").onclick=()=>{level=Math.min(6,level+1);$("level").value=level;$("start").textContent="🎲 開始遊戲";play()};make(2);
+</script>
