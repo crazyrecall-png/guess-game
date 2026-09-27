@@ -1,629 +1,546 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>移動式圈圈叉叉 - iPad優化版</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>可愛風俄羅斯方塊 🧩</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Fredoka', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
+        }
 
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
+        body {
+            background-color: #fce4ec;
+            background-image: radial-gradient(#f8bbd0 10%, transparent 11%);
+            background-size: 20px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            color: #4a4a4a;
+        }
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0;
-      padding: 10px 0;
-      min-height: 100vh;
-      
-      background: #fdf2f8;
-      background-image:
-        radial-gradient(#fecdd3 10%, transparent 10%),
-        radial-gradient(#fee2e2 15%, transparent 15%);
-      background-position: 0 0, 30px 30px;
-      background-size: 60px 60px;
-      
-      font-family: "Noto Sans TC", "Microsoft JhengHei", cursive, sans-serif;
-      color: #333;
-      overflow: auto;
-    }
+        .game-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(240, 98, 146, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+            width: 100%;
+            border: 4px solid #f48fb1;
+        }
 
-    .game-container {
-      width: 480px;
-      min-height: 720px;
-      padding: 24px;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.98);
-      border-radius: 40px;
-      border: 10px solid #f9a8d4; 
-      box-shadow: 0 15px 30px rgba(244, 114, 182, 0.2);
-    }
+        h1 {
+            margin: 0 0 15px 0;
+            color: #ec407a;
+            font-size: 28px;
+            text-shadow: 2px 2px 0px #f8bbd0;
+        }
 
-    h1 {
-      margin: 0 0 12px;
-      color: #be185d;
-      font-size: 30px;
-      text-shadow: 2px 2px 0px #fecdd3;
-    }
+        .main-layout {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+        }
 
-    /* iPad 專用音效啟用大按鈕 */
-    .audio-start-btn {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      background: #22c55e;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 20px;
-      box-shadow: 0 4px 0 #15803d;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+        /* 遊戲主要畫布 - 加大版面 */
+        #tetris {
+            border: 4px solid #f8bbd0;
+            border-radius: 16px;
+            background-color: #fffafc;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
 
-    .audio-start-btn.enabled {
-      background: #e2e8f0;
-      color: #64748b;
-      box-shadow: none;
-      cursor: default;
-    }
+        /* 右側資訊區 */
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 130px;
+        }
 
-    .mode-selector {
-      background: #fff1f2;
-      border: 2px dashed #fda4af;
-      border-radius: 20px;
-      padding: 12px;
-      margin-bottom: 12px;
-      text-align: left;
-    }
+        .card {
+            background: #f8bbd0;
+            border-radius: 16px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 4px 0 #f48fb1;
+            color: #880e4f;
+        }
 
-    .mode-title {
-      font-size: 15px;
-      font-weight: bold;
-      color: #be185d;
-      margin-bottom: 8px;
-      text-align: center;
-    }
+        .card label {
+            font-size: 13px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
 
-    .mode-options {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 14px;
-      color: #881337;
-    }
+        .card .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 1px 1px 0 #c2185b;
+        }
 
-    .mode-options label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      font-weight: 500;
-    }
+        #next-canvas {
+            background: #fffafc;
+            border-radius: 12px;
+            border: 2px solid #f48fb1;
+            margin-top: 5px;
+        }
 
-    .mode-options input[type="radio"] {
-      accent-color: #be185d;
-      width: 18px;
-      height: 18px;
-    }
+        /* 手機與滑鼠按鈕區 */
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
 
-    .rules {
-      padding: 10px 14px;
-      margin-bottom: 12px;
-      background: #fce7f3;
-      border-radius: 16px;
-      color: #831843;
-      font-size: 14px;
-      line-height: 1.5;
-    }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
 
-    .status-container {
-      height: 36px;
-      margin: 8px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+        .btn {
+            background: #ffb74d;
+            border: none;
+            border-bottom: 4px solid #f57c00;
+            border-radius: 16px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px 0;
+            flex: 1;
+            max-width: 90px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.05s, background-color 0.1s;
+            touch-action: manipulation;
+        }
 
-    .status {
-      font-size: 20px;
-      font-weight: bold;
-      color: #9333ea;
-      padding: 4px 16px;
-      border-radius: 15px;
-      transition: all 0.3s ease;
-    }
+        .btn:active {
+            transform: translateY(3px);
+            border-bottom-width: 1px;
+            box-shadow: none;
+        }
 
-    .status.win {
-      background: #ec4899;
-      color: #ffffff;
-      transform: scale(1.1);
-      animation: pulse 1s infinite;
-    }
+        .btn-rotate { background: #ba68c8; border-color: #7b1fa2; }
+        .btn-drop { background: #4dd0e1; border-color: #0097a7; flex: 2; max-width: 190px;}
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1.1); }
-      50% { transform: scale(1.15); }
-    }
-
-    .score {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      margin: 8px 0 12px;
-      font-size: 16px;
-    }
-
-    .score-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 20px;
-    }
-
-    .x-score { color: #dc2626; border: 2px solid #fecaca; }
-    .o-score { color: #2563eb; border: 2px solid #bfdbfe; }
-    .count { font-weight: bold; font-size: 18px; }
-
-    .board-container {
-      position: relative;
-      width: 350px;
-      height: 350px;
-      margin: 10px auto;
-    }
-
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 12px;
-      width: 100%;
-      height: 100%;
-      padding: 12px;
-      background: #dbeafe;
-      border-radius: 25px;
-      box-shadow: inset 0 3px 10px rgba(0,0,0,0.1);
-    }
-
-    .cell {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 20px;
-      background: #ffffff;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: all 0.2s;
-      box-shadow: 0 4px 0px #e0e0e0;
-    }
-
-    .cell.x, .cell.o {
-      cursor: pointer;
-      position: relative;
-    }
-
-    .cell.x::after, .cell.o::after {
-      content: "";
-      position: absolute;
-      width: 80%;
-      height: 80%;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-
-    .cell.x::after {
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23fee2e2" stroke="%23dc2626" stroke-width="6"/><path d="M30,30 L70,70 M70,30 L30,70" stroke="%23dc2626" stroke-width="12" stroke-linecap="round"/><circle cx="35" cy="40" r="5" fill="%23333"/><circle cx="65" cy="40" r="5" fill="%23333"/><path d="M40,70 Q50,80 60,70" stroke="%23333" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M40,10 L50,0 L60,10 M40,10 L60,10" fill="%23fbbf24" stroke="%23333" stroke-width="2" stroke-linejoin="round"/></svg>');
-    }
-
-    .cell.o::after {
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23dbeafe" stroke="%232563eb" stroke-width="6"/><circle cx="35" cy="40" r="8" fill="white" stroke="%232563eb" stroke-width="3"/><circle cx="35" cy="40" r="4" fill="%232563eb"/><circle cx="65" cy="40" r="8" fill="white" stroke="%232563eb" stroke-width="3"/><circle cx="65" cy="40" r="4" fill="%232563eb"/><path d="M40,70 Q50,80 60,70" stroke="%232563eb" stroke-width="5" fill="none" stroke-linecap="round"/></svg>');
-    }
-
-    .cell.selected {
-      outline: 6px solid #fbbf24;
-      background: #fef3c7;
-      animation: selectDance 0.5s ease infinite;
-    }
-
-    @keyframes selectDance {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08) translateY(-5px); }
-    }
-
-    .reset-button {
-      border: none;
-      border-radius: 25px;
-      padding: 12px 28px;
-      background: #be185d;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 0 #831843;
-      margin: 10px auto 0;
-    }
-
-    .reset-button:active {
-      transform: translateY(2px);
-      box-shadow: 0 1px 0 #be185d;
-    }
-  </style>
+        /* 動態提示訊息 */
+        #combo-msg {
+            height: 24px;
+            font-weight: bold;
+            color: #ff4081;
+            font-size: 16px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+    </style>
 </head>
-
 <body>
-  <main class="game-container">
-    <h1>移動式圈圈叉叉</h1>
 
-    <button id="startAudioBtn" class="audio-start-btn" onclick="enableAudio()">
-      🔊 點此開啟音效（iPad專用）
-    </button>
+<div class="game-container">
+    <h1>🧩 可愛方塊大挑戰</h1>
+    
+    <div id="combo-msg"></div>
 
-    <div class="mode-selector">
-      <div class="mode-title">🎮 選擇移動規則：</div>
-      <div class="mode-options">
-        <label>
-          <input type="radio" name="moveMode" value="free" checked onchange="changeMode()">
-          <span><b>任意移動</b>：可以飛到棋盤上任何空格</span>
-        </label>
-        <label>
-          <input type="radio" name="moveMode" value="orthogonal" onchange="changeMode()">
-          <span><b>鄰近移動</b>：只能移到上下左右的空格</span>
-        </label>
-        <label>
-          <input type="radio" name="moveMode" value="diagonal" onchange="changeMode()">
-          <span><b>鄰近移動（含斜角）</b>：可移到周圍 8 個空格</span>
-        </label>
-      </div>
+    <div class="main-layout">
+        <!-- 主畫布：寬240 x 高480 (10x20格，每格24px) -->
+        <canvas id="tetris" width="240" height="480"></canvas>
+
+        <!-- 資訊區域 -->
+        <div class="info-panel">
+            <div class="card">
+                <label>下一個</label>
+                <canvas id="next-canvas" width="80" height="80"></canvas>
+            </div>
+            <div class="card">
+                <label>目前分數</label>
+                <div class="value" id="score">0</div>
+            </div>
+            <div class="card">
+                <label>目前難度</label>
+                <div class="value" id="level">Lv. 1</div>
+            </div>
+        </div>
     </div>
 
-    <div class="rules" id="ruleText">
-      雙方輪流放置 3 個卡通棋子。放滿後，可以任意移動棋子到空格！
+    <!-- 螢幕觸控 / 滑鼠點擊控制按鈕 -->
+    <div class="controls">
+        <div class="btn-row">
+            <button class="btn btn-rotate" id="btn-up">↻ 旋轉</button>
+        </div>
+        <div class="btn-row">
+            <button class="btn" id="btn-left">←</button>
+            <button class="btn" id="btn-down">↓ 加速</button>
+            <button class="btn" id="btn-right">→</button>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-drop" id="btn-space">⚡ 直接到底 ⚡</button>
+        </div>
     </div>
+</div>
 
-    <div class="status-container">
-      <div id="status" class="status"></div>
-    </div>
+<script>
+    const canvas = document.getElementById('tetris');
+    const context = canvas.getContext('2d');
+    const nextCanvas = document.getElementById('next-canvas');
+    const nextContext = nextCanvas.getContext('2d');
 
-    <div class="score">
-      <div class="score-item x-score">
-        ❌ <span class="count" id="xCount">0</span> / 3
-      </div>
-      <div class="score-item o-score">
-        ⭕ <span class="count" id="oCount">0</span> / 3
-      </div>
-    </div>
+    const BLOCK_SIZE = 24; // 每格大小 (加大版面)
+    context.scale(BLOCK_SIZE, BLOCK_SIZE);
+    nextContext.scale(20, 20); // 預覽畫布縮放
 
-    <div class="board-container">
-      <div id="board" class="board"></div>
-    </div>
-
-    <button id="resetButton" class="reset-button" onclick="resetGame()">
-      ↺ 重新開始
-    </button>
-  </main>
-
-  <script>
-    const boardElement = document.getElementById("board");
-    const statusElement = document.getElementById("status");
-    const ruleText = document.getElementById("ruleText");
-    const xCountElement = document.getElementById("xCount");
-    const oCountElement = document.getElementById("oCount");
-    const startAudioBtn = document.getElementById("startAudioBtn");
-
-    const winningLines = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8],
-      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-      [0, 4, 8], [2, 4, 6]
+    // 可愛馬卡龍色系
+    const COLORS = [
+        null,
+        '#ff80ab', // 粉紅 (I)
+        '#ffd54f', // 亮黃 (O)
+        '#b388ff', // 淺紫 (T)
+        '#81c784', // 蘋果綠 (S)
+        '#ff8a65', // 珊瑚橘 (Z)
+        '#4fc3f7', // 天藍 (J)
+        '#a1887f'  // 奶茶棕 (L)
     ];
 
-    const neighborsMap = {
-      orthogonal: {
-        0: [1, 3], 1: [0, 2, 4], 2: [1, 5],
-        3: [0, 4, 6], 4: [1, 3, 5, 7], 5: [2, 4, 8],
-        6: [3, 7], 7: [4, 6, 8], 8: [5, 7]
-      },
-      diagonal: {
-        0: [1, 3, 4], 1: [0, 2, 3, 4, 5], 2: [1, 4, 5],
-        3: [0, 1, 4, 6, 7], 4: [0, 1, 2, 3, 5, 6, 7, 8], 5: [1, 2, 4, 7, 8],
-        6: [3, 4, 7], 7: [3, 4, 5, 6, 8], 8: [4, 5, 7]
-      }
+    // 方塊形狀定義
+    function createPiece(type) {
+        if (type === 'I') {
+            return [
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+            ];
+        } else if (type === 'O') {
+            return [
+                [2, 2],
+                [2, 2],
+            ];
+        } else if (type === 'T') {
+            return [
+                [0, 3, 0],
+                [3, 3, 3],
+                [0, 0, 0],
+            ];
+        } else if (type === 'S') {
+            return [
+                [0, 4, 4],
+                [4, 4, 0],
+                [0, 0, 0],
+            ];
+        } else if (type === 'Z') {
+            return [
+                [5, 5, 0],
+                [0, 5, 5],
+                [0, 0, 0],
+            ];
+        } else if (type === 'J') {
+            return [
+                [0, 6, 0],
+                [0, 6, 0],
+                [6, 6, 0],
+            ];
+        } else if (type === 'L') {
+            return [
+                [0, 7, 0],
+                [0, 7, 0],
+                [0, 7, 7],
+            ];
+        }
+    }
+
+    // 建立 10x20 地圖陣列
+    function createMatrix(w, h) {
+        const matrix = [];
+        while (h--) {
+            matrix.push(new Array(w).fill(0));
+        }
+        return matrix;
+    }
+
+    const arena = createMatrix(10, 20);
+
+    const player = {
+        pos: {x: 0, y: 0},
+        matrix: null,
+        nextMatrix: null,
+        score: 0,
+        level: 1,
     };
 
-    let board = [];
-    let currentPlayer = "X";
-    let phase = "placing";
-    let selectedIndex = null;
-    let gameOver = false;
-    let currentMode = "free";
+    let dropCounter = 0;
+    let dropInterval = 1000; // 起始速度 1 秒 (1000ms)
+    let lastTime = 0;
 
-    // --- 相容 iOS / iPadOS 的 Web Audio 引擎 ---
-    let audioCtx = null;
-    let audioUnlocked = false;
-
-    function enableAudio() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContextClass();
-      }
-
-      // iOS 強制解鎖邏輯
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-
-      // 播放無聲音頻做為解鎖觸發
-      const buffer = audioCtx.createBuffer(1, 1, 22050);
-      const source = audioCtx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioCtx.destination);
-      source.start(0);
-
-      audioUnlocked = true;
-      startAudioBtn.textContent = "🔊 音效已成功開啟！";
-      startAudioBtn.classList.add("enabled");
-      
-      // 測試聲音
-      playSound('place');
+    // 隨機獲取方塊名稱
+    const pieces = 'IOTSZJL';
+    function getRandomPiece() {
+        return createPiece(pieces[pieces.length * Math.random() | 0]);
     }
 
-    function playSound(type) {
-      if (!audioCtx) return;
-      
-      // 再次確保狀態為 running
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+    // 繪製圓角方塊 (讓視覺更可愛)
+    function drawRoundedRect(ctx, x, y, width, height, radius, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.roundRect(x + 0.05, y + 0.05, width - 0.1, height - 0.1, radius);
+        ctx.fill();
+        // 內邊框亮色（微立體感）
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 0.1;
+        ctx.stroke();
+    }
 
-      const now = audioCtx.currentTime;
-
-      if (type === 'place') {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(450, now);
-        osc.frequency.exponentialRampToValueAtTime(120, now + 0.08);
-        gain.gain.setValueAtTime(0.8, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.08);
-
-      } else if (type === 'select') {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, now);
-        osc.frequency.setValueAtTime(659.25, now + 0.05);
-        gain.gain.setValueAtTime(0.5, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.12);
-
-      } else if (type === 'move') {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(250, now);
-        osc.frequency.exponentialRampToValueAtTime(650, now + 0.15);
-        gain.gain.setValueAtTime(0.6, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.15);
-
-      } else if (type === 'win') {
-        const notes = [523.25, 659.25, 783.99, 1046.50];
-        notes.forEach((freq, index) => {
-          const noteOsc = audioCtx.createOscillator();
-          const noteGain = audioCtx.createGain();
-          noteOsc.type = 'triangle';
-          noteOsc.frequency.setValueAtTime(freq, now + index * 0.09);
-          noteGain.gain.setValueAtTime(0.5, now + index * 0.09);
-          noteGain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.09 + 0.25);
-          noteOsc.connect(noteGain);
-          noteGain.connect(audioCtx.destination);
-          noteOsc.start(now + index * 0.09);
-          noteOsc.stop(now + index * 0.09 + 0.25);
+    // 繪製矩陣
+    function drawMatrix(matrix, offset, ctx = context) {
+        matrix.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value !== 0) {
+                    drawRoundedRect(ctx, x + offset.x, y + offset.y, 1, 1, 0.2, COLORS[value]);
+                }
+            });
         });
-      }
     }
 
-    function changeMode() {
-      const selected = document.querySelector('input[name="moveMode"]:checked').value;
-      currentMode = selected;
+    // 繪製畫面
+    function draw() {
+        context.fillStyle = '#fffafc';
+        context.fillRect(0, 0, canvas.width, canvas.height);
 
-      if (currentMode === "free") {
-        ruleText.textContent = "雙方輪流放置 3 個卡通棋子。放滿後，可以任意移動棋子到空格！";
-      } else if (currentMode === "orthogonal") {
-        ruleText.textContent = "雙方輪流放置 3 個卡通棋子。放滿後，只能移到「上下左右」相鄰空格！";
-      } else if (currentMode === "diagonal") {
-        ruleText.textContent = "雙方輪流放置 3 個卡通棋子。放滿後，可以移到「周圍 8 個相鄰空格（含斜角）」！";
-      }
+        drawMatrix(arena, {x: 0, y: 0});
+        drawMatrix(player.matrix, player.pos);
 
-      resetGame();
+        // 繪製右側「下一個方塊」
+        nextContext.fillStyle = '#fffafc';
+        nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+        if (player.nextMatrix) {
+            // 置中計算
+            const offsetX = (4 - player.nextMatrix[0].length) / 2;
+            const offsetY = (4 - player.nextMatrix.length) / 2;
+            drawMatrix(player.nextMatrix, {x: offsetX, y: offsetY}, nextContext);
+        }
     }
 
-    function resetGame() {
-      board = Array(9).fill(null);
-      currentPlayer = "X";
-      phase = "placing";
-      selectedIndex = null;
-      gameOver = false;
-
-      statusElement.classList.remove("win");
-      render();
-      updateStatus();
+    // 碰撞偵測
+    function collide(arena, player) {
+        const [m, o] = [player.matrix, player.pos];
+        for (let y = 0; y < m.length; ++y) {
+            for (let x = 0; x < m[y].length; ++x) {
+                if (m[y][x] !== 0 &&
+                   (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    function render() {
-      boardElement.innerHTML = "";
-
-      board.forEach((value, index) => {
-        const cell = document.createElement("button");
-        cell.className = "cell";
-
-        if (value === "X") cell.classList.add("x");
-        if (value === "O") cell.classList.add("o");
-        if (index === selectedIndex) cell.classList.add("selected");
-
-        // 綁定 touchstart 與 click double Insurance
-        cell.addEventListener("click", function () {
-          handleCellClick(index);
+    // 將落下的方塊固定到地圖中
+    function merge(arena, player) {
+        player.matrix.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value !== 0) {
+                    arena[y + player.pos.y][x + player.pos.x] = value;
+                }
+            });
         });
-
-        boardElement.appendChild(cell);
-      });
-
-      xCountElement.textContent = board.filter(v => v === "X").length;
-      oCountElement.textContent = board.filter(v => v === "O").length;
     }
 
-    function updateStatus(message = "") {
-      if (message) {
-        statusElement.textContent = message;
-        return;
-      }
+    // 清除滿行與計算獎勵分數
+    function arenaSweep() {
+        let rowCount = 0;
+        outer: for (let y = arena.length - 1; y >= 0; --y) {
+            for (let x = 0; x < arena[y].length; ++x) {
+                if (arena[y][x] === 0) {
+                    continue outer;
+                }
+            }
+            const row = arena.splice(y, 1)[0].fill(0);
+            arena.unshift(row);
+            ++y;
+            rowCount++;
+        }
 
-      if (gameOver) return;
+        if (rowCount > 0) {
+            // 多行消除額外獎勵公式：1行=100, 2行=300, 3行=600, 4行(Tetris)=1000
+            const baseScores = [0, 100, 300, 600, 1000];
+            const addedScore = baseScores[rowCount] || rowCount * 250;
+            player.score += addedScore;
 
-      const playerName = currentPlayer === "X" ? "❌ 小紅" : "⭕ 小藍";
+            // 顯示文字特效
+            showComboMsg(rowCount);
 
-      if (phase === "placing") {
-        statusElement.textContent = `${playerName}，換你放囉！😊`;
-      } else {
-        if (selectedIndex === null) {
-          statusElement.textContent = `${playerName}，請選擇要移動的棋子`;
+            // 更新難度與速度 (每 500 分升一級，速度加快)
+            player.level = Math.floor(player.score / 500) + 1;
+            dropInterval = Math.max(150, 1000 - (player.level - 1) * 100);
+
+            updateScoreUI();
+        }
+    }
+
+    // 顯示連消獎勵訊息
+    function showComboMsg(count) {
+        const msgEl = document.getElementById('combo-msg');
+        const msgs = ['', '不錯喔！ +100', '太棒了！ +300', '超級厲害！ +600', '🎉 完美清空 Tetris! +1000'];
+        msgEl.innerText = msgs[count] || `一次消除 ${count} 行！`;
+        setTimeout(() => {
+            msgEl.innerText = '';
+        }, 1500);
+    }
+
+    // 方塊旋轉 (矩陣翻轉)
+    function rotate(matrix, dir) {
+        for (let y = 0; y < matrix.length; ++y) {
+            for (let x = 0; x < y; ++x) {
+                [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+            }
+        }
+        if (dir > 0) {
+            matrix.forEach(row => row.reverse());
         } else {
-          statusElement.textContent = "請選擇可移動的空格 🚚";
+            matrix.reverse();
         }
-      }
     }
 
-    function handleCellClick(index) {
-      // 確保在 iPad 第一次點擊棋盤時也能試著解鎖 AudioContext
-      if (!audioUnlocked) {
-        enableAudio();
-      }
-
-      if (gameOver) return;
-
-      if (phase === "placing") {
-        placePiece(index);
-      } else {
-        movePiece(index);
-      }
-    }
-
-    function placePiece(index) {
-      if (board[index] !== null) {
-        updateStatus("這個位置已經有棋子了！");
-        return;
-      }
-
-      board[index] = currentPlayer;
-      playSound('place');
-
-      if (checkWin(currentPlayer)) {
-        endGame(currentPlayer);
-        return;
-      }
-
-      const xCount = board.filter(v => v === "X").length;
-      const oCount = board.filter(v => v === "O").length;
-
-      if (xCount === 3 && oCount === 3) {
-        phase = "moving";
-      }
-
-      switchPlayer();
-      render();
-      updateStatus();
-    }
-
-    function movePiece(index) {
-      if (selectedIndex === null) {
-        if (board[index] !== currentPlayer) {
-          updateStatus("請選擇你自己的棋子！");
-          return;
+    function playerRotate(dir) {
+        const pos = player.pos.x;
+        let offset = 1;
+        rotate(player.matrix, dir);
+        // 旋轉踢牆 (防止卡在邊界外)
+        while (collide(arena, player)) {
+            player.pos.x += offset;
+            offset = -(offset + (offset > 0 ? 1 : -1));
+            if (offset > player.matrix[0].length) {
+                rotate(player.matrix, -dir);
+                player.pos.x = pos;
+                return;
+            }
         }
-        selectedIndex = index;
-        playSound('select');
-        render();
-        updateStatus();
-        return;
-      }
+    }
 
-      if (board[index] === currentPlayer) {
-        selectedIndex = index;
-        playSound('select');
-        render();
-        updateStatus();
-        return;
-      }
-
-      if (board[index] !== null) {
-        updateStatus("目的地必須是空格！");
-        return;
-      }
-
-      if (currentMode !== "free") {
-        const allowedNeighbors = neighborsMap[currentMode][selectedIndex];
-        if (!allowedNeighbors.includes(index)) {
-          updateStatus("不行這樣走！只能移到相鄰的空格喔！");
-          return;
+    function playerMove(dir) {
+        player.pos.x += dir;
+        if (collide(arena, player)) {
+            player.pos.x -= dir;
         }
-      }
-
-      board[index] = currentPlayer;
-      board[selectedIndex] = null;
-      selectedIndex = null;
-      
-      playSound('move');
-
-      if (checkWin(currentPlayer)) {
-        endGame(currentPlayer);
-        return;
-      }
-
-      switchPlayer();
-      render();
-      updateStatus();
     }
 
-    function endGame(player) {
-      gameOver = true;
-      const playerSymbol = player === "X" ? "❌ 小紅" : "⭕ 小藍";
-      
-      playSound('win');
-      statusElement.classList.add("win");
-      
-      render();
-      updateStatus(`🎉 太棒了！${playerSymbol} 玩家獲勝！🎉`);
+    function playerDrop() {
+        player.pos.y++;
+        if (collide(arena, player)) {
+            player.pos.y--;
+            merge(arena, player);
+            playerReset();
+            arenaSweep();
+        }
+        dropCounter = 0;
     }
 
-    function switchPlayer() {
-      currentPlayer = currentPlayer === "X" ? "O" : "X";
+    // 空白鍵：直接降到底部 (Hard Drop)
+    function playerHardDrop() {
+        while (!collide(arena, player)) {
+            player.pos.y++;
+        }
+        player.pos.y--;
+        merge(arena, player);
+        playerReset();
+        arenaSweep();
+        dropCounter = 0;
     }
 
-    function checkWin(player) {
-      return winningLines.some(line => line.every(index => board[index] === player));
+    function playerReset() {
+        if (!player.nextMatrix) {
+            player.nextMatrix = getRandomPiece();
+        }
+        player.matrix = player.nextMatrix;
+        player.nextMatrix = getRandomPiece();
+        player.pos.y = 0;
+        player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+
+        // 遊戲結束判定
+        if (collide(arena, player)) {
+            alert(`遊戲結束！\n您的最終得分是：${player.score}`);
+            arena.forEach(row => row.fill(0));
+            player.score = 0;
+            player.level = 1;
+            dropInterval = 1000;
+            updateScoreUI();
+        }
     }
 
-    resetGame();
-  </script>
+    function updateScoreUI() {
+        document.getElementById('score').innerText = player.score;
+        document.getElementById('level').innerText = `Lv. ${player.level}`;
+    }
+
+    // 遊戲主循環
+    function update(time = 0) {
+        const deltaTime = time - lastTime;
+        lastTime = time;
+
+        dropCounter += deltaTime;
+        if (dropCounter > dropInterval) {
+            playerDrop();
+        }
+
+        draw();
+        requestAnimationFrame(update);
+    }
+
+    // 鍵盤操控設定
+    document.addEventListener('keydown', event => {
+        if (event.keyCode === 37) { // 左
+            playerMove(-1);
+        } else if (event.keyCode === 39) { // 右
+            playerMove(1);
+        } else if (event.keyCode === 40) { // 下 (加速)
+            playerDrop();
+        } else if (event.keyCode === 38) { // 上 (旋轉)
+            playerRotate(1);
+        } else if (event.keyCode === 32) { // 空白鍵 (直接到底)
+            event.preventDefault(); // 防止網頁捲動
+            playerHardDrop();
+        }
+    });
+
+    // 觸控與滑鼠點擊支援 (適用手機與滑鼠)
+    function bindBtn(id, action) {
+        const btn = document.getElementById(id);
+        const handleEvent = (e) => {
+            e.preventDefault();
+            action();
+        };
+        btn.addEventListener('touchstart', handleEvent, { passive: false });
+        btn.addEventListener('click', handleEvent);
+    }
+
+    bindBtn('btn-up', () => playerRotate(1));
+    bindBtn('btn-left', () => playerMove(-1));
+    bindBtn('btn-right', () => playerMove(1));
+    bindBtn('btn-down', () => playerDrop());
+    bindBtn('btn-space', () => playerHardDrop());
+
+    // 初始化遊戲
+    playerReset();
+    updateScoreUI();
+    update();
+</script>
+
 </body>
 </html>
