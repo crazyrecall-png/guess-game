@@ -295,6 +295,28 @@
         return createPiece(pieces[pieces.length * Math.random() | 0]);
     }
 
+    // 繪製格線輔助網格
+    function drawGrid(ctx, width, height) {
+        ctx.strokeStyle = '#f8bbd0'; // 粉粉的格線顏色
+        ctx.lineWidth = 0.03;       // 細格線
+
+        // 垂直線
+        for (let x = 0; x <= width; x++) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+
+        // 水平線
+        for (let y = 0; y <= height; y++) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+    }
+
     // 繪製圓角方塊 (讓視覺更可愛)
     function drawRoundedRect(ctx, x, y, width, height, radius, color) {
         ctx.fillStyle = color;
@@ -320,15 +342,19 @@
 
     // 繪製畫面
     function draw() {
+        // 主遊戲區清空與格線繪製
         context.fillStyle = '#fffafc';
         context.fillRect(0, 0, canvas.width, canvas.height);
+        drawGrid(context, 10, 20); // 10x20 格線
 
         drawMatrix(arena, {x: 0, y: 0});
         drawMatrix(player.matrix, player.pos);
 
-        // 繪製右側「下一個方塊」
+        // 右側「下一個方塊」清空與格線繪製
         nextContext.fillStyle = '#fffafc';
         nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+        drawGrid(nextContext, 4, 4); // 預覽區 4x4 格線
+
         if (player.nextMatrix) {
             // 置中計算
             const offsetX = (4 - player.nextMatrix[0].length) / 2;
