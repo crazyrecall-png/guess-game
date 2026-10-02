@@ -239,92 +239,128 @@
         }
 
 
-        /* 比賽模式 */
-        .player-count-wrap {
-            display:flex;
-            align-items:center;
-            gap:8px;
-        }
-
+        /* ===== 比賽版：四角桌面配置 ===== */
         .match-table {
-            position:relative;
-            width:min(1100px, 100%);
-            margin:0 auto;
-            padding:86px 150px;
-            background:#d7b98c;
-            border:12px solid #a97c50;
-            border-radius:34px;
-            box-shadow: inset 0 0 0 5px rgba(255,255,255,.25), 0 8px 20px rgba(70,45,25,.22);
+            position: relative;
+            width: min(1400px, 100%);
+            margin: 0 auto;
+            padding: 92px 170px;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,.38), transparent 46%),
+                linear-gradient(135deg, #e4c69d, #d2ad78);
+            border: 10px solid #a97c50;
+            border-radius: 34px;
+            box-shadow:
+                inset 0 0 0 4px rgba(255,255,255,.28),
+                0 8px 22px rgba(70,45,25,.22);
         }
 
         .match-table::before {
-            content:"";
-            position:absolute;
-            inset:28px;
-            border:3px dashed rgba(110,75,45,.25);
-            border-radius:24px;
-            pointer-events:none;
+            content: "";
+            position: absolute;
+            inset: 24px;
+            border: 3px dashed rgba(105,70,40,.22);
+            border-radius: 24px;
+            pointer-events: none;
+        }
+
+        .turn-banner {
+            position: relative;
+            z-index: 5;
+            width: min(430px, 72%);
+            min-height: 54px;
+            margin: 0 auto 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 18px;
+            border: 5px solid var(--turn-border, #0284c7);
+            border-radius: 18px;
+            background: var(--turn-bg, #bfe8ff);
+            color: var(--turn-text, #24536b);
+            box-shadow: 0 5px 12px rgba(0,0,0,.18);
+            font-size: clamp(20px, 3vw, 30px);
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .turn-banner::before {
+            content: "★";
+            margin-right: 10px;
+            font-size: .75em;
+        }
+
+        .turn-banner::after {
+            content: "★";
+            margin-left: 10px;
+            font-size: .75em;
         }
 
         .player-panel {
-            position:absolute;
-            z-index:3;
-            min-width:115px;
-            padding:8px 12px;
-            border-radius:14px;
-            text-align:center;
-            font-weight:bold;
-            border:3px solid rgba(255,255,255,.9);
-            box-shadow:0 3px 8px rgba(0,0,0,.16);
+            position: absolute;
+            z-index: 6;
+            width: 145px;
+            min-height: 92px;
+            padding: 10px 12px;
+            border-radius: 18px;
+            text-align: center;
+            font-weight: 900;
+            border: 4px solid currentColor;
+            box-shadow: 0 4px 10px rgba(0,0,0,.18);
+            transition: transform .18s, box-shadow .18s, border-color .18s;
         }
-        .player-panel .player-score { font-size:24px; display:block; line-height:1.1; }
-        .player-panel .player-name { font-size:15px; }
-        .p1 { top:12px; left:18px; background:#bfe8ff; color:#24536b; }
-        .p2 { top:12px; right:18px; background:#ffd0df; color:#704052; }
-        .p3 { bottom:12px; left:18px; background:#ffd6a8; color:#75491f; }
-        .p4 { bottom:12px; right:18px; background:#dfcff5; color:#5a4774; }
+
+        .player-panel .player-name {
+            display: block;
+            font-size: 18px;
+            line-height: 1.15;
+        }
+
+        .player-panel .player-score {
+            display: block;
+            margin-top: 5px;
+            font-size: 29px;
+            line-height: 1.05;
+        }
+
+        .p1 { top: 16px; left: 18px; background:#bfe8ff; color:#17618a; }
+        .p2 { top: 16px; right: 18px; background:#ffd0df; color:#b12d68; }
+        .p3 { bottom: 16px; left: 18px; background:#ffd6a8; color:#b65a13; }
+        .p4 { bottom: 16px; right: 18px; background:#dfcff5; color:#7047a0; }
+
         .player-panel.active {
-            outline:4px solid #fff;
-            transform:scale(1.04);
+            transform: scale(1.06);
+            box-shadow: 0 0 0 5px #fff, 0 7px 16px rgba(0,0,0,.24);
         }
 
         .match-table .game-board {
-            position:relative;
-            z-index:2;
-            width:100%;
-            margin:0;
-        }
-        .turn-banner {
-            text-align:center;
-            margin:0 0 10px;
-            font-size:20px;
-            font-weight:bold;
-            color:#5b3d25;
-            min-height:28px;
-        }
-        .winner-list {
-            margin-top:12px;
-            text-align:center;
-            font-size:20px;
-            font-weight:bold;
-            color:#075985;
+            position: relative;
+            z-index: 4;
+            width: 100%;
+            margin: 0 auto;
         }
 
-        @media (max-width: 700px) {
+        .match-table .message {
+            position: relative;
+            z-index: 7;
+        }
+
+        @media (max-width: 900px) {
             .match-table {
-                padding:64px 48px;
-                border-width:7px;
-                border-radius:22px;
+                padding: 76px 105px;
             }
-            .match-table::before { inset:15px; border-radius:15px; }
-            .player-panel { min-width:86px; padding:5px 7px; border-width:2px; }
-            .player-panel .player-score { font-size:20px; }
-            .player-panel .player-name { font-size:12px; }
-            .p1 { top:7px; left:7px; }
-            .p2 { top:7px; right:7px; }
-            .p3 { bottom:7px; left:7px; }
-            .p4 { bottom:7px; right:7px; }
-            .turn-banner { font-size:16px; }
+            .player-panel {
+                width: 112px;
+                min-height: 76px;
+                padding: 7px 8px;
+                border-width: 3px;
+            }
+            .player-panel .player-name { font-size: 15px; }
+            .player-panel .player-score { font-size: 24px; }
+            .p1 { top: 10px; left: 10px; }
+            .p2 { top: 10px; right: 10px; }
+            .p3 { bottom: 10px; left: 10px; }
+            .p4 { bottom: 10px; right: 10px; }
         }
 
         @media (max-width: 700px) {
@@ -364,6 +400,49 @@
                 font-size: 14px;
                 padding: 8px 10px;
             }
+
+
+            .match-table {
+                padding: 66px 58px;
+                border-width: 7px;
+                border-radius: 22px;
+            }
+
+            .match-table::before {
+                inset: 14px;
+                border-radius: 15px;
+            }
+
+            .turn-banner {
+                width: 82%;
+                min-height: 45px;
+                font-size: 18px;
+                border-width: 3px;
+                border-radius: 14px;
+                margin-bottom: 9px;
+            }
+
+            .player-panel {
+                width: 82px;
+                min-height: 62px;
+                padding: 5px;
+                border-width: 2px;
+                border-radius: 12px;
+            }
+
+            .player-panel .player-name {
+                font-size: 12px;
+            }
+
+            .player-panel .player-score {
+                font-size: 20px;
+            }
+
+            .p1 { top: 6px; left: 6px; }
+            .p2 { top: 6px; right: 6px; }
+            .p3 { bottom: 6px; left: 6px; }
+            .p4 { bottom: 6px; right: 6px; }
+
         }
     </style>
 </head>
@@ -381,15 +460,13 @@
                 <option value="3">難度 3：5 × 10</option>
             </select>
 
-            <div class="player-count-wrap">
-                <label for="playerCount">比賽人數：</label>
-                <select id="playerCount">
-                    <option value="1">1 人</option>
-                    <option value="2">2 人</option>
-                    <option value="3">3 人</option>
-                    <option value="4">4 人</option>
-                </select>
-            </div>
+            <label for="playerCount">比賽人數：</label>
+            <select id="playerCount">
+                <option value="1">1 人</option>
+                <option value="2">2 人</option>
+                <option value="3">3 人</option>
+                <option value="4" selected>4 人</option>
+            </select>
 
             <button id="restartButton">重新開始</button>
             <button id="soundButton">🔊 音效開啟</button>
@@ -402,15 +479,27 @@
         </div>
 
         <div class="match-table">
-            <div id="p1Panel" class="player-panel p1"><span class="player-name">玩家 1</span><span class="player-score" id="score1">0</span></div>
-            <div id="p2Panel" class="player-panel p2"><span class="player-name">玩家 2</span><span class="player-score" id="score2">0</span></div>
-            <div id="p3Panel" class="player-panel p3"><span class="player-name">玩家 3</span><span class="player-score" id="score3">0</span></div>
-            <div id="p4Panel" class="player-panel p4"><span class="player-name">玩家 4</span><span class="player-score" id="score4">0</span></div>
+            <div id="p1Panel" class="player-panel p1">
+                <span class="player-name">玩家 1</span>
+                <span>分數 <strong class="player-score" id="score1">0</strong></span>
+            </div>
+            <div id="p2Panel" class="player-panel p2">
+                <span class="player-name">玩家 2</span>
+                <span>分數 <strong class="player-score" id="score2">0</strong></span>
+            </div>
+            <div id="p3Panel" class="player-panel p3">
+                <span class="player-name">玩家 3</span>
+                <span>分數 <strong class="player-score" id="score3">0</strong></span>
+            </div>
+            <div id="p4Panel" class="player-panel p4">
+                <span class="player-name">玩家 4</span>
+                <span>分數 <strong class="player-score" id="score4">0</strong></span>
+            </div>
+
             <div id="turnBanner" class="turn-banner">玩家 1 回合</div>
             <div id="gameBoard" class="game-board"></div>
+            <div id="message" class="message"></div>
         </div>
-
-        <div id="message" class="message"></div>
     </div>
 
     <script>
@@ -535,9 +624,16 @@
         let timer = null;
         let gameFinished = false;
 
-        let playerCount = 1;
+        let playerCount = 4;
         let currentPlayer = 0;
         let playerScores = [0, 0, 0, 0];
+
+        const playerTheme = [
+            { bg: "#bfe8ff", border: "#17618a", text: "#17618a" },
+            { bg: "#ffd0df", border: "#b12d68", text: "#b12d68" },
+            { bg: "#ffd6a8", border: "#b65a13", text: "#b65a13" },
+            { bg: "#dfcff5", border: "#7047a0", text: "#7047a0" }
+        ];
 
         let soundEnabled = true;
         let audioContext = null;
@@ -694,16 +790,21 @@
             return shuffle(cards);
         }
 
-
         function updatePlayersUI() {
             playerPanels.forEach((panel, index) => {
+                const active = index === currentPlayer && index < playerCount && !gameFinished;
                 panel.style.display = index < playerCount ? "block" : "none";
-                panel.classList.toggle("active", index === currentPlayer && !gameFinished);
+                panel.classList.toggle("active", active);
                 scoreTexts[index].textContent = playerScores[index];
             });
-            turnBanner.textContent = playerCount === 1
-                ? "練習模式"
-                : `玩家 ${currentPlayer + 1} 回合`;
+
+            if (!gameFinished) {
+                const theme = playerTheme[currentPlayer];
+                turnBanner.textContent = `玩家 ${currentPlayer + 1} 回合`;
+                turnBanner.style.setProperty("--turn-bg", theme.bg);
+                turnBanner.style.setProperty("--turn-border", theme.border);
+                turnBanner.style.setProperty("--turn-text", theme.text);
+            }
         }
 
         function nextPlayer() {
@@ -712,17 +813,24 @@
             updatePlayersUI();
         }
 
-        function showWinner() {
-            const maxScore = Math.max(...playerScores.slice(0, playerCount));
-            const winners = playerScores
-                .slice(0, playerCount)
-                .map((score, i) => score === maxScore ? `玩家 ${i + 1}` : null)
+        function showFinalScores() {
+            const scores = playerScores.slice(0, playerCount);
+            const max = Math.max(...scores);
+            const winners = scores
+                .map((score, i) => score === max ? `玩家 ${i + 1}` : null)
                 .filter(Boolean);
 
-            const result = winners.length > 1
-                ? `平手：${winners.join("、")}！各 ${maxScore} 分`
-                : `🏆 ${winners[0]} 獲勝！共 ${maxScore} 分`;
-            messageText.textContent = result;
+            if (winners.length > 1) {
+                messageText.textContent = `平手：${winners.join("、")}，各 ${max} 分！`;
+            } else {
+                messageText.textContent = `🏆 ${winners[0]} 獲勝！ ${max} 分`;
+            }
+
+            turnBanner.textContent = "比賽結束";
+            turnBanner.style.setProperty("--turn-bg", "#fff7c2");
+            turnBanner.style.setProperty("--turn-border", "#d4a72c");
+            turnBanner.style.setProperty("--turn-text", "#7a5b00");
+            playerPanels.forEach(panel => panel.classList.remove("active"));
         }
 
         /*
@@ -808,8 +916,12 @@
 
                     messageText.textContent =
                         "時間到！請按重新開始再玩一次。";
+                    gameFinished = true;
                     playerPanels.forEach(panel => panel.classList.remove("active"));
                     turnBanner.textContent = "時間到";
+                    turnBanner.style.setProperty("--turn-bg", "#ffe1e1");
+                    turnBanner.style.setProperty("--turn-border", "#d14b4b");
+                    turnBanner.style.setProperty("--turn-text", "#9b2222");
                 }
             }, 1000);
         }
@@ -841,6 +953,10 @@
             moves++;
             movesText.textContent = moves;
 
+            // 第二張翻開後，本回合已經用完兩次翻牌，鎖住棋盤
+            // 直到判定完成並換下一位玩家。
+            lockBoard = true;
+
             checkMatch();
         }
 
@@ -863,15 +979,23 @@
          * 配對成功處理
          */
         function handleMatch() {
+            /*
+             * 一次回合固定只能翻兩張牌。
+             * 配對成功也不會讓同一位玩家繼續翻，
+             * 完成這一回合後立刻換下一位。
+             */
+            lockBoard = true;
+
             firstCard.classList.add("matched");
             secondCard.classList.add("matched");
 
             matches++;
             matchesText.textContent = matches;
 
-            // 比賽模式：成功配對的玩家取得 1 分
+            // 配對成功：目前玩家 +1 分
             playerScores[currentPlayer]++;
-            scoreTexts[currentPlayer].textContent = playerScores[currentPlayer];
+            scoreTexts[currentPlayer].textContent =
+                playerScores[currentPlayer];
 
             playMatchSound();
 
@@ -881,31 +1005,29 @@
             const setting =
                 difficultySettings[difficulty];
 
-            /*
-             * 先讓圖片停留，
-             * 等待消除動畫完成後再判斷是否完成。
-             */
             setTimeout(() => {
                 if (matches === setting.pairs) {
                     clearInterval(timer);
-
                     gameFinished = true;
 
-                    showWinner();
-                    messageText.textContent += `（總共翻牌 ${moves} 次）`;
+                    showFinalScores();
+                    messageText.textContent +=
+                        `（總共翻牌 ${moves} 次）`;
 
-                    playerPanels.forEach(panel => panel.classList.remove("active"));
-                    turnBanner.textContent = "比賽結束";
                     playWinSound();
+                    resetTurn();
+                } else {
+                    // 不論配對成功或失敗，一回合結束就換人
+                    resetTurn();
+                    nextPlayer();
                 }
-            }, 3200);
-
-            resetTurn();
-            nextPlayer();
+            }, 850);
         }
 
         /*
-         * 配對錯誤，翻回背面
+         * 配對錯誤，翻回背面。
+         * 錯誤也一樣只算目前玩家這一回合，
+         * 翻回去後立即換下一位。
          */
         function unflipCards() {
             lockBoard = true;
@@ -915,7 +1037,6 @@
                 secondCard.classList.remove("flipped");
 
                 resetTurn();
-                // 每次完成一組翻牌（不論配對成功或失敗）都換下一位
                 nextPlayer();
             }, 850);
         }
