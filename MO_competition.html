@@ -915,6 +915,8 @@
                 secondCard.classList.remove("flipped");
 
                 resetTurn();
+                // 每次完成一組翻牌（不論配對成功或失敗）都換下一位
+                nextPlayer();
             }, 850);
         }
 
