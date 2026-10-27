@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>兒童餐廳｜畫筆點餐菜單</title>
+<style>
+:root{--pink:#ff7096;--ink:#593d38;--cream:#fff8ed;--mint:#71d5a5}
+*{box-sizing:border-box}
+body{margin:0;background:#fff7ee;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
+header{position:sticky;top:0;z-index:10;background:#fffaf2ee;backdrop-filter:blur(8px);padding:10px 12px 12px;border-bottom:2px solid #ffe0c5}
+h1{font-size:21px;margin:0 0 8px;text-align:center;color:#f05b82}
+.toolbar{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+button{font:inherit;font-weight:800;border:0;border-radius:14px;padding:10px 14px;background:#ffe08a;color:#634a31;box-shadow:0 3px 0 #e8bd57;touch-action:manipulation}
+button.active{background:#ff7797;color:white;box-shadow:0 3px 0 #dc4e70}
+.hint{text-align:center;font-size:13px;margin:8px 0 0;color:#7e6b5e}
+main{padding:12px;max-width:1100px;margin:auto}
+.board{position:relative;width:100%;margin:auto;background:white;border:3px solid #ffc5d2;border-radius:14px;overflow:hidden;box-shadow:0 5px 0 #f3d9c9;touch-action:none;line-height:0}
+.board img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+footer{text-align:center;font-size:12px;color:#927e70;padding:12px}
+@media(min-width:700px){h1{font-size:25px}main{padding:18px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>兒童餐廳・畫筆點餐菜單</h1>
+  <div class="toolbar">
+    <button id="drawBtn" class="active" type="button">🔴 畫筆圈選</button>
+    <button id="undoBtn" type="button">↩️ 復原上一筆</button>
+    <button id="clearBtn" type="button">🧽 清除全部</button>
+  </div>
+  <p class="hint">用手指或觸控筆圈起想點的餐點，再用實體計算機算總價。</p>
+</header>
+<main>
+  <div class="board" id="board">
+    <img id="menu" src="images/menu.jpg" alt="兒童餐廳完整菜單">
+    <canvas id="ink" aria-label="在菜單上圈選餐點"></canvas>
+  </div>
+</main>
+<footer>圈選只會畫在螢幕上，不會修改原始菜單圖片。</footer>
+<script>
+const canvas=document.getElementById('ink');
+const board=document.getElementById('board');
+const img=document.getElementById('menu');
+const ctx=canvas.getContext('2d');
+let drawing=false, current=null, strokes=[], mode='draw';
+
+function resizeCanvas(){
+  const rect=board.getBoundingClientRect();
+  const dpr=Math.max(1,window.devicePixelRatio||1);
+  canvas.width=Math.round(rect.width*dpr);
+  canvas.height=Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  redraw();
+}
+function point(e){
+  const r=canvas.getBoundingClientRect();
+  return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+function redraw(){
+  const r=canvas.getBoundingClientRect();
+  ctx.clearRect(0,0,r.width,r.height);
+  ctx.lineCap='round';ctx.lineJoin='round';
+  for(const s of strokes){
+    if(s.points.length<1)continue;
+    ctx.beginPath();ctx.strokeStyle=s.color;ctx.lineWidth=s.width;
+    ctx.moveTo(s.points[0].x,s.points[0].y);
+    for(let i=1;i<s.points.length;i++)ctx.lineTo(s.points[i].x,s.points[i].y);
+    if(s.points.length===1)ctx.lineTo(s.points[0].x+0.1,s.points[0].y+0.1);
+    ctx.stroke();
+  }
+  if(current){
+    ctx.beginPath();ctx.strokeStyle=current.color;ctx.lineWidth=current.width;
+    ctx.moveTo(current.points[0].x,current.points[0].y);
+    for(let i=1;i<current.points.length;i++)ctx.lineTo(current.points[i].x,current.points[i].y);
+    ctx.stroke();
+  }
+}
+canvas.addEventListener('pointerdown',e=>{
+  if(mode!=='draw')return;
+  e.preventDefault();canvas.setPointerCapture(e.pointerId);
+  drawing=true;const p=point(e);
+  current={color:'#f01842',width:Math.max(4,canvas.clientWidth/180),points:[p]};
+  redraw();
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!drawing||!current)return;e.preventDefault();
+  current.points.push(point(e));redraw();
+});
+function finish(e){
+  if(!drawing)return;drawing=false;
+  if(current)strokes.push(current);current=null;redraw();
+}
+canvas.addEventListener('pointerup',finish);
+canvas.addEventListener('pointercancel',finish);
+document.getElementById('undoBtn').addEventListener('click',()=>{strokes.pop();redraw();});
+document.getElementById('clearBtn').addEventListener('click',()=>{strokes=[];current=null;redraw();});
+document.getElementById('drawBtn').addEventListener('click',()=>{
+  mode='draw';document.getElementById('drawBtn').classList.add('active');
+});
+img.addEventListener('load',resizeCanvas);
+window.addEventListener('resize',resizeCanvas);
+if(img.complete)resizeCanvas();
+</script>
+</body>
+</html>
