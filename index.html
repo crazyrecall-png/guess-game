@@ -27,6 +27,38 @@
             width: 100%;
         }
 
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .refresh-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.15rem;
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: #ffffff;
+            border: 1px solid rgba(125, 211, 252, 0.6);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.2);
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.12);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
         header {
             text-align: center;
             margin-bottom: 2.5rem;
@@ -116,6 +148,7 @@
             color: #94a3b8;
             margin-top: 0.3rem;
             font-family: monospace;
+            overflow-wrap: anywhere;
         }
 
         .card-btn:hover .card-sub {
@@ -129,15 +162,44 @@
             font-size: 0.85rem;
             text-align: center;
         }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 1.25rem 0.75rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .top-actions {
+                justify-content: center;
+            }
+
+            .refresh-btn {
+                width: 100%;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-                 <a href="https://github.com/crazyrecall-png/guess-game/tree/main" class="card-btn">
-                <div class="card-title">⚠️ 管理頁面 ⚠️</div>
-                <div class="card-sub">https://github.com/crazyrecall-png/guess-game/tree/main</div>
-            </a>
+        <div class="top-actions">
+            <button class="refresh-btn" type="button" onclick="window.location.reload()">
+                🔄 重新整理
+            </button>
+        </div>
+
+        <a href="https://github.com/crazyrecall-png/guess-game/tree/main" class="card-btn">
+            <div class="card-title">⚠️ 管理頁面 ⚠️</div>
+            <div class="card-sub">https://github.com/crazyrecall-png/guess-game/tree/main</div>
+        </a>
+
         <header>
             <h1>🎮 遊戲大廳 Portal</h1>
             <p class="subtitle">請選擇你要進行的遊戲或功能：</p>
@@ -194,10 +256,10 @@
                 <div class="card-title">⭐ 海洋生物</div>
                 <div class="card-sub">MO.html</div>
             </a>
-               <a href="TO.html" class="card-btn">
+            <a href="TO.html" class="card-btn">
                 <div class="card-title">⭐ 陸地生物</div>
                 <div class="card-sub">TO.html</div>
-            </a>      
+            </a>
         </div>
 
         <!-- Rich 大富翁/計數系列 -->
