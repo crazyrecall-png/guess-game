@@ -65,7 +65,7 @@ h1,h2,h3,p{margin-top:0}h1{font-size:25px;margin-bottom:7px}h2{font-size:19px;ma
 </style>
 </head>
 <body>
-<header><div class="brand"><span class="logo">🧭</span><span>知識冒險大富翁 <small>v2.6 試玩版</small></span></div><button class="small" onclick="showPage('settings')">⚙️ 大人管理</button></header>
+<header><div class="brand"><span class="logo">🧭</span><span>知識冒險大富翁 <small>v2.8 試玩版</small></span></div><button class="small" onclick="showPage('settings')">⚙️ 大人管理</button></header>
 <main>
 <nav class="tabs">
 <button class="active" data-page="home" onclick="showPage('home')">🏠 遊戲大廳</button>
@@ -300,7 +300,8 @@ function renderGame(){
 function setActive(i){state.active=i;save();renderGame();renderBuild()}
 
 
-function speakText(text,lang='zh-TW'){
+function speakEnglishQuiz(q,target){if(!('speechSynthesis' in window))return;try{const synth=window.speechSynthesis;synth.cancel();const say=(text,lang)=>{if(!text)return;const u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=.88;u.pitch=1.05;synth.speak(u)};say(q.q,'zh-TW');if(target)say(target.en,'en-US');say('選項：'+q.a.join('、'),'zh-TW');}catch(e){}}
+ function speakText(text,lang='zh-TW'){
  if(!('speechSynthesis' in window))return;
  try{window.speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=.88;u.pitch=1.05;window.speechSynthesis.speak(u)}catch(e){}
 }
@@ -403,7 +404,7 @@ function openQuiz(type){
  $('quizType').textContent=({science:'🌱 自然科學',math:(state.settings.mathAgeProfile==='three'?'🐠 3歲數字數學':'➕ 5歲數學'),english:'🔤 365天英文',logic:'🧠 成人邏輯'})[type];
  $('question').textContent=q.q;$('answers').innerHTML=q.a.map((a,i)=>`<button class="answer" onclick="answerQuiz(${i})">${type==='math'?'':(i+1)+'. '}${esc(a)}</button>`).join('');
  $('quizFeedback').classList.add('hidden');$('quizFeedback').textContent='';$('quizDone').disabled=true;$('quizModal').classList.add('show');playSound('question');
- timeLeft=Number(s[type+'Time']||20);$('timer').textContent=timeLeft;if(type==='english'){const en=(english365[Math.max(0,Math.min(364,(Number(s.englishDay)||1)-1))]||{}).words||[];const target=en.find(w=>q.q.includes(w.en));if(target)speakText(target.en,'en-US');else speakText(q.q,'zh-TW');}else if(type==='science'||type==='math')speakText(q.q+'。選項一：'+q.a[0]+'。選項二：'+q.a[1]+'。選項三：'+q.a[2],'zh-TW');
+ timeLeft=Number(s[type+'Time']||20);$('timer').textContent=timeLeft;if(type==='english'){const en=(english365[Math.max(0,Math.min(364,(Number(s.englishDay)||1)-1))]||{}).words||[];const target=en.find(w=>q.q.includes(w.en));speakEnglishQuiz(q,target);}else if(type==='science'){speakText(q.q+'。選項一：'+q.a[0]+'。選項二：'+q.a[1]+'。選項三：'+q.a[2],'zh-TW');}else if(type==='math'){speakText(q.q,'zh-TW');}
  clearInterval(timerHandle);timerHandle=setInterval(()=>{timeLeft--;$('timer').textContent=timeLeft;if(timeLeft<=0){clearInterval(timerHandle);timeoutQuiz()}},1000);
 }
 function answerQuiz(i){if(!currentQuiz||currentQuiz.answered)return;currentQuiz.answered=true;clearInterval(timerHandle);let q=currentQuiz.q,correct=i===q.c;currentQuiz.correct=correct;let btns=[...$('answers').children];btns[q.c].classList.add('correct');if(!correct)btns[i].classList.add('wrong');let p=state.players.find(x=>x.id===currentQuiz.playerId);let total=0;playSound(correct?'correct':'wrong');if(correct){let base={簡單:10,普通:20,困難:30,專家:40};let diff=p.difficulty[currentQuiz.type]||'簡單';if(currentQuiz.type==='science')diff=state.settings.scienceLevel;let seconds=Number(state.settings[currentQuiz.type+'Time']||20);let ratio=timeLeft/seconds;let speed=ratio>=.7?10:ratio>=.4?5:0;total=(base[diff]||10)+speed;p.coins+=total;}
