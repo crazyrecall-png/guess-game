@@ -185,7 +185,7 @@ h1,h2,h3,p{margin-top:0}h1{font-size:25px;margin-bottom:7px}h2{font-size:19px;ma
 <div class="modal" id="quizModal"><div class="dialog">
 <div class="row between"><span class="pill" id="quizType">挑戰</span><span class="timer" id="timer">20</span></div>
 <h2 id="question">題目</h2><div id="answers"></div><div id="quizFeedback" class="notice hidden"></div>
-<div class="row between" style="margin-top:12px"><button class="small" onclick="revealAnswer()">看解答</button><button class="primary" id="quizDone" onclick="closeQuiz()" disabled>完成挑戰</button></div>
+<div class="row between" style="margin-top:12px;flex-wrap:wrap"><button class="small" onclick="speakCurrentQuiz()">🔊 重新唸一次</button><button class="small" onclick="revealAnswer()">看解答</button><button class="primary" id="quizDone" onclick="closeQuiz()" disabled>完成挑戰</button></div>
 </div></div>
 <div class="modal" id="eventModal"><div class="dialog">
 <div class="row between"><span class="pill">💛 品德小故事</span><span class="tiny">隨機事件</span></div>
@@ -238,6 +238,51 @@ const questions={
   {q:'小明比小華高，小華比小美高，誰最高？',a:['小明','小華','小美'],c:0,ex:'小明比小華高，小華又比小美高，所以小明最高。'},
   {q:'哪個和其他三個不同類？',a:['蘋果','香蕉','胡蘿蔔'],c:2,ex:'胡蘿蔔是根莖類蔬菜，其他是水果。'},
   {q:'一週有 7 天，兩週有幾天？',a:['12','14','16'],c:1,ex:'7 × 2 = 14。'}
+ ]
+};
+
+
+// 成人邏輯分級題庫：依玩家在管理中心設定的難度抽題，避免所有難度共用同一組簡單題。
+const logicQuestionBank = {
+ "簡單": [
+  {q:"找規律：3、6、9、12，下一個數字是？",a:["13","15","18"],c:1,ex:"每次增加 3，所以下一個數字是 15。"},
+  {q:"小安比小美早到，小美比小傑早到，誰最晚到？",a:["小安","小美","小傑"],c:2,ex:"小安早於小美，小美早於小傑，因此小傑最晚。"},
+  {q:"四個季節依序是春、夏、秋，下一個是？",a:["冬","春","雨季"],c:0,ex:"四季循環依序為春、夏、秋、冬。"},
+  {q:"有 5 個人，每人有 2 隻手，總共有幾隻手？",a:["7","10","12"],c:1,ex:"5 × 2 = 10 隻手。"},
+  {q:"哪個數字不符合規律：2、4、6、9、10？",a:["4","6","9"],c:2,ex:"其他數字都是偶數，9 是奇數。"},
+  {q:"盒子裡有紅球 2 顆、藍球 3 顆，共有幾顆？",a:["5","6","7"],c:0,ex:"2 + 3 = 5 顆。"},
+  {q:"今天是星期二，三天後是星期幾？",a:["星期四","星期五","星期六"],c:1,ex:"星期二往後三天是星期五。"},
+  {q:"所有貓都是動物；小花是一隻貓。可以確定小花是什麼？",a:["植物","動物","昆蟲"],c:1,ex:"既然所有貓都是動物，小花是貓就必定是動物。"}
+ ],
+ "普通": [
+  {q:"找規律：2、5、11、23，下一個數字是？",a:["35","46","47"],c:2,ex:"每一步都是乘以 2 再加 1，因此 23 × 2 + 1 = 47。"},
+  {q:"甲比乙快，丙比甲慢但比乙快，三人的速度由快到慢如何排列？",a:["甲、丙、乙","丙、甲、乙","乙、丙、甲"],c:0,ex:"甲快於丙，丙快於乙，所以甲、丙、乙。"},
+  {q:"一個數乘以 3 再減 4 得 17，原本的數字是多少？",a:["6","7","8"],c:1,ex:"反向計算：(17 + 4) ÷ 3 = 7。"},
+  {q:"有 3 個開關在房外，只能進房間查看燈泡一次，如何辨認哪個開關控制燈泡？",a:["只快速切換三個開關","利用燈泡亮度與溫度判斷","同時打開全部開關"],c:1,ex:"先讓一個開關開一段時間再關掉，打開另一個後進房；亮、熱、冷可區分三種狀態。"},
+  {q:"若所有 A 都是 B，且沒有 B 是 C，以下哪項必定成立？",a:["所有 A 都不是 C","所有 C 都是 A","部分 A 一定是 C"],c:0,ex:"A 完全包含在 B，而 B 與 C 沒有交集，因此 A 不可能是 C。"},
+  {q:"一場比賽有 8 隊，採單淘汰制且沒有季軍賽，決出冠軍需要幾場？",a:["7 場","8 場","9 場"],c:0,ex:"每場淘汰一隊，8 隊要剩 1 隊需淘汰 7 隊，因此共 7 場。"},
+  {q:"數列 1、1、2、3、5、8，下一個數字是？",a:["11","13","16"],c:1,ex:"每一項是前兩項相加，5 + 8 = 13。"},
+  {q:"若今天不是星期一，也不是星期三；明天是星期五，今天是星期幾？",a:["星期四","星期五","星期六"],c:0,ex:"明天星期五，今天只能是星期四。"}
+ ],
+ "困難": [
+  {q:"數列 4、7、13、25、49，下一個數字是？",a:["95","97","99"],c:1,ex:"相鄰差為 3、6、12、24，差距每次加倍，下一差為 48；49 + 48 = 97。"},
+  {q:"三人中只有一人說真話。甲說「乙說謊」，乙說「丙說謊」，丙說「甲和乙都說謊」。誰說真話？",a:["甲","乙","丙"],c:1,ex:"若乙真，則丙假；甲所說乙說謊為假，恰好只有乙一人說真話。"},
+  {q:"一個兩位數，十位數是個位數的 2 倍，兩位數的數字和為 9。這個數是？",a:["36","63","72"],c:0,ex:"個位數為 3、十位數為 6，符合 6 = 2 × 3 且 6 + 3 = 9。"},
+  {q:"A、B、C、D 排成一列。A 不在兩端，B 在 A 左邊，D 在 C 右邊。以下哪個排列符合條件？",a:["B、A、C、D","A、B、C、D","C、A、B、D"],c:0,ex:"B 在 A 左邊、A 不在兩端，且 D 在 C 右邊，只有 B、A、C、D 符合。"},
+  {q:"若 5 台機器 5 分鐘製造 5 件產品，100 台相同機器製造 100 件產品需要多久？",a:["5 分鐘","20 分鐘","100 分鐘"],c:0,ex:"每台機器 5 分鐘製造 1 件，100 台同時工作仍只需 5 分鐘。"},
+  {q:"一個水桶裝滿水重 10 公斤，裝半桶水時重 6 公斤。空桶重多少公斤？",a:["1 公斤","2 公斤","4 公斤"],c:1,ex:"半桶水重 4 公斤，因此滿桶水重 8 公斤，空桶重 10 − 8 = 2 公斤。"},
+  {q:"若所有研究員都會閱讀資料，部分會閱讀資料的人會寫程式。能否必然推出部分研究員會寫程式？",a:["可以","不可以","必定全部會"],c:1,ex:"會寫程式的人可能都不是研究員，現有條件不足以推出研究員會寫程式。"},
+  {q:"時鐘在 3 點 15 分時，時針與分針的較小夾角約為幾度？",a:["0 度","7.5 度","15 度"],c:1,ex:"分針在 90 度；時針走到 97.5 度，夾角是 7.5 度。"}
+ ],
+ "專家": [
+  {q:"數列 2、3、5、9、17、33，下一個數字是？",a:["49","57","65"],c:2,ex:"每一步乘以 2 再減 1：33 × 2 − 1 = 65。"},
+  {q:"三個盒子標示「蘋果」、「橘子」、「混合」，但三個標籤全錯。只拿出一個水果，應從哪個盒子拿，才能確定全部內容？",a:["標示蘋果的盒子","標示橘子的盒子","標示混合的盒子"],c:2,ex:"從標示混合的盒子取出，因標籤必錯，它必定只裝一種水果，再依序推得另外兩盒。"},
+  {q:"有 100 扇關閉的門。第 1 人切換每一扇，第 2 人切換每 2 扇，第 3 人切換每 3 扇，依此類推到第 100 人。最後哪些門會開？",a:["編號為質數的門","編號為完全平方數的門","編號為偶數的門"],c:1,ex:"只有因數個數為奇數的門會保持開啟；只有完全平方數的正因數個數為奇數。"},
+  {q:"若今天距離星期日還有 10 天，今天是星期幾？",a:["星期三","星期四","星期五"],c:0,ex:"10 天後是星期日，倒推 10 天為星期三。"},
+  {q:"某密碼由三個不同數字組成。線索：682 有一個數字正確且位置正確；614 有一個數字正確但位置錯誤；206 有兩個數字正確但位置都錯；738 全部錯；780 有一個數字正確但位置錯。密碼是？",a:["042","204","420"],c:0,ex:"738 排除 7、3、8；780 表示 0 在密碼但不在第 3 位；206 的 0、2 正確但位置錯，結合 682 與 614 可得 0、4、2。"},
+  {q:"一枚硬幣連續擲出 5 次正面後，第 6 次擲出正面的機率是多少？假設硬幣公平且每次獨立。",a:["1/2","1/6","6/7"],c:0,ex:"每次擲硬幣彼此獨立，先前結果不改變下一次的機率。"},
+  {q:"若命題「若 P 則 Q」為假，以下哪種情況必定發生？",a:["P 真且 Q 假","P 假且 Q 真","P 與 Q 都真"],c:0,ex:"條件命題只有在前件 P 為真、後件 Q 為假時才為假。"},
+  {q:"一條繩子從中間剪一刀，再把其中一段對折後剪一刀，最後最多可得到幾段？",a:["3 段","4 段","5 段"],c:2,ex:"第一次剪成兩段；取其中一段對折剪開，該段可分成三段，加上另一段共四段。"}
  ]
 };
 
@@ -305,6 +350,19 @@ function setActive(i){state.active=i;save();renderGame();renderBuild()}
 
 
 function speakEnglishQuiz(q,target){if(!('speechSynthesis' in window))return;try{const synth=window.speechSynthesis;synth.cancel();const say=(text,lang)=>{if(!text)return;const u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=.88;u.pitch=1.05;synth.speak(u)};say(q.q,'zh-TW');if(target)say(target.en,'en-US');say('選項：'+q.a.join('、'),'zh-TW');}catch(e){}}
+// 朗讀規則：數學只唸題目；其他題型唸題目與全部選項。
+function speakCurrentQuiz(){
+ if(!currentQuiz||!('speechSynthesis' in window))return;
+ const {type,q}=currentQuiz;
+ if(type==='english'){
+  const words=(english365[Math.max(0,Math.min(364,(Number(state.settings.englishDay)||1)-1))]||{}).words||[];
+  const target=words.find(w=>q.q.includes(w.en));
+  speakEnglishQuiz(q,target);
+  return;
+ }
+ const text=type==='math'?q.q:`${q.q}。選項：${(q.a||[]).map((a,i)=>`${i+1}，${a}`).join('。')}`;
+ speakText(text,'zh-TW');
+}
  function speakText(text,lang='zh-TW'){
  if(!('speechSynthesis' in window))return;
  try{window.speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=.88;u.pitch=1.05;window.speechSynthesis.speak(u)}catch(e){}
@@ -398,7 +456,9 @@ function openQuiz(type){
  if(p.type==='adult'&&type!=='science'&&type!=='logic'&&!s.enableLogic)type='science';
  let scienceLevel = (p.difficulty&&p.difficulty.science) || s.scienceLevel || '簡單';
  if(!['簡單','普通','困難','專家'].includes(scienceLevel))scienceLevel='簡單';
- let pool = type==='science' ? (scienceQuestionBank[scienceLevel]||scienceQuestionBank['簡單']) : (questions[type]||questions.science);
+ let logicLevel=(p.difficulty&&p.difficulty.logic)||'普通';
+ if(!['簡單','普通','困難','專家'].includes(logicLevel))logicLevel='普通';
+ let pool = type==='science' ? (scienceQuestionBank[scienceLevel]||scienceQuestionBank['簡單']) : type==='logic' ? (logicQuestionBank[logicLevel]||logicQuestionBank['普通']) : (questions[type]||questions.science);
  let q;
  if(type==='english'){
    const day=Math.max(1,Math.min(365,Number(s.englishDay)||1)), lesson=english365[day-1]||english365[0];
@@ -412,11 +472,11 @@ function openQuiz(type){
      if(prob){const ans=Number(prob.ans),opts=[ans,ans+1,Math.max(0,ans-1)].sort(()=>Math.random()-.5);q={q:`5歲數學課程｜第 ${day} 天：${prob.expr} = ?`,a:opts.map(String),c:opts.indexOf(ans),ex:`${prob.expr} = ${ans}。課程階段：${lesson.stage5||''}`};}
    }
  }
- if(!q)q=pickNoRepeat(type==='science'?'science:v3:'+p.id+':'+scienceLevel:'quiz:'+type+':'+(p.difficulty?.[type]||'default'),pool)||pool[0];currentQuiz={type,q,playerId:p.id,answered:false,correct:false,difficulty:type==='science'?scienceLevel:(p.difficulty?.[type]||'簡單')};quizResolved=false;
- $('quizType').textContent=({science:'🌱 自然科學｜'+scienceLevel,math:(state.settings.mathAgeProfile==='three'?'🐠 3歲數字數學':'➕ 5歲數學'),english:'🔤 365天英文',logic:'🧠 成人邏輯'})[type];
+ if(!q)q=pickNoRepeat(type==='science'?'science:v3:'+p.id+':'+scienceLevel:type==='logic'?'logic:v1:'+p.id+':'+logicLevel:'quiz:'+type+':'+(p.difficulty?.[type]||'default'),pool)||pool[0];currentQuiz={type,q,playerId:p.id,answered:false,correct:false,difficulty:type==='science'?scienceLevel:type==='logic'?logicLevel:(p.difficulty?.[type]||'簡單')};quizResolved=false;
+ $('quizType').textContent=({science:'🌱 自然科學｜'+scienceLevel,math:(state.settings.mathAgeProfile==='three'?'🐠 3歲數字數學':'➕ 5歲數學'),english:'🔤 365天英文',logic:'🧠 成人邏輯｜'+logicLevel})[type];
  $('question').textContent=q.q;$('answers').innerHTML=q.a.map((a,i)=>`<button class="answer" onclick="answerQuiz(${i})">${type==='math'?'':(i+1)+'. '}${esc(a)}</button>`).join('');
  $('quizFeedback').classList.add('hidden');$('quizFeedback').textContent='';$('quizDone').disabled=true;$('quizModal').classList.add('show');playSound('question');
- timeLeft=Number(s[type+'Time']||20);$('timer').textContent=timeLeft;if(type==='english'){const en=(english365[Math.max(0,Math.min(364,(Number(s.englishDay)||1)-1))]||{}).words||[];const target=en.find(w=>q.q.includes(w.en));speakEnglishQuiz(q,target);}else if(type==='science'){speakText(q.q,'zh-TW');}else if(type==='math'){speakText(q.q,'zh-TW');}
+ timeLeft=Number(s[type+'Time']||20);$('timer').textContent=timeLeft;speakCurrentQuiz();
  clearInterval(timerHandle);timerHandle=setInterval(()=>{timeLeft--;$('timer').textContent=timeLeft;if(timeLeft<=0){clearInterval(timerHandle);timeoutQuiz()}},1000);
 }
 function answerQuiz(i){if(!currentQuiz||currentQuiz.answered)return;currentQuiz.answered=true;clearInterval(timerHandle);let q=currentQuiz.q,correct=i===q.c;currentQuiz.correct=correct;let btns=[...$('answers').children];btns[q.c].classList.add('correct');if(!correct)btns[i].classList.add('wrong');let p=state.players.find(x=>x.id===currentQuiz.playerId);let total=0;playSound(correct?'correct':'wrong');if(correct){let base={簡單:10,普通:20,困難:30,專家:40};let diff=currentQuiz.difficulty||p.difficulty[currentQuiz.type]||'簡單';let seconds=Number(state.settings[currentQuiz.type+'Time']||20);let ratio=timeLeft/seconds;let speed=ratio>=.7?10:ratio>=.4?5:0;total=(base[diff]||10)+speed;p.coins+=total;}
