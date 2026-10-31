@@ -170,7 +170,7 @@ h1,h2,h3,p{margin-top:0}h1{font-size:25px;margin-bottom:7px}h2{font-size:19px;ma
 <div class="row" style="margin-top:12px"><button class="danger" onclick="resetGame()">重置整場遊戲</button></div>
 </div>
 </section>
-<div class="footer-note">知識冒險大富翁 v2.3 · 資料儲存在目前裝置的瀏覽器中</div>
+<div class="footer-note">知識冒險大富翁 v2.4 · 資料儲存在目前裝置的瀏覽器中</div>
 </main>
 
 <div class="modal" id="completionModal"><div class="dialog completion-dialog">
@@ -262,7 +262,7 @@ function migrateDefaultBlueprints(){
  });
  ensureBlueprintNumbers();
 }
-function load(){try{let s=JSON.parse(localStorage.getItem('knowledgeAdventureV1'));if(s&&s.players&&s.blueprints)state={...state,...s}}catch(e){}migrateDefaultBlueprints();save();}
+function load(){try{let s=JSON.parse(localStorage.getItem('knowledgeAdventureV1'));if(s&&s.players&&s.blueprints)state={...state,...s}}catch(e){}if(!state.settings)state.settings={};state.settings.completionVideoFolder=safeVideoFolder(state.settings.completionVideoFolder||'videos');migrateDefaultBlueprints();save();}
 function showPage(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));if(id==='game')renderGame();if(id==='build')renderBuild();if(id==='settings')renderSettings();if(id==='home')renderHome();window.scrollTo(0,0)}
 function current(){return state.players[state.active]||state.players[0]}
 function getBp(p){return state.blueprints.find(b=>b.id===p.bp)||state.blueprints[0]}
@@ -470,11 +470,16 @@ function renderBuild(){
 }
 function buyPart(i){let p=current(),bp=getBp(p),part=bp.parts[i];if(p.owned.includes(i))return;if(p.coins<part[2])return alert('金幣不足，繼續冒險賺取金幣吧！');p.coins-=part[2];p.owned.push(i);save();renderBuild();renderGame();if(p.owned.length===bp.parts.length){setTimeout(()=>showCompletion(bp),180)}}
 function safeVideoFolder(value){
- let v=String(value||'videos').trim().replace(/[\\\\/]/g,'').replace(/[^\\w一-龥.-]/g,'_');
- return v||'videos';
+ // 舊版可能把英文字母錯誤轉成底線；純底線一律還原為預設資料夾。
+ let raw=String(value==null?'videos':value).trim();
+ if(!raw || /^_+$/.test(raw)) return 'videos';
+ let v=raw.replace(/[\\/]/g,'').replace(/[^A-Za-z0-9_\u4e00-\u9fff.-]/g,'_');
+ if(!v || /^_+$/.test(v)) return 'videos';
+ return v;
 }
 function videoRelativePath(bp){
  let folder=safeVideoFolder(state.settings.completionVideoFolder||'videos');
+ if(state.settings.completionVideoFolder!==folder){state.settings.completionVideoFolder=folder;save();}
  return folder+'/'+(Number(bp&&bp.number)||1)+'.MP4';
 }
 function saveCompletionVideoSettings(){
