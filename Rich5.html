@@ -146,13 +146,13 @@ h1,h2,h3,p{margin-top:0}h1{font-size:25px;margin-bottom:7px}h2{font-size:19px;ma
 </div>
 <div class="panel">
 <h2>通關影片設定</h2>
-<p class="tiny">影片依設計圖編號自動對應：編號 1 播放 1.mp4、編號 2 播放 2.mp4。影片放在遊戲資料夾內的 videos 子資料夾。</p>
+<p class="tiny">影片依設計圖編號自動對應：編號 1 播放 1.MP4、編號 2 播放 2.MP4。影片放在遊戲資料夾內的 videos 子資料夾。</p>
 <div class="grid">
 <div class="field"><label>影片資料夾名稱</label><input id="completionVideoFolder" value="videos"></div>
 <div class="field"><label>通關視窗標題</label><input id="completionVideoTitle" value="作品完成"></div>
 </div>
 <button class="primary" onclick="saveCompletionVideoSettings()">儲存影片設定</button>
-<div class="tiny">檔名規則：設計圖數字編號.mp4</div>
+<div class="tiny">檔名規則：設計圖數字編號.MP4</div>
 </div>
 <div class="panel">
 <h2>玩家個別難度</h2><div id="playerSettings"></div>
@@ -170,7 +170,7 @@ h1,h2,h3,p{margin-top:0}h1{font-size:25px;margin-bottom:7px}h2{font-size:19px;ma
 <div class="row" style="margin-top:12px"><button class="danger" onclick="resetGame()">重置整場遊戲</button></div>
 </div>
 </section>
-<div class="footer-note">知識冒險大富翁 v2.1 · 資料儲存在目前裝置的瀏覽器中</div>
+<div class="footer-note">知識冒險大富翁 v2.3 · 資料儲存在目前裝置的瀏覽器中</div>
 </main>
 
 <div class="modal" id="completionModal"><div class="dialog completion-dialog">
@@ -475,7 +475,7 @@ function safeVideoFolder(value){
 }
 function videoRelativePath(bp){
  let folder=safeVideoFolder(state.settings.completionVideoFolder||'videos');
- return folder+'/'+(Number(bp&&bp.number)||1)+'.mp4';
+ return folder+'/'+(Number(bp&&bp.number)||1)+'.MP4';
 }
 function saveCompletionVideoSettings(){
  state.settings.completionVideoFolder=safeVideoFolder($('completionVideoFolder').value);
