@@ -65,7 +65,7 @@ h1,h2,h3,p{margin-top:0}h1{font-size:25px;margin-bottom:7px}h2{font-size:19px;ma
 </style>
 </head>
 <body>
-<header><div class="brand"><span class="logo">🧭</span><span>知識冒險大富翁 <small>v1.0 試玩版</small></span></div><button class="small" onclick="showPage('settings')">⚙️ 大人管理</button></header>
+<header><div class="brand"><span class="logo">🧭</span><span>知識冒險大富翁 <small>v2.5 試玩版</small></span></div><button class="small" onclick="showPage('settings')">⚙️ 大人管理</button></header>
 <main>
 <nav class="tabs">
 <button class="active" data-page="home" onclick="showPage('home')">🏠 遊戲大廳</button>
@@ -456,9 +456,15 @@ function showCompletion(bp){
  $('completionTitle').textContent='🎉 '+bp.name+' 完成挑戰！';
  $('completionText').textContent='太棒了！你收集齊所有零件，完成了自己的 '+bp.name+'！';
  const videoPath=videoRelativePath(bp);
- $('completionAnimation').innerHTML=`<video class="completion-video" src="${videoPath}" autoplay playsinline controls preload="auto"></video>`;
+ $('completionAnimation').innerHTML=`<video class="completion-video" src="${videoPath}" autoplay muted loop playsinline controls preload="auto"></video>`;
  $('completionTitle').textContent='🎉 '+(state.settings.completionVideoTitle||bp.name+' 完成！');
  const video=$('completionAnimation').querySelector('video');
+ // iOS Safari 通常只允許靜音自動播放；靜音循環播放，控制列仍可自行開啟聲音。
+ video.muted=true;
+ video.loop=true;
+ video.playsInline=true;
+ const startPlayback=video.play();
+ if(startPlayback && typeof startPlayback.catch==='function') startPlayback.catch(()=>{});
  video.addEventListener('error',()=>{$('completionAnimation').innerHTML=completionScene(bp);$('completionText').textContent='找不到影片：'+videoPath+'。請確認檔名與資料夾；目前顯示預設動畫。';},{once:true});
  $('completionModal').classList.add('show');playSound('correct');speakText('恭喜你！'+bp.name+'完成挑戰！');
 }
